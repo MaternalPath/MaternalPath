@@ -1,6 +1,6 @@
 require('dotenv').config()
 
-const DB_Name = process.env.DB_NAME;
+const DB_Name = process.env.DB_DATABASE;
 const username = process.env.DB_USERNAME;
 const password = process.env.DB_PASSWORD;
 const host = process.env.DB_HOST;
