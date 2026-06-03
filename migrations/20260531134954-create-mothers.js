@@ -9,6 +9,16 @@ module.exports = {
                 type: Sequelize.UUID,
                 defaultValue: Sequelize.UUIDV4
               },
+              hospitalId: {
+              allowNull: false,
+              type: Sequelize.UUID,
+              references: {
+                model: "hospitals",
+                key: "id",
+              },
+              onDelete: "CASCADE",
+              onUpdate: "CASCADE",
+             },
             firstName: {
                 type: Sequelize.STRING,
                 allowNull: false
@@ -30,22 +40,74 @@ module.exports = {
                 type: Sequelize.STRING,
                 allowNull: false
               },
-            edd: {
+            dateOfBirth: {
+                type: Sequelize.STRING,
+              },
+            estimatedDueDate: {
+                type: Sequelize.STRING
+              },
+            trimester: {
+                type: Sequelize.STRING
+              },
+            bloodType: {
+                type: Sequelize.STRING
+              },
+            existingHealthConditions: {
+                type: Sequelize.STRING
+              },
+            allergies: {
                 type: Sequelize.STRING
               },
             amount: {
                 type: Sequelize.INTEGER
              },
+            currentPregnancyWeek: {
+                type: Sequelize.INTEGER
+             },
+            emergencyContact: {
+                type: Sequelize.STRING
+             },
+            selectedHospital: {
+                type: Sequelize.STRING
+             },
+            hospitalAddress: {
+                type: Sequelize.STRING
+             },
+            hospitalContact: {
+                type: Sequelize.STRING
+             },
+            estimatedDeliveryCost: {
+                type: Sequelize.STRING
+             },
+            savingsGoalAmount: {
+                type: Sequelize.STRING
+             },
+            address: {
+                type: Sequelize.STRING
+             },
+            currentBalance: {
+                type: Sequelize.STRING
+             },
+            weeklyContribution: {
+                type: Sequelize.STRING
+             },
+            linkedPaymentMethod: {
+                type: Sequelize.STRING
+             },
              otp: {
-                type: Sequelize.STRING,
-              },
-              otpExpiresAt: {
-                  type: Sequelize.DATE,
-              },
-              isVerified: {
-                  type: Sequelize.BOOLEAN,
-                  default: false
-              },  
+                type: Sequelize.STRING
+            },
+            otpExpiresAt: {
+                type: Sequelize.DATE,
+            },
+            isVerified: {
+                type: Sequelize.BOOLEAN,
+                defaultValue: false
+            },
+            isUpdated: {
+                type: Sequelize.BOOLEAN,
+                defaultValue: false
+            },
             createdAt: {
                 type: Sequelize.DATE,
                 allowNull: false

@@ -11,6 +11,16 @@ class Mother extends Model {}
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4
       },
+    hospitalId: {
+      allowNull: false,
+      type: DataTypes.UUID,
+      references: {
+        model: "hospitals",
+        key: "id",
+      },
+      onDelete: "CASCADE",
+      onUpdate: "CASCADE",
+     },
     firstName: {
         type: DataTypes.STRING,
         allowNull: false
@@ -32,21 +42,73 @@ class Mother extends Model {}
         type: DataTypes.STRING,
         allowNull: false
       },
-    edd: {
+    dateOfBirth: {
+        type: DataTypes.STRING,
+      },
+    estimatedDueDate: {
+        type: DataTypes.STRING
+      },
+    trimester: {
+        type: DataTypes.STRING
+      },
+    bloodType: {
+        type: DataTypes.STRING
+      },
+    existingHealthConditions: {
+        type: DataTypes.STRING
+      },
+    allergies: {
         type: DataTypes.STRING
       },
     amount: {
         type: DataTypes.INTEGER
      },
+    currentPregnancyWeek: {
+        type: DataTypes.INTEGER
+     },
+    emergencyContact: {
+        type: DataTypes.STRING
+     },
+    selectedHospital: {
+        type: DataTypes.STRING
+     },
+    hospitalAddress: {
+        type: DataTypes.STRING
+     },
+    hospitalContact: {
+        type: DataTypes.STRING
+     },
+    estimatedDeliveryCost: {
+        type: DataTypes.STRING
+     },
+    savingsGoalAmount: {
+        type: DataTypes.STRING
+     },
+    address: {
+        type: DataTypes.STRING
+     },
+    currentBalance: {
+        type: DataTypes.STRING
+     },
+    weeklyContribution: {
+        type: DataTypes.STRING
+     },
+    linkedPaymentMethod: {
+        type: DataTypes.STRING
+     },
      otp: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING
     },
     otpExpiresAt: {
         type: DataTypes.DATE,
     },
     isVerified: {
         type: DataTypes.BOOLEAN,
-        default: false
+        defaultValue: false
+    },
+    isUpdated: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
     },
     createdAt: {
         type: DataTypes.DATE,
@@ -63,15 +125,15 @@ class Mother extends Model {}
     tableName: 'mothers'
   });
 
-//   hospital.hasMany(mother, {
-//   foreignKey: 'hospitalId',
-//   as: 'mothers'
-// })
+  hospital.hasMany(mother, {
+  foreignKey: 'hospitalId',
+  as: 'mothers'
+})
 
-// mother.belongsTo(hospital, {
-//   foreignKey: 'hospitalId',
-//   as: 'hospital'
-// })
+mother.belongsTo(hospital, {
+  foreignKey: 'hospitalId',
+  as: 'hospital'
+})
   
   
 module.exports = Mother
