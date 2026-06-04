@@ -25,10 +25,10 @@ module.exports ={
     "dialect": "mysql"
   },
   production: {
-    "username": "root",
-    "password": null,
-    "database": "database_production",
-    "host": "127.0.0.1",
+   "username": username,
+    "password": password,
+    "database": DB_Name,
+    "host": host,
     "dialect": "mysql"
   }
 }
