@@ -1,77 +1,67 @@
-const {Sequelize, DataTypes, Model} = require('sequelize');
-const sequelize = require('../database/db');
-//const hospital = require('./hospital')
+module.exports = (sequelize, DataTypes) => {
+  const { Model } = require('sequelize');
 
-class Mother extends Model {}
+  class Mother extends Model {
+    static associate(models) {
+      // Define associations here using the 'models' object passed by Sequelize
+      Mother.belongsTo(models.Hospital, {
+        foreignKey: 'hospitalId',
+        as: 'Hospital'
+      });
+    }
+  }
 
   Mother.init({
     id: {
-        allowNull: false,
-        primaryKey: true,
-        type: DataTypes.UUID,
-        defaultValue: DataTypes.UUIDV4
-      },
-    firstName: {
-        type: DataTypes.STRING,
-        allowNull: false
-      },
-    lastName: {
-        type: DataTypes.STRING,
-        allowNull: false
-      },
-    email: {
-        type: DataTypes.STRING,
-        allowNull: false
-
-      },
-    phoneNumber: {
-        type: DataTypes.STRING,
-        allowNull: false
-      },
-    password: {
-        type: DataTypes.STRING,
-        allowNull: false
-      },
-    edd: {
-        type: DataTypes.STRING
-      },
-    amount: {
-        type: DataTypes.INTEGER
-     },
-     otp: {
-        type: DataTypes.STRING,
+      allowNull: false,
+      primaryKey: true,
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4
     },
-    otpExpiresAt: {
-        type: DataTypes.DATE,
-    },
-    isVerified: {
-        type: DataTypes.BOOLEAN,
-        default: false
-    },
-    createdAt: {
-        type: DataTypes.DATE,
-        allowNull: false
-
+    hospitalId: {
+      type: DataTypes.UUID,
+      references: {
+        model: "Hospital",
+        key: "id",
       },
-    updatedAt: {
-        type: DataTypes.DATE,
-        allowNull: false
-      }
+      onDelete: "CASCADE",
+      onUpdate: "CASCADE",
+    },
+    firstName: { type: DataTypes.STRING, allowNull: false },
+    lastName: { type: DataTypes.STRING, allowNull: false },
+    email: { type: DataTypes.STRING, allowNull: false },
+    phoneNumber: { type: DataTypes.STRING, allowNull: false },
+    password: { type: DataTypes.STRING, allowNull: false },
+    dateOfBirth: { type: DataTypes.STRING },
+    estimatedDueDate: { type: DataTypes.STRING },
+    trimester: { type: DataTypes.STRING },
+    bloodType: { type: DataTypes.STRING },
+    existingHealthConditions: { type: DataTypes.STRING },
+    allergies: { type: DataTypes.STRING },
+    currentPregnancyWeek: { type: DataTypes.INTEGER },
+    emergencyContact: { type: DataTypes.STRING },
+    selectedHospital: { type: DataTypes.STRING },
+    hospitalAddress: { type: DataTypes.STRING },
+    hospitalContact: { type: DataTypes.STRING },
+    estimatedDeliveryCost: { type: DataTypes.STRING },
+    savingsGoalAmount: { type: DataTypes.STRING },
+    address: { type: DataTypes.STRING },
+    currentBalance: { type: DataTypes.STRING },
+    weeklyContribution: { type: DataTypes.STRING },
+    linkedPaymentMethod: { type: DataTypes.STRING },
+    estimatedDueDate: { type: DataTypes.STRING },
+    amount: { type: DataTypes.INTEGER }, // Cleaned up duplicate 'amount' key
+    otp: { type: DataTypes.STRING },    // Cleaned up duplicate 'otp' key
+    otpExpiresAt: { type: DataTypes.DATE },
+    isVerified: { type: DataTypes.BOOLEAN, defaultValue: false },
+    isUpdated: { type: DataTypes.BOOLEAN, defaultValue: false },
+    createdAt: { allowNull: false, type: DataTypes.DATE },
+    updatedAt: { allowNull: false, type: DataTypes.DATE }
   }, {
     sequelize,
-    modelName: 'mother',
+    modelName: 'Mother',
     tableName: 'mothers'
   });
 
-//   hospital.hasMany(mother, {
-//   foreignKey: 'hospitalId',
-//   as: 'mothers'
-// })
-
-// mother.belongsTo(hospital, {
-//   foreignKey: 'hospitalId',
-//   as: 'hospital'
-// })
-  
-  
-module.exports = Mother
+  return Mother;
+};
