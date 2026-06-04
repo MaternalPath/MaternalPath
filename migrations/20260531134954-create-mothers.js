@@ -10,10 +10,9 @@ module.exports = {
                 defaultValue: Sequelize.UUIDV4
               },
               hospitalId: {
-              allowNull: false,
               type: Sequelize.UUID,
               references: {
-                model: "hospitals",
+                model: "Hospitals",
                 key: "id",
               },
               onDelete: "CASCADE",
@@ -44,7 +43,7 @@ module.exports = {
                 type: Sequelize.STRING,
               },
             estimatedDueDate: {
-                type: Sequelize.STRING
+                type: Sequelize.DATEONLY
               },
             trimester: {
                 type: Sequelize.STRING

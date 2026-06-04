@@ -1,5 +1,5 @@
 const express = require('express');
-const { createMother, verifyEmail, resendOTP, verifyResetOTP, resetPassword, updateMother, getMotherProfile, logout } = require('../controller/mother');
+const { createMother, verifyEmail, resendOTP, verifyResetOTP, resetPassword, updateMother, getMotherProfile, logout, loginMother, forgotPassword } = require('../controller/mother');
 const { registerValidator } = require('../middlewares/validator');
 const router = express.Router();
 
@@ -8,33 +8,6 @@ const router = express.Router();
  * tags:
  *   name: Mother
  *   description: Mother management and authentication
- */
-
-/**
- * @swagger
- * components:
- *   schemas:
- *     Mother:
- *       type: object
- *       properties:
- *         firstName:
- *           type: string
- *           example: Jane
- *         lastName:
- *           type: string
- *           example: Doe
- *         email:
- *           type: string
- *           example: jane.doe@example.com
- *         phoneNumber:
- *           type: string
- *           example: "8012345678"
- *         password:
- *           type: string
- *           example: password123
- *         confirmPassword:
- *           type: string
- *           example: password123
  */
 
 
@@ -74,10 +47,10 @@ const router = express.Router();
  *                 example: "8012345678"
  *               password:
  *                 type: string
- *                 example: password123
+ *                 example: P@ssword123
  *               confirmPassword:
  *                 type: string
- *                 example: password123
+ *                 example: P@ssword123
  *     responses:
  *       201:
  *         description: Mother created successfully
@@ -214,7 +187,7 @@ router.post('/resend-otp',resendOTP);
  *                 example: jane.doe@example.com
  *               password:
  *                 type: string
- *                 example: password123
+ *                 example: P@ssword123
  *     responses:
  *       200:
  *         description: Login successful

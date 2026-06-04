@@ -1,4 +1,4 @@
-const motherModel = require('../models/mother');
+const { Mother } = require('../models');
 const hospitalModel = require('../models/hospital');
 const bcrypt = require('bcrypt');
 const { sendBrevoEmail } = require('../utils/brevo');
@@ -6,12 +6,13 @@ const otpGenerator = require('otp-generator');
 const { signUpTemplate , resetPasswordTemplate} = require('../utils/emailTemplates');
 const jwt = require('jsonwebtoken');
 const redisClient = require('../config/redis')
+const { Op } = require('sequelize');
 
 
 exports.createMother = async (req, res, next) => {
     try {
         const { firstName, lastName, email, phoneNumber, password, confirmPassword} = req.body;
-        const emailExists = await motherModel.findOne({ where: {email: email.toLowerCase()}})
+        const emailExists = await Mother.findOne({ where: {email: email.toLowerCase()}})
         console.log(emailExists)
         if (emailExists) {
             return res.status(400).json({
@@ -31,7 +32,7 @@ exports.createMother = async (req, res, next) => {
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
 
-        const mother = await motherModel.create({
+        const mother = await Mother.create({
             firstName,
             lastName,
             email: email.toLowerCase(),
@@ -68,11 +69,11 @@ exports.createMother = async (req, res, next) => {
     }
 };
 
-exports.verifyEmail = async (req, res) => {
+exports.verifyEmail = async (req, res, next) => {
     try {
         const { email, otp } = req.body;
 
-        const mother = await motherModel.findOne({ where: { email: email.toLowerCase() } });
+        const mother = await Mother.findOne({ where: { email: email.toLowerCase() } });
 
         if (!mother) {
             return res.status(404).json({
@@ -96,18 +97,18 @@ exports.verifyEmail = async (req, res) => {
             message: 'Mother verified successfully'
         })
     } catch (error) {
-       next({
+       return next({
         message: error.message,
         statusCode: 500
        })  
     }
 };
 
-exports.resendOTP = async (req, res) => {
+exports.resendOTP = async (req, res, next) => {
     try {
         const { email } = req.body;
 
-        const mother = await motherModel.findOne({ where: { email: email.toLowerCase() } });
+        const mother = await Mother.findOne({ where: { email: email.toLowerCase() } });
 
         if (!mother) {
             return res.status(404).json({
@@ -115,7 +116,7 @@ exports.resendOTP = async (req, res) => {
             })
         } 
 
-        const OTP = otpGenerator(6, { upperCaseAlphabets: false, lowerCaseAlphabets: false, specialChars: false})
+        const OTP = otpGenerator.generate(6, { upperCaseAlphabets: false, lowerCaseAlphabets: false, specialChars: false })
 
         const expiresAt = new Date(Date.now() + 10 * 60000);
 
@@ -147,15 +148,16 @@ exports.loginMother = async (req, res, next) => {
     try {
         const { emailOrPhoneNumber, password } = req.body;
 
-        const input = emailOrPhoneNumber?.toLowerCase();
+        const input = emailOrPhoneNumber?.trim();
 
-        const mother = await motherModel.findOne({ where: {
-            [Op.or]: [
-                { email: input },
-                { phoneNumber: input }
-            ]
-        }
-        });
+        const mother = await Mother.findOne({
+    where: {
+        [Op.or]: [
+            { email: input.toLowerCase() },
+            { phoneNumber: input }
+        ]
+    }
+});
 
         if (!mother) {
             return res.status(400).json({
@@ -180,11 +182,6 @@ exports.loginMother = async (req, res, next) => {
 
         await mother.save();
 
-        return next({
-            message: 'Invalid Credentials',
-            statusCode: 400
-        })
-
         const token = await jwt.sign({ id: mother._id, email: mother.email }, process.env.JWT_SECRET, { expiresIn: '1day'});
 
         redisClient.del(`mother_${mother._id}`);
@@ -207,7 +204,7 @@ exports.forgotPassword = async (req, res,next) => {
     try {
         const { email } = req.body;
 
-        const mother = await motherModel.findOne({ where: { email: email.toLowerCase()}});
+        const mother = await Mother.findOne({ where: { email: email.toLowerCase()}});
 
         if (!mother) {
             return res.status(404).json({
@@ -259,7 +256,7 @@ exports.verifyResetOTP = async (req, res, next) => {
     try {
         const { email, otp } = req.body;
 
-        const mother = await motherModel.findOne({ where: { email: email.toLowerCase() } });
+        const mother = await Mother.findOne({ where: { email: email.toLowerCase() } });
 
         if (!mother) {
             return next({
@@ -295,7 +292,7 @@ exports.resetPassword = async (req, res, next) => {
     try {
         const { email, newPassword, confirmNewPassword } = req.body;
 
-        const mother = await motherModel.findOne({ where: { email: email.toLowerCase() } });
+        const mother = await Mother.findOne({ where: { email: email.toLowerCase() } });
 
         if (!mother) {
             return next({
@@ -343,7 +340,7 @@ exports.updateMother = async (req, res, next) => {
 
         const { id } = req.user;
 
-        const mother = await motherModel.findOne({ where: { id } });
+        const mother = await Mother.findOne({ where: { id } });
 
         if (!mother) {
   return next({
@@ -410,7 +407,7 @@ exports.getMotherProfile = async (req, res, next) => {
     try{
         const { id } = req.user;
 
-        const mother = await motherModel.findOne({ where: { id } }).select('-password -otp -otpExpiresAt');
+        const mother = await Mother.findOne({ where: { id } }).select('-password -otp -otpExpiresAt');
 
         if(!mother) {
             return next({

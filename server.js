@@ -2,19 +2,86 @@ require('dotenv').config();
 const express = require('express');
 const PORT = process.env.PORT || 2245;
 const sequelize = require('./database/db');
-const motherRouter = require('./routes/mother')
+const motherRouter = require('./routes/mother');
+const hospitalRouter = require('./routes/hospital');
+const expressSession = require('express-session')
+const passport = require('passport');
+require('./controller/googleSignIn')
+const swaggerUi = require('swagger-ui-express');
+const swaggerJsdoc = require('swagger-jsdoc');
+const cors = require('cors');
+const redisClient = require('./config/redis');
+const morgan = require('morgan');
+
 
 const app = express();
+app.use(cors({origin: '*'}))
+app.use(express.json());
+app.use(expressSession({secret: 'olachi', saveUninitialized: false, resave: false}))
+app.use(passport.initialize());
+app.use(passport.session())
+app.use(morgan('dev'));
+
 app.use(express.json());
 
-app.use('/api/v1', motherRouter);
+app.use('/api/v1/mother/', motherRouter);
+app.use('/api/v1/hospital/', hospitalRouter);
+
+const swaggerDefinition = {
+  openapi: '3.0.0',
+  info: {
+    title: 'MaternalPath Web Application',
+    version: '2.0.0',
+    description:
+      'This is a REST API application made with Express. It retrieves data from JSONPlaceholder.',
+    license: {
+      name: 'Official URL',
+      url: 'https://google.com',
+    },
+    contact: {
+      name: 'JSONPlaceholder',
+      url: 'https://jsonplaceholder.typicode.com',
+    },
+  },
+  servers: [
+    {
+      url: 'http://localhost:2245',
+      description: 'Development server',
+    },
+  ],
+  security: [
+    {
+        bearerAuth: []
+    }
+  ],
+  components: {
+    securitySchemes: {
+        bearerAuth: {
+            type: 'http',
+            scheme: 'bearer',
+            bearerFormat: 'JWT'
+        }
+    }
+  }
+};
+
+const options = {
+    swaggerDefinition,
+    apis: ['./routes/*.js']
+}
+
+const swaggerSpec = swaggerJsdoc(options);
+
+app.use('/api/v1/documentation', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
+
 
 app.use((error, req, res, next) => {
-    res.status(error.statusCode).json({
-        message: error.message,
-        status: error.statusCode
-    })
-})
+    const status = error.statusCode || error.status || 500;
+    res.status(status).json({
+        message: error.message || 'Internal Server Error',
+        status
+    });
+});
 
 const database = async () => {
     try {
