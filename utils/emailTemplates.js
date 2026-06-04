@@ -5,7 +5,7 @@ exports.signUpTemplate = (name, otp) => {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Your SPLITA Verification Code</title>
+    <title>Your MATERNALPATH Verification Code</title>
     <style>
         @media screen and (max-width: 600px) {
             .content { padding: 20px !important; }
@@ -23,7 +23,7 @@ exports.signUpTemplate = (name, otp) => {
                         <!-- Header / Logo Area -->
                         <tr>
                             <td align="center" style="padding: 30px 20px 10px 20px;">
-                                <h1 style="margin: 0; color: #00d2ff; font-size: 28px; font-weight: 800; letter-spacing: -1px;">SPLITA</h1>
+                                <h1 style="margin: 0; color: #00d2ff; font-size: 28px; font-weight: 800; letter-spacing: -1px;">MATERNALPATH</h1>
                             </td>
                         </tr>
 
@@ -52,7 +52,7 @@ exports.signUpTemplate = (name, otp) => {
                         <!-- Simple Footer -->
                         <tr>
                             <td align="center" style="padding: 20px; background-color: #ffffff; border-top: 1px solid #f3f4f6; font-size: 12px; color: #9ca3af;">
-                                <p style="margin: 0;">&copy; 2026 SPLITA. The easiest way to share costs.</p>
+                                <p style="margin: 0;">&copy; 2026 MATERNALPATH. The easiest way to share costs.</p>
                             </td>
                         </tr>
                     </table>
@@ -73,7 +73,7 @@ exports.resetPasswordTemplate = (data)=> {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reset Your SPLITA Password</title>
+    <title>Reset Your MATERNALPATH Password</title>
     <style>
         /* Mobile Styles */
         @media screen and (max-width: 600px) {
@@ -94,7 +94,7 @@ exports.resetPasswordTemplate = (data)=> {
                         <!-- Brand Header -->
                         <tr>
                             <td align="center" style="padding: 30px 20px; background-color: #ffffff; border-bottom: 1px solid #eeeeee;">
-                                <h1 style="margin: 0; color: #00d2ff; font-size: 24px; font-weight: 800; letter-spacing: 1px;">SPLITA</h1>
+                                <h1 style="margin: 0; color: #00d2ff; font-size: 24px; font-weight: 800; letter-spacing: 1px;">MATERNALPATH</h1>
                             </td>
                         </tr>
 
@@ -123,7 +123,7 @@ exports.resetPasswordTemplate = (data)=> {
                         <!-- Footer -->
                         <tr>
                             <td align="center" style="padding: 25px; background-color: #fafafa; font-size: 12px; color: #aaaaaa;">
-                                <p style="margin: 0;">&copy; 2026 SPLITA App. All rights reserved.</p>
+                                <p style="margin: 0;">&copy; 2026 MATERNALPATH App. All rights reserved.</p>
                                 <p style="margin: 8px 0 0;">
                                     <a href="#" style="color: #00d2ff; text-decoration: none;">Help Center</a> • 
                                     <a href="#" style="color: #00d2ff; text-decoration: none;">Security Tips</a>
@@ -167,7 +167,7 @@ exports.resetPasswordSuccessfulTemplate = (name)=> {
                         <!-- Header -->
                         <tr>
                             <td align="center" style="padding: 30px 20px; background-color: #ffffff; border-bottom: 1px solid #eeeeee;">
-                                <h1 style="margin: 0; color: #00d2ff; font-size: 24px; font-weight: 800; letter-spacing: 1px;">SPLITA</h1>
+                                <h1 style="margin: 0; color: #00d2ff; font-size: 24px; font-weight: 800; letter-spacing: 1px;">MATERNALPATH</h1>
                             </td>
                         </tr>
 
@@ -179,12 +179,12 @@ exports.resetPasswordSuccessfulTemplate = (name)=> {
                                 
                                 <h2 style="margin: 0 0 15px; font-size: 22px; font-weight: 700; color: #1a1a1a;">Password Reset Successful</h2>
                                 <p style="font-size: 16px; line-height: 1.5; margin: 0 0 30px; color: #666666;">
-                                    Hi ${name}, your password for <strong>SPLITA</strong> has been successfully updated. You can now log back into your account using your new credentials.
+                                    Hi ${name}, your password for <strong>MATERNALPATH</strong> has been successfully updated. You can now log back into your account using your new credentials.
                                 </p>
                                 
                                 <!-- CTA Button -->
-                                <a href="https://splita.app" class="cta-button" style="display: inline-block; background-color: #00d2ff; color: #ffffff; padding: 16px 35px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px;">
-                                    Log In to SPLITA
+                                <a href="https://maternalpath.app" class="cta-button" style="display: inline-block; background-color: #00d2ff; color: #ffffff; padding: 16px 35px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px;">
+                                    Log In to MATERNALPATH
                                 </a>
 
                                 <!-- Security Warning -->
@@ -197,7 +197,7 @@ exports.resetPasswordSuccessfulTemplate = (name)=> {
                         <!-- Footer -->
                         <tr>
                             <td align="center" style="padding: 25px; background-color: #fafafa; font-size: 12px; color: #aaaaaa;">
-                                <p style="margin: 0;">&copy; 2026 SPLITA App. All rights reserved.</p>
+                                <p style="margin: 0;">&copy; 2026 MATERNALPATH App. All rights reserved.</p>
                                 <p style="margin: 8px 0 0;">
                                     <a href="#" style="color: #00d2ff; text-decoration: none;">Security Settings</a> • 
                                     <a href="#" style="color: #00d2ff; text-decoration: none;">Contact Support</a>

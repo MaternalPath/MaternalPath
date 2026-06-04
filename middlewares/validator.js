@@ -75,6 +75,22 @@ exports.hospitalRegisterValidator = async (req, res, next) => {
             'string.empty': 'Address is required',
             'string.min': 'Address must be at least 5 characters long',
             'any.required': 'Address is required'
+        }),
+        adminFullName: joi.string().trim().min(5).required().messages({
+            'string.base': 'Admin full name must be a string',
+            'string.empty': 'Admin full name is required',
+            'string.min': 'Admin full name must be at least 5 characters long',
+            'any.required': 'Admin full name is required'
+        }),
+        deliveryFee: joi.string().trim().required().messages({
+            'string.base': 'Delivery fee must be a string',
+            'string.empty': 'Delivery fee is required',
+            'any.required': 'Delivery fee is required'
+        }),
+        medicalLicenseNumber: joi.string().trim().required().messages({
+            'string.base': 'Medical license number must be a string',
+            'string.empty': 'Medical license number is required',
+            'any.required': 'Medical license number is required'
         })
     });
 
@@ -98,6 +114,23 @@ exports.hospitalLoginValidator = async (req, res, next) => {
         password: joi.string().trim().required().messages({
             'any.required': 'Password is required',
             'string.empty': 'Password cannot be empty'
+        }),
+          hospitalName: joi.string().trim().min(2).messages({
+            'string.base': 'Hospital name must be a string',
+            'string.min': 'Hospital name must be at least 2 characters long'
+        }),
+        phoneNumber: joi.string().trim().pattern(/^[0-9]{10,15}$/).messages({
+            'string.pattern.base': 'Phone number must contain only digits and be 10 to 15 characters long'
+        }),
+        adminFullName: joi.string().trim().min(5).messages({
+            'string.base': 'Admin full name must be a string',
+            'string.min': 'Admin full name must be at least 5 characters long'
+        }),
+        deliveryFee: joi.string().trim().messages({
+            'string.base': 'Delivery fee must be a string'
+        }),
+        medicalLicenseNumber: joi.string().trim().messages({
+            'string.base': 'Medical license number must be a string'
         })
     });
 
@@ -166,33 +199,33 @@ exports.changePasswordValidator = (req,res,next)=>{
     next();
 }
 
-exports.updateHospitalProfileValidator = (req, res, next) => {
-    const schema = joi.object({
-        hospitalName: joi.string().trim().min(2).messages({
-            'string.base': 'Hospital name must be a string',
-            'string.min': 'Hospital name must be at least 2 characters long'
-        }),
-        phoneNumber: joi.string().trim().pattern(/^[0-9]{10,15}$/).messages({
-            'string.pattern.base': 'Phone number must contain only digits and be 10 to 15 characters long'
-        }),
-        adminFullName: joi.string().trim().min(5).messages({
-            'string.base': 'Admin full name must be a string',
-            'string.min': 'Admin full name must be at least 5 characters long'
-        }),
-        deliveryFee: joi.string().trim().messages({
-            'string.base': 'Delivery fee must be a string'
-        }),
-        medicalLicenseNumber: joi.string().trim().messages({
-            'string.base': 'Medical license number must be a string'
-        })
-    });
+// exports.updateHospitalProfileValidator = (req, res, next) => {
+//     const schema = joi.object({
+//         hospitalName: joi.string().trim().min(2).messages({
+//             'string.base': 'Hospital name must be a string',
+//             'string.min': 'Hospital name must be at least 2 characters long'
+//         }),
+//         phoneNumber: joi.string().trim().pattern(/^[0-9]{10,15}$/).messages({
+//             'string.pattern.base': 'Phone number must contain only digits and be 10 to 15 characters long'
+//         }),
+//         adminFullName: joi.string().trim().min(5).messages({
+//             'string.base': 'Admin full name must be a string',
+//             'string.min': 'Admin full name must be at least 5 characters long'
+//         }),
+//         deliveryFee: joi.string().trim().messages({
+//             'string.base': 'Delivery fee must be a string'
+//         }),
+//         medicalLicenseNumber: joi.string().trim().messages({
+//             'string.base': 'Medical license number must be a string'
+//         })
+//     });
 
-    const { error } = schema.validate(req.body, { allowUnknown: true });
-    if (error) {
-        return res.status(400).json({
-            message: error.details[0].message
-        });
-    }
+//     const { error } = schema.validate(req.body, { allowUnknown: true });
+//     if (error) {
+//         return res.status(400).json({
+//             message: error.details[0].message
+//         });
+//     }
 
-    next();
-}
+//     next();
+// }
