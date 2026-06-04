@@ -45,7 +45,7 @@ const swaggerDefinition = {
   },
   servers: [
     {
-      url: 'http://localhost:2245',
+      url: 'https://maternalpath.onrender.com',
       description: 'Development server',
     },
   ],
