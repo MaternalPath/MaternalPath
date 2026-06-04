@@ -7,6 +7,7 @@ const hospitalRouter = require('./routes/hospital');
 const expressSession = require('express-session')
 const passport = require('passport');
 require('./controller/googleSignIn')
+require('./database/db')
 const swaggerUi = require('swagger-ui-express');
 const swaggerJsdoc = require('swagger-jsdoc');
 const cors = require('cors');
