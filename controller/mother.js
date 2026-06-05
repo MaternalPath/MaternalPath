@@ -153,7 +153,7 @@ console.log('Input: ', input);
         const mother = await Mother.findOne({
     where: {
         [Op.or]: [
-            { email: input.toLowerCase() },
+            { email: input?.toLowerCase() },
             { phoneNumber: input }
         ]
     }
@@ -184,13 +184,18 @@ console.log('Input: ', input);
 
         const token = await jwt.sign({ id: mother._id, email: mother.email }, process.env.JWT_SECRET, { expiresIn: '1day'});
 
+        const check = mother.isUpdated;
+
+        console.log(check)
+
         redisClient.del(`mother_${mother._id}`);
 
         redisClient.set(`mother_${mother._id}`, token, { EX: 86400 });
 
         return res.status(200).json({
             message: 'Login successful',
-            token
+            token,
+            check
         })
     } catch (error) {
         next({
@@ -388,6 +393,8 @@ const data = {
   hospitalContact: hospital.hospitalContact,
   estimatedDeliveryCost: hospital.estimatedDeliveryCost
 };
+
+mother.isUpdated = true;
 
 await mother.update(data);
 
