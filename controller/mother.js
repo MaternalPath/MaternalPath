@@ -149,7 +149,7 @@ exports.loginMother = async (req, res, next) => {
         const { emailOrPhoneNumber, password } = req.body;
 
         const input = emailOrPhoneNumber?.trim();
-
+console.log('Input: ', input);
         const mother = await Mother.findOne({
     where: {
         [Op.or]: [
