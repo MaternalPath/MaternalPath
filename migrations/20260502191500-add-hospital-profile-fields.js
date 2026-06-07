@@ -32,18 +32,39 @@ module.exports = {
       type: Sequelize.STRING,
       allowNull: true
     });
+
+    await queryInterface.addColumn('Hospitals', 'role', {
+      type: Sequelize.STRING,
+      allowNull: true
+    });
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.removeColumn('Hospitals', 'medicalLicenseNumber');
-    await queryInterface.removeColumn('Hospitals', 'deliveryFee');
-    await queryInterface.removeColumn('Hospitals', 'adminFullName');
-    await queryInterface.removeColumn('Hospitals', 'verificationDocuments');
-    await queryInterface.removeColumn('Hospitals', 'hospitalLogo');
+  const table = await queryInterface.describeTable('Hospitals');
 
-    await queryInterface.changeColumn('Hospitals', 'phoneNumber', {
-      type: Sequelize.INTEGER,
-      allowNull: false
-    });
+  if (table.medicalLicenseNumber) {
+    await queryInterface.removeColumn('Hospitals', 'medicalLicenseNumber');
   }
+
+  if (table.deliveryFee) {
+    await queryInterface.removeColumn('Hospitals', 'deliveryFee');
+  }
+
+  if (table.adminFullName) {
+    await queryInterface.removeColumn('Hospitals', 'adminFullName');
+  }
+
+  if (table.verificationDocuments) {
+    await queryInterface.removeColumn('Hospitals', 'verificationDocuments');
+  }
+
+  if (table.role) {
+    await queryInterface.removeColumn('Hospitals', 'role');
+  }
+
+  await queryInterface.changeColumn('Hospitals', 'phoneNumber', {
+    type: Sequelize.INTEGER,
+    allowNull: false
+  });
+}
 };

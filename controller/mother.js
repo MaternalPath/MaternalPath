@@ -7,7 +7,48 @@ const { signUpTemplate , resetPasswordTemplate} = require('../utils/emailTemplat
 const jwt = require('jsonwebtoken');
 const redisClient = require('../config/redis')
 const { Op } = require('sequelize');
+const passport = require('passport');
+const mother = require('../models/mother');
 
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
+
+// Strategy definition
+passport.use(new GoogleStrategy({
+    clientID: process.env.clientId,
+    clientSecret: process.env.clientSecret,
+    callbackURL: process.env.googleCallback,
+    scope: ['profile', 'email'],
+    passReqToCallback: true
+  },
+  async function(request, accessToken, refreshToken, profile, done) {
+    console.log("i am profile:", profile);
+    
+    const checkUser = await Mother.findOne({ where: { email: profile._json.email } }); // sequelize uses "where"
+    let token;
+
+    if (checkUser) {
+        token = jwt.sign({ id: checkUser.id }, process.env.JWT_SECRET, { expiresIn: '1day' });
+    } else { 
+        const createUser = await Mother.create({
+            firstName: profile._json.given_name,
+            lastName: profile._json.family_name,
+            email: profile._json.email,
+            isVerified: profile._json.email_verified,
+        });
+        token = jwt.sign({ id: createUser.id }, process.env.JWT_SECRET, { expiresIn: '1day' });
+    }
+    return done(null, token);
+  }
+));
+
+// These must be OUTSIDE the strategy 👇
+passport.serializeUser((token, done) => {
+    return done(null, token);
+});
+
+passport.deserializeUser((token, done) => {
+    return done(null, token);
+});
 
 exports.createMother = async (req, res, next) => {
     try {
@@ -195,7 +236,7 @@ console.log('Input: ', input);
         return res.status(200).json({
             message: 'Login successful',
             token,
-            check
+            isUpdated: check
         })
     } catch (error) {
         next({
@@ -451,3 +492,26 @@ exports.logout = async (req, res, next) => {
         })
     }
 }
+
+exports.balance = async (req, res, next) => {
+    try {
+        const { id } = req.user;
+        const mother = await mother.findOne({ where: {id}});
+        if (!mother) {
+            return next({
+                message: 'Mother does not exist',
+                statusCode: 404
+            })
+        }
+
+        const currentBalance = await mother.findOne({ currentBalance});
+        currentBalance += amount;
+        
+    } catch (error) {
+      next({
+            message: error.message,
+            statusCode: 500
+        })  
+    }
+}
+
