@@ -1,25 +1,24 @@
 const express = require('express');
-const { createMother, verifyEmail, resendOTP, verifyResetOTP, resetPassword, updateMother, getMotherProfile, logout, loginMother, forgotPassword } = require('../controller/mother');
 const { registerValidator } = require('../middlewares/validator');
-const passport = require('passport')
+const { createAdmin, loginAdmin, verifyEmail, resendOTP, forgotPassword, getMothers, getMother, getHospital, getHospitals, logout, verifyResetOTP, resetPassword } = require('../controller/admin');
 const router = express.Router();
 
 /**
  * @swagger
  * tags:
- *   name: Mother
- *   description: Mother management and authentication
+ *   name: Admin
+ *   description: Admin management and authentication
  */
 
 
 /**
  * @swagger
- * /api/v1/mother/register:
+ * /api/v1/admin/admin:
  *   post:
  *     tags:
- *       - Mother
- *     summary: Register a new mother
- *     description: Creates a new mother account and sends an OTP to the provided email
+ *       - Admin
+ *     summary: Register a new admin
+ *     description: Creates a new admin account and sends an OTP to the provided email
  *     requestBody:
  *       required: true
  *       content:
@@ -36,13 +35,13 @@ const router = express.Router();
  *             properties:
  *               firstName:
  *                 type: string
- *                 example: Jane
+ *                 example: John
  *               lastName:
  *                 type: string
  *                 example: Doe
  *               email:
  *                 type: string
- *                 example: jane.doe@example.com
+ *                 example: john.doe@example.com
  *               phoneNumber:
  *                 type: string
  *                 example: "8012345678"
@@ -54,7 +53,7 @@ const router = express.Router();
  *                 example: P@ssword123
  *     responses:
  *       201:
- *         description: Mother created successfully
+ *         description: Admin created successfully
  *         content:
  *           application/json:
  *             schema:
@@ -62,37 +61,35 @@ const router = express.Router();
  *               properties:
  *                 message:
  *                   type: string
- *                   example: Mother created successfully
+ *                   example: Admin created successfully
  *                 data:
  *                   type: object
  *                   properties:
  *                     firstName:
  *                       type: string
- *                       example: Jane
+ *                       example: John
  *                     lastName:
  *                       type: string
  *                       example: Doe
  *                     email:
  *                       type: string
- *                       example: jane.doe@example.com
+ *                       example: john.doe@example.com
  *                     phoneNumber:
  *                       type: string
  *                       example: "+2348012345678"
  *       400:
  *         description: Email already exists or passwords do not match
  */
-
-router.post('/register',registerValidator, createMother);
-
+router.post('/admin',registerValidator, createAdmin);
 
 /**
  * @swagger
- * /api/v1/mother/verify:
+ * /api/v1/admin/emailVerify:
  *   post:
  *     tags:
- *       - Mother
- *     summary: Verify mother's email
- *     description: Verifies the mother's email using the OTP sent during registration
+ *       - Admin
+ *     summary: Verify admin email
+ *     description: Verifies the admin's email using the OTP sent during registration
  *     requestBody:
  *       required: true
  *       content:
@@ -105,13 +102,13 @@ router.post('/register',registerValidator, createMother);
  *             properties:
  *               email:
  *                 type: string
- *                 example: jane.doe@example.com
+ *                 example: john.doe@example.com
  *               otp:
  *                 type: string
  *                 example: "482910"
  *     responses:
  *       200:
- *         description: Mother verified successfully
+ *         description: Admin verified successfully
  *         content:
  *           application/json:
  *             schema:
@@ -119,22 +116,21 @@ router.post('/register',registerValidator, createMother);
  *               properties:
  *                 message:
  *                   type: string
- *                   example: Mother verified successfully
+ *                   example: Admin verified successfully
  *       404:
- *         description: Mother not found or invalid OTP
+ *         description: Admin not found or invalid OTP
  */
 
-router.post('/verify', verifyEmail);
-
+router.post('/emailVerify', verifyEmail);
 
 /**
  * @swagger
- * /api/v1/mother/resend-otp:
+ * /api/v1/admin/resendOtp:
  *   post:
  *     tags:
- *       - Mother
+ *       - Admin
  *     summary: Resend OTP
- *     description: Resends the verification OTP to the mother's email
+ *     description: Resends the verification OTP to the admin's email
  *     requestBody:
  *       required: true
  *       content:
@@ -146,7 +142,7 @@ router.post('/verify', verifyEmail);
  *             properties:
  *               email:
  *                 type: string
- *                 example: jane.doe@example.com
+ *                 example: john.doe@example.com
  *     responses:
  *       200:
  *         description: OTP resent successfully
@@ -159,20 +155,19 @@ router.post('/verify', verifyEmail);
  *                   type: string
  *                   example: OTP resent successfully
  *       404:
- *         description: Mother not found
+ *         description: Admin not found
  */
 
-router.post('/resend-otp',resendOTP);
-
+router.post('/resendOtp',resendOTP);
 
 /**
  * @swagger
- * /api/v1/mother/loginMother:
+ * /api/v1/admin/loginAdmin:
  *   post:
  *     tags:
- *       - Mother
- *     summary: Mother login
- *     description: Authenticates a mother using email or phone number and password
+ *       - Admin
+ *     summary: Admin login
+ *     description: Authenticates an admin using email or phone number and password
  *     requestBody:
  *       required: true
  *       content:
@@ -185,7 +180,7 @@ router.post('/resend-otp',resendOTP);
  *             properties:
  *               emailOrPhoneNumber:
  *                 type: string
- *                 example: jane.doe@example.com
+ *                 example: john.doe@example.com
  *               password:
  *                 type: string
  *                 example: P@ssword123
@@ -209,17 +204,16 @@ router.post('/resend-otp',resendOTP);
  *         description: Email not verified
  */
 
-router.post('/loginMother', loginMother);
-
+router.post('/loginAdmin', loginAdmin);
 
 /**
  * @swagger
- * /api/v1/mother/forgot-password:
+ * /api/v1/admin/forgotPassword:
  *   post:
  *     tags:
- *       - Mother
+ *       - Admin
  *     summary: Forgot password
- *     description: Sends a password reset OTP to the mother's email
+ *     description: Sends a password reset OTP to the admin's email
  *     requestBody:
  *       required: true
  *       content:
@@ -231,7 +225,7 @@ router.post('/loginMother', loginMother);
  *             properties:
  *               email:
  *                 type: string
- *                 example: jane.doe@example.com
+ *                 example: john.doe@example.com
  *     responses:
  *       200:
  *         description: OTP sent to email
@@ -244,18 +238,17 @@ router.post('/loginMother', loginMother);
  *                   type: string
  *                   example: Please check your email for password reset OTP
  *       404:
- *         description: Mother not found or email not verified
+ *         description: Admin not found or email not verified
  */
 
-router.post('/forgot-password', forgotPassword);
-
+router.post('/forgotPassword', forgotPassword);
 
 /**
  * @swagger
- * /api/v1/mother/verify-reset:
+ * /api/v1/admin/verifyReset:
  *   post:
  *     tags:
- *       - Mother
+ *       - Admin
  *     summary: Verify reset OTP
  *     description: Verifies the OTP sent for password reset
  *     requestBody:
@@ -270,7 +263,7 @@ router.post('/forgot-password', forgotPassword);
  *             properties:
  *               email:
  *                 type: string
- *                 example: jane.doe@example.com
+ *                 example: john.doe@example.com
  *               otp:
  *                 type: string
  *                 example: "839201"
@@ -288,20 +281,19 @@ router.post('/forgot-password', forgotPassword);
  *       400:
  *         description: Invalid OTP
  *       404:
- *         description: Mother not found
+ *         description: Admin not found
  */
 
-router.post('/verify-reset', verifyResetOTP);
-
+router.post('/verifyReset', verifyResetOTP);
 
 /**
  * @swagger
- * /api/v1/mother/reset-password:
+ * /api/v1/admin/resetPassword:
  *   post:
  *     tags:
- *       - Mother
+ *       - Admin
  *     summary: Reset password
- *     description: Resets the mother's password after OTP verification
+ *     description: Resets the admin's password after OTP verification
  *     requestBody:
  *       required: true
  *       content:
@@ -315,13 +307,13 @@ router.post('/verify-reset', verifyResetOTP);
  *             properties:
  *               email:
  *                 type: string
- *                 example: jane.doe@example.com
+ *                 example: john.doe@example.com
  *               newPassword:
  *                 type: string
- *                 example: newpassword123
+ *                 example: NewP@ssword123
  *               confirmNewPassword:
  *                 type: string
- *                 example: newpassword123
+ *                 example: NewP@ssword123
  *     responses:
  *       200:
  *         description: Password reset successfully
@@ -336,108 +328,24 @@ router.post('/verify-reset', verifyResetOTP);
  *       400:
  *         description: Passwords do not match
  *       404:
- *         description: Mother not found
+ *         description: Admin not found
  */
 
-router.post('/reset-password', resetPassword);
-
+router.post('/resetPassword', resetPassword);
 
 /**
  * @swagger
- * /api/v1/mother/update-profile:
- *   put:
- *     tags:
- *       - Mother
- *     summary: Update mother profile
- *     description: Updates the authenticated mother's profile information
- *     security:
- *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               firstName:
- *                 type: string
- *                 example: Jane
- *               lastName:
- *                 type: string
- *                 example: Doe
- *               email:
- *                 type: string
- *                 example: jane.doe@example.com
- *               phoneNumber:
- *                 type: string
- *                 example: "8012345678"
- *               address:
- *                 type: string
- *                 example: 123 Main St, Lagos
- *               estimatedDueDate:
- *                 type: string
- *                 format: date
- *                 example: "2025-12-01"
- *               trimester:
- *                 type: string
- *                 example: second
- *               bloodType:
- *                 type: string
- *                 example: O+
- *               existingHealthConditions:
- *                 type: string
- *                 example: None
- *               currentPregnancyWeek:
- *                 type: integer
- *                 example: 20
- *               emergencyContact:
- *                 type: string
- *                 example: "+2348098765432"
- *               allergies:
- *                 type: string
- *                 example: Penicillin
- *               savingsGoalAmount:
- *                 type: number
- *                 example: 500000
- *               weeklyContribution:
- *                 type: number
- *                 example: 10000
- *               linkedPaymentMethod:
- *                 type: string
- *                 example: bank_transfer
- *     responses:
- *       200:
- *         description: Mother updated successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Mother updated successfully
- *                 data:
- *                   type: object
- *       404:
- *         description: Mother or hospital not found
- */
-
-router.put('/update-profile', updateMother);
-
-
-/**
- * @swagger
- * /api/v1/mother/get-mother:
+ * /api/v1/admin/getMothers:
  *   get:
  *     tags:
- *       - Mother
- *     summary: Get mother profile
- *     description: Retrieves the authenticated mother's profile
+ *       - Admin
+ *     summary: Get all mothers
+ *     description: Retrieves all registered mothers (admin only)
  *     security:
  *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: Mother profile retrieved successfully
+ *         description: All mothers fetched successfully
  *         content:
  *           application/json:
  *             schema:
@@ -445,24 +353,128 @@ router.put('/update-profile', updateMother);
  *               properties:
  *                 message:
  *                   type: string
- *                   example: Mother profile retrieved successfully
- *                 data:
+ *                   example: All mothers fetched successfully
+ *                 mothers:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *       403:
+ *         description: Unauthorised
+ */
+
+router.get('/getMothers', getMothers),
+
+/**
+ * @swagger
+ * /api/v1/admin/getMother:
+ *   get:
+ *     tags:
+ *       - Admin
+ *     summary: Get a single mother
+ *     description: Retrieves a single mother by ID (admin only)
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The mother's ID
+ *     responses:
+ *       200:
+ *         description: Mother fetched successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Mother fetched successfully
+ *                 mother:
  *                   type: object
  *       404:
  *         description: Mother not found
  */
 
-router.get('/get-mother', getMotherProfile);
-
+router.get('/getMother', getMother);
 
 /**
  * @swagger
- * /api/v1/mother/logout:
+ * /api/v1/admin/getHospitals:
+ *   get:
+ *     tags:
+ *       - Admin
+ *     summary: Get all hospitals
+ *     description: Retrieves all registered hospitals (admin only)
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: All hospitals fetched successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: All hospitals fetched successfully
+ *                 hospitals:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *       403:
+ *         description: Unauthorised
+ */
+
+router.get('/getHospitals', getHospital);
+
+/**
+ * @swagger
+ * /api/v1/admin/getHospital:
+ *   get:
+ *     tags:
+ *       - Admin
+ *     summary: Get a single hospital
+ *     description: Retrieves a single hospital by ID (admin only)
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The hospital's ID
+ *     responses:
+ *       200:
+ *         description: Hospital fetched successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Hospital fetched successfully
+ *                 hospital:
+ *                   type: object
+ *       404:
+ *         description: Hospital not found
+ */
+
+router.get('/getHospital', getHospital);
+
+/**
+ * @swagger
+ * /api/v1/admin/logOut:
  *   post:
  *     tags:
- *       - Mother
- *     summary: Logout mother
- *     description: Logs out the authenticated mother and invalidates the session token in Redis
+ *       - Admin
+ *     summary: Logout admin
+ *     description: Logs out the authenticated admin and invalidates the session token in Redis
  *     security:
  *       - bearerAuth: []
  *     responses:
@@ -478,22 +490,6 @@ router.get('/get-mother', getMotherProfile);
  *                   example: Logout successful
  */
 
-router.post('/logout', logout)
-
-router.get('/collect', passport.authenticate('google', {scope: ['profile', 'email']}))
-
-router.get('/googleSignUp', passport.authenticate('google', {
-    session: false,
-    successRedirect: '/api/user/loginsuccess', 
-    failureRedirect: '/api/user/loginfailed'}))
-
-router.get('/loginsuccess', (req, res) => {
-        res.json({message: 'Login successful', 
-            data: req.user})
-    })
-
-router.get('/loginfailed', (req, res) => {
-        res.json({message: 'Login failed'})
-    })
+router.post('/logOut', logout)
 
 module.exports = router

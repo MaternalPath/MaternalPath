@@ -4,9 +4,10 @@ const PORT = process.env.PORT || 2245;
 const sequelize = require('./database/db');
 const motherRouter = require('./routes/mother');
 const hospitalRouter = require('./routes/hospital');
+const adminRouter = require('./routes/admin')
 const expressSession = require('express-session')
 const passport = require('passport');
-require('./controller/googleSignIn')
+require('./controller/mother')
 require('./database/db')
 const swaggerUi = require('swagger-ui-express');
 const swaggerJsdoc = require('swagger-jsdoc');
@@ -27,6 +28,11 @@ app.use(express.json());
 
 app.use('/api/v1/mother/', motherRouter);
 app.use('/api/v1/hospital/', hospitalRouter);
+app.use('/api/v1/admin/', adminRouter);
+
+app.get('/', (req, res) => {
+    res.send('Welcome to MaternalPath API');
+});
 
 const swaggerDefinition = {
   openapi: '3.0.0',
@@ -47,6 +53,10 @@ const swaggerDefinition = {
   servers: [
     {
       url: 'https://maternalpath.onrender.com',
+      description: 'Development server',
+    },
+    {
+      url: 'http://localhost:2245',
       description: 'Development server',
     },
   ],

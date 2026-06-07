@@ -50,11 +50,12 @@ module.exports = (sequelize, DataTypes) => {
     weeklyContribution: { type: DataTypes.STRING },
     linkedPaymentMethod: { type: DataTypes.STRING },
     estimatedDueDate: { type: DataTypes.STRING },
-    amount: { type: DataTypes.INTEGER }, // Cleaned up duplicate 'amount' key
-    otp: { type: DataTypes.STRING },    // Cleaned up duplicate 'otp' key
+    amount: { type: DataTypes.INTEGER }, 
+    otp: { type: DataTypes.STRING },    
     otpExpiresAt: { type: DataTypes.DATE },
     isVerified: { type: DataTypes.BOOLEAN, defaultValue: false },
     isUpdated: { type: DataTypes.BOOLEAN, defaultValue: false },
+    role: { type: DataTypes.STRING, enum: ['mother','admin', 'hospital'],defaultValue: 'mother' },
     createdAt: { allowNull: false, type: DataTypes.DATE },
     updatedAt: { allowNull: false, type: DataTypes.DATE }
   }, {

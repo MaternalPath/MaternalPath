@@ -107,6 +107,7 @@ module.exports = {
                 type: Sequelize.BOOLEAN,
                 defaultValue: false
             },
+            role: { type: Sequelize.STRING, enum: ['mother','admin', 'hospital'],defaultValue: 'mother' },
             createdAt: {
                 type: Sequelize.DATE,
                 allowNull: false
