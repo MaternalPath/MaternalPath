@@ -104,7 +104,7 @@ exports.hospitalLoginValidator = async (req, res, next) => {
 
 exports.changePasswordValidator = (req, res, next) => {
     const schema = joi.object({
-        oldPassword: joi.string().pattern(/^(?=.*[a-z])(?=.*[A-Z]).{8,}$/).required().messages({
+        currentPassword: joi.string().pattern(/^(?=.*[a-z])(?=.*[A-Z]).{8,}$/).required().messages({
             'any.required': "Old password is required",
             "string.empty": "Old password cannot be empty",
             'string.pattern.base': "Old password must be at least 8 characters long and contain at least one lowercase letter, one uppercase letter, one digit, and one special character"
@@ -114,10 +114,7 @@ exports.changePasswordValidator = (req, res, next) => {
             "string.empty": "New password cannot be empty",
             'string.pattern.base': "New password must be at least 8 characters long and contain at least one lowercase letter, one uppercase letter, one digit, and one special character"
         }),
-        confirmPassword: joi.string().required().valid(joi.ref('newPassword')).messages({
-            "any.only": "Confirm password must match New password",
-            "any.required": "Confirm password is required"
-        })
+       
     })
 
     const { error } = schema.validate(req.body);

@@ -5,6 +5,7 @@ const fs = require('fs');
 const {
   createHospital,
   verifyEmail,
+  resendOTP,
   loginHospital,
   changePassword,
   verifyResetOTP,
@@ -172,15 +173,13 @@ router.post('/register',
  */
 router.post('/login', hospitalLoginValidator, loginHospital);
 
-
 /**
  * @swagger
  * /api/v1/hospital/verify:
  *   post:
- *     tags:
- *       - Hospital
- *     summary: Verify hospital's email
- *     description: Verifies the hospital's email using the OTP sent during registration
+ *     summary: Verify hospital email
+ *     tags: [Hospital]
+ *     description: Verifies a hospital account using the OTP sent during registration.
  *     requestBody:
  *       required: true
  *       content:
@@ -193,7 +192,8 @@ router.post('/login', hospitalLoginValidator, loginHospital);
  *             properties:
  *               email:
  *                 type: string
- *                 example: jane.doe@example.com
+ *                 format: email
+ *                 example: hospital@example.com
  *               otp:
  *                 type: string
  *                 example: "482910"
@@ -210,9 +210,12 @@ router.post('/login', hospitalLoginValidator, loginHospital);
  *                   example: Hospital verified successfully
  *       404:
  *         description: Hospital not found or invalid OTP
+ *       500:
+ *         description: Internal server error
  */
-
 router.post('/verify', verifyEmail);
+
+
 
 
 
