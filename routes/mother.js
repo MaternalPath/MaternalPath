@@ -1,7 +1,8 @@
 const express = require('express');
-const { createMother, verifyEmail, resendOTP, verifyResetOTP, resetPassword, updateMother, getMotherProfile, logout, loginMother, forgotPassword } = require('../controller/mother');
+const { createMother, verifyEmail, resendOTP, verifyResetOTP, resetPassword, updateMother, getMotherProfile, logout, loginMother, forgotPassword, balance } = require('../controller/mother');
 const { registerValidator } = require('../middlewares/validator');
-const passport = require('passport')
+const passport = require('passport');
+const { Authentication } = require('../middlewares/auth');
 const router = express.Router();
 
 /**
@@ -480,17 +481,59 @@ router.get('/get-mother', getMotherProfile);
 
 router.post('/logout', logout)
 
+/**
+ * @swagger
+ * /api/v1/mother/balance:
+ *   post:
+ *     tags:
+ *       - Mother
+ *     summary: Get mother balance
+ *     description: Retrieves the authenticated mother's current balance
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Balance retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Balance retrieved successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     currentBalance:
+ *                       type: number
+ *                       example: 50000.00
+ *       401:
+ *         description: Unauthorised - token not found or invalid
+ *       404:
+ *         description: Mother not found
+ */
+
+router.post('/balance', Authentication, balance)
+
 router.get('/collect', passport.authenticate('google', {scope: ['profile', 'email']}))
 
 router.get('/googleSignUp', passport.authenticate('google', {
-    session: false,
-    successRedirect: '/api/user/loginsuccess', 
-    failureRedirect: '/api/user/loginfailed'}))
+    successRedirect: '/api/v1/mother/loginsuccess', 
+
+                       
+    failureRedirect: '/api/v1/mother/loginfailed'}))
+
+
+
+    // router.get('/googleSignUp', passport.authenticate('google', {
+    // successRedirect: '/api/user/loginsuccess', 
+    // failureRedirect: '/api/user/loginfailed'}))
 
 router.get('/loginsuccess', (req, res) => {
-        res.json({message: 'Login successful', 
+        res.json({message: 'Login successful',  
             data: req.user})
-    })
+    }) 
 
 router.get('/loginfailed', (req, res) => {
         res.json({message: 'Login failed'})
