@@ -31,6 +31,8 @@ exports.createHospital = async (req, res) => {
 
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
+        const OTP = otpGenerator.generate(6, { upperCaseAlphabets: false, lowerCaseAlphabets: false, specialChars: false });
+        const expiresAt = new Date(Date.now() + 10 * 60000);
 
         const hospital = await Hospital.create({
             hospitalName,
@@ -41,9 +43,20 @@ exports.createHospital = async (req, res) => {
             hospitalLogo,
             verificationDocuments: JSON.stringify(verificationDocuments),
             adminFullName,
+            otp: OTP,
+            otpExpiresAt: expiresAt,
+            isVerified: false,
             deliveryFee,
             medicalLicenseNumber
         });
+
+        const emailOptions = {
+            email: hospital.email,
+            subject: 'Hospital email verification OTP',
+            html: signUpTemplate(hospital.hospitalName, OTP)
+        };
+
+        await sendBrevoEmail(emailOptions);
 
         const data = {
             hospitalName: hospital.hospitalName,
@@ -53,12 +66,13 @@ exports.createHospital = async (req, res) => {
             hospitalLogo: hospital.hospitalLogo,
             verificationDocuments,
             adminFullName: hospital.adminFullName,
+            otp: hospital.otp,
             deliveryFee: hospital.deliveryFee,
             medicalLicenseNumber: hospital.medicalLicenseNumber
         }
 
         res.status(201).json({
-            message: 'Hospital created successfully',
+            message: 'Hospital created successfully. Please check your email for OTP',
             data
     });
     } catch (error) {
