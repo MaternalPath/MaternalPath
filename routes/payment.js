@@ -22,6 +22,16 @@ const router = express.Router();
  *     description: Retrieves the authenticated user's current payment balance
  *     security:
  *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               amount:
+ *                 type: number
+ *                 example: 5000.00
  *     responses:
  *       200:
  *         description: Payment retrieved successfully
