@@ -2,13 +2,13 @@ const joi = require('joi');
 
 exports.registerValidator = async (req, res, next) => {
     const schema = joi.object({
-        firstName: joi.string().trim().min(2).required().messages({
+        firstName: joi.string().trim().min(4).required().messages({
             'string.base': 'Firstname must be a string',
             'string.empty': 'Firstname is required',
-            'string.min': 'Firstname must be at least 2 characters long',
+            'string.min': 'Firstname must be at least 4 characters long',
             'any.required': 'Firstname is required'
         }),
-        lastName: joi.string().trim().min(2).required().messages({
+        lastName: joi.string().trim().min(4).required().messages({
             'string.base': 'Lastname must be a string',
             'string.empty': 'Lastname is required'
         }),
