@@ -10,7 +10,48 @@ const {
 const jwt = require('jsonwebtoken');
 const redisClient = require('../config/redis')
 const { Op } = require('sequelize');
+const passport = require('passport');
+const mother = require('../models/mother');
 
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
+
+// Strategy definition
+passport.use(new GoogleStrategy({
+    clientID: process.env.clientId,
+    clientSecret: process.env.clientSecret,
+    callbackURL: process.env.googleCallback,
+    scope: ['profile', 'email'],
+    passReqToCallback: true
+  },
+  async function(request, accessToken, refreshToken, profile, done) {
+    console.log("i am profile:", profile);
+    
+    const checkUser = await Mother.findOne({ where: { email: profile._json.email } }); // sequelize uses "where"
+    let token;
+
+    if (checkUser) {
+        token = jwt.sign({ id: checkUser.id }, process.env.JWT_SECRET, { expiresIn: '1day' });
+    } else { 
+        const createUser = await Mother.create({
+            firstName: profile._json.given_name,
+            lastName: profile._json.family_name,
+            email: profile._json.email,
+            isVerified: profile._json.email_verified,
+        });
+        token = jwt.sign({ id: createUser.id }, process.env.JWT_SECRET, { expiresIn: '1day' });
+    }
+    return done(null, token);
+  }
+));
+
+// These must be OUTSIDE the strategy 👇
+passport.serializeUser((token, done) => {
+    return done(null, token);
+});
+
+passport.deserializeUser((token, done) => {
+    return done(null, token);
+});
 
 exports.createMother = async (req, res, next) => {
     try {
@@ -163,11 +204,11 @@ exports.loginMother = async (req, res, next) => {
         const { emailOrPhoneNumber, password } = req.body;
 
         const input = emailOrPhoneNumber?.trim();
-
+console.log('Input: ', input);
         const mother = await Mother.findOne({
     where: {
         [Op.or]: [
-            { email: input.toLowerCase() },
+            { email: input?.toLowerCase() },
             { phoneNumber: input }
         ]
     }
@@ -198,13 +239,18 @@ exports.loginMother = async (req, res, next) => {
 
         const token = await jwt.sign({ id: mother._id, email: mother.email }, process.env.JWT_SECRET, { expiresIn: '1day'});
 
+        const check = mother.isUpdated;
+
+        console.log(check)
+
         redisClient.del(`mother_${mother._id}`);
 
         redisClient.set(`mother_${mother._id}`, token, { EX: 86400 });
 
         return res.status(200).json({
             message: 'Login successful',
-            token
+            token,
+            isUpdated: check
         })
     } catch (error) {
         next({
@@ -414,6 +460,8 @@ const data = {
   estimatedDeliveryCost: hospital.deliveryFee,
   isUpdated: true
 };
+
+mother.isUpdated = true;
 
 const updatedMother = await mother.update(data);
 
