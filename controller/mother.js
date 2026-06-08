@@ -20,12 +20,12 @@ passport.use(new GoogleStrategy({
     clientID: process.env.clientId,
     clientSecret: process.env.clientSecret,
     callbackURL: process.env.googleCallback,
-    scope: ['profile', 'email'],
+    scope: ['profile'],
     passReqToCallback: true
   },
   async function(request, accessToken, refreshToken, profile, done) {
     console.log("i am profile:", profile);
-    
+     
     const checkUser = await Mother.findOne({ where: { email: profile._json.email } }); // sequelize uses "where"
     let token;
 
@@ -237,15 +237,15 @@ console.log('Input: ', input);
 
         await mother.save();
 
-        const token = await jwt.sign({ id: mother._id, email: mother.email }, process.env.JWT_SECRET, { expiresIn: '1day'});
+        const token = await jwt.sign({ id: mother.id, email: mother.email }, process.env.JWT_SECRET, { expiresIn: '1day'});
 
         const check = mother.isUpdated;
 
         console.log(check)
 
-        redisClient.del(`mother_${mother._id}`);
+        redisClient.del(`mother_${mother.id}`);
 
-        redisClient.set(`mother_${mother._id}`, token, { EX: 86400 });
+        redisClient.set(`mother_${mother.id}`, token, { EX: 86400 });
 
         return res.status(200).json({
             message: 'Login successful',
@@ -521,3 +521,44 @@ exports.logout = async (req, res, next) => {
         })
     }
 }
+
+exports.balance = async (req, res, next) => {
+
+    try {
+        const id = req.user?.id;
+
+if (!id) {
+    return next({
+        message: 'Unauthorized',
+        statusCode: 401
+    });
+}
+const mother = await Mother.findOne({
+    where: { id }
+});
+
+if (!mother) {
+    return next({
+        message: 'Mother does not exist',
+        statusCode: 404
+    });
+}
+        const { amount } = req.body;
+        let currentBalance = mother.amount;
+        currentBalance += Number(amount);
+
+        await Mother.update({ currentBalance, amount }, { where: { id: mother.id } });
+
+        res.status(200).json({
+            message: 'Balance updated successfully',
+            currentBalance
+        })
+
+    } catch (error) {
+      next({
+            message: error.message,
+            statusCode: 500
+        })  
+    }
+}
+

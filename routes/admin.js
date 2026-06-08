@@ -1,6 +1,7 @@
 const express = require('express');
 const { registerValidator } = require('../middlewares/validator');
 const { createAdmin, loginAdmin, verifyEmail, resendOTP, forgotPassword, getMothers, getMother, getHospital, getHospitals, logout, verifyResetOTP, resetPassword } = require('../controller/admin');
+const { Authentication, checkAdmin } = require('../middlewares/auth');
 const router = express.Router();
 
 /**
@@ -362,7 +363,7 @@ router.post('/resetPassword', resetPassword);
  *         description: Unauthorised
  */
 
-router.get('/getMothers', getMothers),
+router.get('/getMothers', checkAdmin, getMothers),
 
 /**
  * @swagger

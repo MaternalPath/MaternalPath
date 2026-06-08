@@ -51,6 +51,7 @@ module.exports = (sequelize, DataTypes) => {
     linkedPaymentMethod: { type: DataTypes.STRING },
     estimatedDueDate: { type: DataTypes.STRING },
     amount: { type: DataTypes.INTEGER }, 
+    currentBalance: { type: DataTypes.INTEGER }, 
     otp: { type: DataTypes.STRING },    
     otpExpiresAt: { type: DataTypes.DATE },
     isVerified: { type: DataTypes.BOOLEAN, defaultValue: false },
