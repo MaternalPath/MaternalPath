@@ -398,7 +398,7 @@ exports.updateMother = async (req, res, next) => {
     try {
         const { firstName, lastName, phoneNumber, email, address, estimatedDueDate, trimester, bloodType, existingHealthConditions, currentPregnancyWeek, emergencyContact, allergies,savingsGoalAmount, weeklyContribution, linkedPaymentMethod, hospitalId } = req.body;
 
-        const { id } = req.user;
+        const id = req.user?.id;
 
         const mother = await Mother.findOne({ where: { id } });
 
