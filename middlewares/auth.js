@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken')
+const {Admin} = require('../models')
 
 const Authentication = async (req, res, next)=>{
     try {
@@ -10,7 +11,7 @@ const Authentication = async (req, res, next)=>{
             })
         }
 
-        jwt.verify(token, process.env.SECRET_KEY || 'your-secret-key-change-this-in-production', (err, data) => {
+        jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key-change-this-in-production', (err, data) => {
             if(err){
                 console.log(err.message)
                 return res.status(401).json({
@@ -28,7 +29,49 @@ const Authentication = async (req, res, next)=>{
     }
 }
 
+const checkAdmin = async (req, res, next) => {
+    try {
+        const auth = req.headers.authorization
+        if (!auth) {
+            return res.status(400).json({
+                message: "Auth required"
+            })
+        }
+        const token = auth.split(' ')[1]
+        
+        const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+
+        const user = await Admin.findOne({ where:{id: decodedToken.id }})
+
+        console.log('USER FOUND:', user)
+        if (!user) {
+            return res.status(404).json({
+                message: "Authentication failed: User not found"
+            })
+        }
+
+        const role = user.role
+
+        if (role !== 'admin') {
+            res.status(401).json({
+                message: 'Unaunthorized'
+            })
+        }
+
+        req.user = decodedToken
+
+        next()
+
+
+    } catch (error) {
+        res.status(500).json({
+            message: error.message
+        })
+    }
+
+}
+
 module.exports = {
     Authentication,
-
+    checkAdmin
 }

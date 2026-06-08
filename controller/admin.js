@@ -7,7 +7,6 @@ const otpGenerator = require('otp-generator');
 const { signUpTemplate , resetPasswordTemplate} = require('../utils/emailTemplates');
 const jwt = require('jsonwebtoken');
 const redisClient = require('../config/redis');
-const mother = require('../models/mother');
 const hospital = require('../models/hospital');
 const { Op } = require('sequelize');
 
@@ -184,11 +183,11 @@ console.log('Input: ', input);
 
         await admin.save();
 
-        const token = await jwt.sign({ id: admin._id, email: admin.email }, process.env.JWT_SECRET, { expiresIn: '1day'});
+        const token = await jwt.sign({ id: admin.id, email: admin.email }, process.env.JWT_SECRET, { expiresIn: '1day'});
 
-        redisClient.del(`admin_${admin._id}`);
+        redisClient.del(`admin_${admin.id}`);
 
-        redisClient.set(`admin_${admin._id}`, token, { EX: 86400 });
+        redisClient.set(`admin_${admin.id}`, token, { EX: 86400 });
 
         return res.status(200).json({
             message: 'Login successful',
@@ -338,7 +337,7 @@ exports.resetPassword = async (req, res, next) => {
 
 exports.getMothers = async (req, res, next) => {
     try {
-        const { id } = req.user;
+        const id = req.user?.id;
         const user = await Admin.findOne({where: {id}});
         if (user.role !== 'admin') {
             return next({
@@ -346,7 +345,7 @@ exports.getMothers = async (req, res, next) => {
                 statusCode: 403
             })
         }
-        const mothers = await mother.findAll({ attributes: { exclude: ['password']}});
+        const mothers = await Mother.findAll({ attributes: { exclude: ['password']}});
         res.status(200).json({
             message: 'All mothers fetched successfully',
             mothers
@@ -362,7 +361,7 @@ exports.getMothers = async (req, res, next) => {
 exports.getMother = async (req, res, next) => {
     try {
         const { id } = req.params;
-        const foundMother = await mother.findOne({where: {id}}).select('-password');
+        const foundMother = await Mother.findOne({where: {id}}).select('-password');
         if (!foundMother) {
             return next({
                 message: 'Mother not found',
@@ -429,8 +428,8 @@ exports.getHospital = async (req, res, next) => {
 
 exports.logout = async (req, res, next) => {
     try {
-        const id = req.user.id;
-        redisClient.del(`user: admin_${id}`);
+        const id = req.user?.id;
+        redisClient.del(`user: ${id}`);
 
         res.status(200).json({
             message: 'Logout successful'
