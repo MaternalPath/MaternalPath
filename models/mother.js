@@ -50,7 +50,6 @@ module.exports = (sequelize, DataTypes) => {
     estimatedDeliveryCost: { type: DataTypes.STRING },
     savingsGoalAmount: { type: DataTypes.STRING },
     address: { type: DataTypes.STRING },
-    currentBalance: { type: DataTypes.STRING },
     weeklyContribution: { type: DataTypes.STRING },
     linkedPaymentMethod: { type: DataTypes.STRING },
     estimatedDueDate: { type: DataTypes.STRING },
