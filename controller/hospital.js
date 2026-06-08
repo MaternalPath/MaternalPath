@@ -66,6 +66,7 @@ exports.createHospital = async (req, res) => {
             hospitalLogo: hospital.hospitalLogo,
             verificationDocuments,
             adminFullName: hospital.adminFullName,
+            otp: hospital.otp,
             deliveryFee: hospital.deliveryFee,
             medicalLicenseNumber: hospital.medicalLicenseNumber
         }
