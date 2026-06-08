@@ -400,6 +400,13 @@ exports.updateMother = async (req, res, next) => {
 
         const id = req.user?.id;
 
+        if (!id) {
+        return next({
+        statusCode: 401,
+        message: 'Unauthorized'
+        });
+    }   
+
         const mother = await Mother.findOne({ where: { id } });
 
         if (!mother) {
