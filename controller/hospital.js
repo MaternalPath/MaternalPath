@@ -159,9 +159,17 @@ exports.resendOTP = async (req, res, next) => {
 
 exports.loginHospital = async (req, res) => {
     try {
-        const { email, password } = req.body;
+        const { emailOrPhoneNumber, password } = req.body;
 
-        const hospital = await Hospital.findOne({ where: { email: email.toLowerCase() } });
+        const input = emailOrPhoneNumber?.trim();
+        const hospital = await Hospital.findOne({
+            where: {
+                [Op.or]: [
+                    { email: input?.toLowerCase() },
+                    { phoneNumber: input }
+                ]
+            }
+        });
 
         if (!hospital) {
             return res.status(404).json({
@@ -180,7 +188,7 @@ exports.loginHospital = async (req, res) => {
         const token = jwt.sign(
             { id: hospital.id, email: hospital.email },
             process.env.SECRET_KEY || 'your-secret-key-change-this-in-production',
-            { expiresIn: '7d' }
+            { expiresIn: '1d' }
         );
 
         // redisClient.setex(`hospital_${hospital.id}`, 7 * 24 * 60 * 60, token);
@@ -189,8 +197,9 @@ exports.loginHospital = async (req, res) => {
             message: 'Login successful',
             token,
             data: {
+                hospitalName: hospital.hospitalName,
                 email: hospital.email,
-                phoneNumber: hospital.phoneNumber,
+                phoneNumber: hospital.phoneNumber
             }
         });
     } catch (error) {
