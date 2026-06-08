@@ -59,6 +59,12 @@ module.exports = {
             currentPregnancyWeek: {
                 type: Sequelize.INTEGER
              },
+            pregnancyProgress: {
+                type: Sequelize.INTEGER
+             },
+            daysUntilDueDate: {
+                type: Sequelize.INTEGER
+             },
             emergencyContact: {
                 type: Sequelize.STRING
              },
