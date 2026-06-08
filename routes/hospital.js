@@ -110,7 +110,7 @@ const router = express.Router();
  *               verificationDocuments:
  *                 type: array
  *                 maxItems: 5
- *                 description: Upload up to 5 JPG, JPEG, PNG, or PDF files. Each file must be 5MB or less.
+ *                 description: Upload only 1 JPG, JPEG, PNG, or PDF file. file must be 5MB or less.
  *                 items:
  *                   type: string
  *                   format: binary
@@ -137,43 +137,7 @@ router.post('/register',
         { name: 'verificationDocuments', maxCount: 5 }
     ]), hospitalRegisterValidator, createHospital);
 
-/**
- * @swagger
- * /api/v1/hospital/login:
- *   post:
- *     summary: Login a hospital
- *     tags: [Hospital]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - email
- *               - password
- *             properties:
- *               email:
- *                 type: string
- *                 format: email
- *                 example: hospital@example.com
- *               password:
- *                 type: string
- *                 format: password
- *                 example: Password123
- *     responses:
- *       200:
- *         description: Login successful
- *       400:
- *         description: Invalid password or validation error
- *       404:
- *         description: Hospital not found
- *       500:
- *         description: Internal server error
- */
-router.post('/login', hospitalLoginValidator, loginHospital);
-
-/**
+    /**
  * @swagger
  * /api/v1/hospital/verify:
  *   post:
@@ -214,48 +178,6 @@ router.post('/login', hospitalLoginValidator, loginHospital);
  *         description: Internal server error
  */
 router.post('/verify', verifyEmail);
-
-
-
-
-
-/**
- * @swagger
- * /api/v1/hospital/forgot-password:
- *   post:
- *     tags:
- *       - Hospital
- *     summary: Forgot password
- *     description: Sends a password reset OTP to the hospital's email
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - email
- *             properties:
- *               email:
- *                 type: string
- *                 example: falety@example.com
- *     responses:
- *       200:
- *         description: OTP sent to email
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Please check your email for password reset OTP
- *       404:
- *         description: hospital not found or email not verified
- */
-
-router.post('/forgot-password', forgotPassword);
-
 
 /**
  * @swagger
@@ -299,6 +221,86 @@ router.post('/forgot-password', forgotPassword);
  */
 
 router.post('/verify-reset', verifyResetOTP);
+
+
+/**
+ * @swagger
+ * /api/v1/hospital/login:
+ *   post:
+ *     summary: Login a hospital
+ *     tags: [Hospital]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - emailOrPhoneNumber
+ *               - password
+ *             properties:
+ *               emailOrPhoneNumber:
+ *                 type: string
+ *                 example: hospital@example.com or 09099923323
+ *               password:
+ *                 type: string
+ *                 format: password
+ *                 example: Password123
+ *     responses:
+ *       200:
+ *         description: Login successful
+ *       400:
+ *         description: Invalid password or validation error
+ *       404:
+ *         description: Hospital not found
+ *       500:
+ *         description: Internal server error
+ */
+router.post('/login', hospitalLoginValidator, loginHospital);
+
+
+
+
+
+
+/**
+ * @swagger
+ * /api/v1/hospital/forgot-password:
+ *   post:
+ *     tags:
+ *       - Hospital
+ *     summary: Forgot password
+ *     description: Sends a password reset OTP to the hospital's email
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 example: falety@example.com
+ *     responses:
+ *       200:
+ *         description: OTP sent to email
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Please check your email for password reset OTP
+ *       404:
+ *         description: hospital not found or email not verified
+ */
+
+router.post('/forgot-password', forgotPassword);
+
+
 
 
 /**

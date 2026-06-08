@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken')
 const {Admin} = require('../models')
+const JWT_SECRET = process.env.JWT_SECRET?.trim() || 'your-secret-key-change-this-in-production'
 
 const Authentication = async (req, res, next)=>{
     try {
@@ -11,11 +12,12 @@ const Authentication = async (req, res, next)=>{
             })
         }
 
-        jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key-change-this-in-production', (err, data) => {
+        jwt.verify(token, JWT_SECRET, (err, data) => {
             if(err){
-                console.log(err.message)
+                console.log('JWT verify error:', err.message)
                 return res.status(401).json({
-                    message:'Token validation failed'
+                    message: 'Token validation failed',
+                    error: err.message
                 })
             }
             req.user = data
@@ -39,7 +41,7 @@ const checkAdmin = async (req, res, next) => {
         }
         const token = auth.split(' ')[1]
         
-        const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+        const decodedToken = jwt.verify(token, JWT_SECRET);
 
         const user = await Admin.findOne({ where:{id: decodedToken.id }})
 
