@@ -2,7 +2,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('payments', {
+    await queryInterface.createTable('wallets', {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -22,14 +22,8 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false
       },
-      reference: {
-        type: Sequelize.STRING,
-        allowNull: false
-      },
-      status: {
-        type: Sequelize.STRING,
-        allowNull: false,
-        defaultValue: 'pending'
+      currentBalance: {
+        type: Sequelize.INTEGER
       },
       createdAt: {
         allowNull: false,
@@ -42,6 +36,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('payments');
+    await queryInterface.dropTable('wallets');
   }
 };

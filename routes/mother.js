@@ -1,6 +1,6 @@
 const express = require('express');
 const { createMother, verifyEmail, resendOTP, verifyResetOTP, resetPassword, updateMother, getMotherProfile, logout, loginMother, forgotPassword } = require('../controller/mother');
-const { registerValidator } = require('../middlewares/validator');
+const { registerValidator, loginValidator } = require('../middlewares/validator');
 const passport = require('passport');
 const { Authentication } = require('../middlewares/auth');
 const router = express.Router();
@@ -210,7 +210,7 @@ router.post('/resend-otp',resendOTP);
  *         description: Email not verified
  */
 
-router.post('/loginMother', loginMother);
+router.post('/loginMother',loginValidator, loginMother);
 
 
 /**

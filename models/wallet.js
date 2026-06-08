@@ -3,7 +3,7 @@ const {
   Model
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  class payment extends Model {
+  class wallet extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
@@ -11,13 +11,13 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      payment.belongsTo(models.Mother, {
+      wallet.belongsTo(models.Mother, {
         foreignKey: 'motherId',
         as: 'Mother'
       });
     }
   }
-  payment.init({
+  wallet.init({
     id: {
       allowNull: false,
       primaryKey: true,
@@ -33,23 +33,14 @@ module.exports = (sequelize, DataTypes) => {
       onDelete: 'CASCADE',
       onUpdate: 'CASCADE',
     },
-    amount: {
+    currentBalance: {
       type: DataTypes.INTEGER,
-      allowNull: false
-    },
-    reference: {
-      type: DataTypes.STRING,
-      allowNull: false
-    },
-    status: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      defaultValue: 'pending'
+      defaultValue: 0
     },
   }, {
     sequelize,
-    modelName: 'payment',
-    tableName: 'payments'
+    modelName: 'wallet',
+    tableName: 'wallets'
   });
-  return payment;
+  return wallet;
 };

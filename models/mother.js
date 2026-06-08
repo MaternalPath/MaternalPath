@@ -40,6 +40,8 @@ module.exports = (sequelize, DataTypes) => {
     estimatedDueDate: { type: DataTypes.STRING },
     trimester: { type: DataTypes.STRING },
     bloodType: { type: DataTypes.STRING },
+    daysUntilDueDate: { type: DataTypes.INTEGER },
+    pregnancyProgress: { type: DataTypes.INTEGER },
     existingHealthConditions: { type: DataTypes.STRING },
     allergies: { type: DataTypes.STRING },
     currentPregnancyWeek: { type: DataTypes.INTEGER },
