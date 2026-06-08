@@ -173,6 +173,48 @@ router.post('/register',
 router.post('/login', hospitalLoginValidator, loginHospital);
 
 
+/**
+ * @swagger
+ * /api/v1/hospital/verify:
+ *   post:
+ *     tags:
+ *       - Hospital
+ *     summary: Verify hospital's email
+ *     description: Verifies the hospital's email using the OTP sent during registration
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - otp
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 example: jane.doe@example.com
+ *               otp:
+ *                 type: string
+ *                 example: "482910"
+ *     responses:
+ *       200:
+ *         description: Hospital verified successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Hospital verified successfully
+ *       404:
+ *         description: Hospital not found or invalid OTP
+ */
+
+router.post('/verify', verifyEmail);
+
+
 
 /**
  * @swagger
