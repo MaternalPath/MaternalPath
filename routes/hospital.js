@@ -2,8 +2,18 @@ const express = require('express');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
-const { createHospital, loginHospital, changePassword} = require('../controller/hospital');
-const { hospitalRegisterValidator, hospitalLoginValidator, changePasswordValidator  } = require('../middlewares/validator');
+const {
+  createHospital,
+  verifyEmail,
+  loginHospital,
+  changePassword,
+  verifyResetOTP,
+  resetPassword,
+  forgotPassword,
+  getHospitalMothers,
+  getHospitalMother
+} = require('../controller/hospital');
+const { hospitalRegisterValidator, hospitalLoginValidator, changePasswordValidator } = require('../middlewares/hospitalValidator');
 const { Authentication } = require('../middlewares/auth');
 
 const uploadDirectory = path.join(__dirname, '..', 'uploads', 'hospitals');
@@ -15,7 +25,7 @@ const storage = multer.diskStorage({
   },
   filename: (req, file, cb) => {
     const timestamp = Date.now(); 
-    const safeName = file.originalname.replace(/\s+/g, '-');
+    const safeName = file.originalname.replace(/[^a-zA-Z0-9.-]/g, '-');
     cb(null, `${timestamp}-${safeName}`);
   }
 });
@@ -23,7 +33,7 @@ const storage = multer.diskStorage({
 const fileFilter = (req, file, cb) => {
   const allowedExtensions = /\.(jpg|jpeg|png|pdf)$/i;
   const allowedMimeTypes = ['image/jpeg', 'image/png', 'application/pdf'];
-  const extension = path.extname(file.originalname);
+  const extension = path.extname(file.originalname).toLowerCase();
   if (allowedExtensions.test(extension) && allowedMimeTypes.includes(file.mimetype)) {
     cb(null, true);
   } else {
@@ -161,6 +171,279 @@ router.post('/register',
  *         description: Internal server error
  */
 router.post('/login', hospitalLoginValidator, loginHospital);
+
+
+
+/**
+ * @swagger
+ * /api/v1/hospital/forgot-password:
+ *   post:
+ *     tags:
+ *       - Hospital
+ *     summary: Forgot password
+ *     description: Sends a password reset OTP to the hospital's email
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 example: falety@example.com
+ *     responses:
+ *       200:
+ *         description: OTP sent to email
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Please check your email for password reset OTP
+ *       404:
+ *         description: hospital not found or email not verified
+ */
+
+router.post('/forgot-password', forgotPassword);
+
+
+/**
+ * @swagger
+ * /api/v1/hospital/verify-reset:
+ *   post:
+ *     tags:
+ *       - Hospital
+ *     summary: Verify reset OTP
+ *     description: Verifies the OTP sent for password reset
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - otp
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 example: falety@example.com
+ *               otp:
+ *                 type: string
+ *                 example: "839201"
+ *     responses:
+ *       200:
+ *         description: OTP verified successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: OTP verified successfully
+ *       400:
+ *         description: Invalid OTP
+ *       404:
+ *         description: hospital not found
+ */
+
+router.post('/verify-reset', verifyResetOTP);
+
+
+/**
+ * @swagger
+ * /api/v1/hospital/reset-password:
+ *   post:
+ *     tags:
+ *       - Hospital
+ *     summary: Reset password
+ *     description: Resets the hospital's password after OTP verification
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - newPassword
+ *               - confirmNewPassword
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 example: falety@example.com
+ *               newPassword:
+ *                 type: string
+ *                 example: newpassword123
+ *               confirmNewPassword:
+ *                 type: string
+ *                 example: newpassword123
+ *     responses:
+ *       200:
+ *         description: Password reset successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Password reset successfully
+ *       400:
+ *         description: Passwords do not match
+ *       404:
+ *         description: hospital not found
+ */
+
+router.post('/reset-password', resetPassword);
+
+/**
+ * @swagger
+ * /api/v1/hospital/mothers:
+ *   get:
+ *     summary: Get mothers registered to the logged-in hospital
+ *     tags: [Hospital]
+ *     security:
+ *       - bearerAuth: []
+ *     description: Returns only mothers whose hospitalId matches the authenticated hospital's token.
+ *     responses:
+ *       200:
+ *         description: Mothers retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Mothers retrieved successfully
+ *                 count:
+ *                   type: integer
+ *                   example: 2
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                         format: uuid
+ *                         example: 9c27d236-7d61-4f3c-8f72-a1b2c3d4e5f6
+ *                       hospitalId:
+ *                         type: string
+ *                         format: uuid
+ *                         example: 2dbb3a33-49c4-4c71-9b23-a8f47162c197
+ *                       firstName:
+ *                         type: string
+ *                         example: Ada
+ *                       lastName:
+ *                         type: string
+ *                         example: Okafor
+ *                       email:
+ *                         type: string
+ *                         example: ada@example.com
+ *                       phoneNumber:
+ *                         type: string
+ *                         example: "+2348012345678"
+ *                       estimatedDueDate:
+ *                         type: string
+ *                         example: "2026-12-01"
+ *                       trimester:
+ *                         type: string
+ *                         example: second
+ *                       selectedHospital:
+ *                         type: string
+ *                         example: Maternal Path Hospital
+ *                       isVerified:
+ *                         type: boolean
+ *                         example: true
+ *                       isUpdated:
+ *                         type: boolean
+ *                         example: true
+ *       401:
+ *         description: Missing or invalid hospital token
+ *       404:
+ *         description: Hospital not found
+ *       500:
+ *         description: Internal server error
+ */
+router.get('/mothers', Authentication, getHospitalMothers);
+
+/**
+ * @swagger
+ * /api/v1/hospital/mothers/{motherId}:
+ *   get:
+ *     summary: Get one mother registered to the logged-in hospital
+ *     tags: [Hospital]
+ *     security:
+ *       - bearerAuth: []
+ *     description: Returns one mother only if her hospitalId matches the authenticated hospital's token.
+ *     parameters:
+ *       - in: path
+ *         name: motherId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: The mother's ID
+ *     responses:
+ *       200:
+ *         description: Mother retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Mother retrieved successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                       format: uuid
+ *                       example: 9c27d236-7d61-4f3c-8f72-a1b2c3d4e5f6
+ *                     hospitalId:
+ *                       type: string
+ *                       format: uuid
+ *                       example: 2dbb3a33-49c4-4c71-9b23-a8f47162c197
+ *                     firstName:
+ *                       type: string
+ *                       example: Ada
+ *                     lastName:
+ *                       type: string
+ *                       example: Okafor
+ *                     email:
+ *                       type: string
+ *                       example: ada@example.com
+ *                     phoneNumber:
+ *                       type: string
+ *                       example: "+2348012345678"
+ *                     selectedHospital:
+ *                       type: string
+ *                       example: Maternal Path Hospital
+ *                     isVerified:
+ *                       type: boolean
+ *                       example: true
+ *                     isUpdated:
+ *                       type: boolean
+ *                       example: true
+ *       401:
+ *         description: Missing or invalid hospital token
+ *       404:
+ *         description: Mother not found for this hospital
+ *       500:
+ *         description: Internal server error
+ */
+router.get('/mothers/:motherId', Authentication, getHospitalMother);
+
 
 /**
  * @swagger
