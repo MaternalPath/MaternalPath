@@ -423,7 +423,7 @@ router.post('/reset-password', resetPassword);
  *         description: Mother or hospital not found
  */
 
-router.put('/update-profile', updateMother);
+router.put('/update-profile', Authentication, updateMother);
 
 
 /**
