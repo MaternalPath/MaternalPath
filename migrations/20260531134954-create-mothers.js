@@ -57,9 +57,6 @@ module.exports = {
             allergies: {
                 type: Sequelize.STRING
               },
-            amount: {
-                type: Sequelize.INTEGER
-             },
             currentPregnancyWeek: {
                 type: Sequelize.INTEGER
              },
@@ -82,9 +79,6 @@ module.exports = {
                 type: Sequelize.STRING
              },
             address: {
-                type: Sequelize.STRING
-             },
-            currentBalance: {
                 type: Sequelize.STRING
              },
             weeklyContribution: {

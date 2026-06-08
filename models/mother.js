@@ -8,6 +8,10 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'hospitalId',
         as: 'Hospital'
       });
+       Mother.hasMany(models.payment, {
+    foreignKey: 'motherId',
+    as: 'payments'
+  });
     }
   }
 
@@ -50,8 +54,6 @@ module.exports = (sequelize, DataTypes) => {
     weeklyContribution: { type: DataTypes.STRING },
     linkedPaymentMethod: { type: DataTypes.STRING },
     estimatedDueDate: { type: DataTypes.STRING },
-    amount: { type: DataTypes.INTEGER }, 
-    currentBalance: { type: DataTypes.INTEGER }, 
     otp: { type: DataTypes.STRING },    
     otpExpiresAt: { type: DataTypes.DATE },
     isVerified: { type: DataTypes.BOOLEAN, defaultValue: false },

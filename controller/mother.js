@@ -250,6 +250,7 @@ console.log('Input: ', input);
         return res.status(200).json({
             message: 'Login successful',
             token,
+            id: mother.id,
             isUpdated: check
         })
     } catch (error) {
@@ -526,46 +527,6 @@ exports.logout = async (req, res, next) => {
             message: error.message,
             statusCode: 500
         })
-    }
-}
-
-exports.balance = async (req, res, next) => {
-
-    try {
-        const id = req.user?.id;
-
-if (!id) {
-    return next({
-        message: 'Unauthorized',
-        statusCode: 401
-    });
-}
-const mother = await Mother.findOne({
-    where: { id }
-});
-
-if (!mother) {
-    return next({
-        message: 'Mother does not exist',
-        statusCode: 404
-    });
-}
-        const { amount } = req.body;
-        let currentBalance = mother.amount;
-        currentBalance += Number(amount);
-
-        await Mother.update({ currentBalance, amount }, { where: { id: mother.id } });
-
-        res.status(200).json({
-            message: 'Balance updated successfully',
-            currentBalance
-        })
-
-    } catch (error) {
-      next({
-            message: error.message,
-            statusCode: 500
-        })  
     }
 }
 
