@@ -1,9 +1,12 @@
-const { Mother } = require('../models');
-const hospitalModel = require('../models/hospital');
+const { Mother, Hospital } = require('../models');
 const bcrypt = require('bcrypt');
 const { sendBrevoEmail } = require('../utils/brevo');
 const otpGenerator = require('otp-generator');
-const { signUpTemplate , resetPasswordTemplate} = require('../utils/emailTemplates');
+const {
+    signUpTemplate,
+    resetPasswordTemplate,
+    resetPasswordSuccessfulTemplate
+} = require('../utils/emailTemplates');
 const jwt = require('jsonwebtoken');
 const redisClient = require('../config/redis')
 const { Op } = require('sequelize');
@@ -11,7 +14,7 @@ const { Op } = require('sequelize');
 
 exports.createMother = async (req, res, next) => {
     try {
-        const { firstName, lastName, email, phoneNumber, password, confirmPassword} = req.body;
+        const { firstName, lastName, email, phoneNumber, password, confirmPassword, hospitalId} = req.body;
         const emailExists = await Mother.findOne({ where: {email: email.toLowerCase()}})
         console.log(emailExists)
         if (emailExists) {
@@ -23,6 +26,15 @@ exports.createMother = async (req, res, next) => {
             return res.status(400).json({ 
                 error: 'Passwords do not match' 
             });
+        }
+
+        if (hospitalId) {
+            const hospital = await Hospital.findByPk(hospitalId);
+            if (!hospital) {
+                return res.status(404).json({
+                    message: 'Hospital not found'
+                });
+            }
         }
 
         const OTP = otpGenerator.generate(6, { upperCaseAlphabets: false, lowerCaseAlphabets: false, specialChars: false });
@@ -38,6 +50,7 @@ exports.createMother = async (req, res, next) => {
             email: email.toLowerCase(),
             phoneNumber: `+234${phoneNumber}`,
             password: hashedPassword,
+            hospitalId,
             otp: OTP,
             otpExpiresAt: expiresAt
         });
@@ -54,7 +67,8 @@ exports.createMother = async (req, res, next) => {
             firstName: mother.firstName,
             lastName: mother.lastName,
             email: mother.email,
-            phoneNumber: mother.phoneNumber
+            phoneNumber: mother.phoneNumber,
+            hospitalId: mother.hospitalId
         }
 
         res.status(201).json({
@@ -228,7 +242,7 @@ exports.forgotPassword = async (req, res,next) => {
             otp: OTP
         }
 
-        emailOptions = {
+        const emailOptions = {
             email: mother.email,
             subject: 'Password reset OTP',
             html: resetPasswordTemplate(emailData)
@@ -318,7 +332,7 @@ exports.resetPassword = async (req, res, next) => {
         const emailOptions = {
             email: mother.email,
             subject: 'Password Reset Successfully',
-            html: resetPasswordSuccessTemplate(mother.firstName + mother.lastName)
+            html: resetPasswordSuccessfulTemplate(mother.firstName + mother.lastName)
         }
 
         await sendBrevoEmail(emailOptions);
@@ -336,7 +350,7 @@ exports.resetPassword = async (req, res, next) => {
 
 exports.updateMother = async (req, res, next) => {
     try {
-        const { firstName, lastName, phoneNumber, email, address, estimatedDueDate, trimester, bloodType, existingHealthConditions, currentPregnancyWeek, emergencyContact, allergies,savingsGoalAmount, weeklyContribution, linkedPaymentMethod } = req.body;
+        const { firstName, lastName, phoneNumber, email, address, estimatedDueDate, trimester, bloodType, existingHealthConditions, currentPregnancyWeek, emergencyContact, allergies,savingsGoalAmount, weeklyContribution, linkedPaymentMethod, hospitalId } = req.body;
 
         const { id } = req.user;
 
@@ -349,13 +363,22 @@ exports.updateMother = async (req, res, next) => {
   });
 }
 
-const hospital = await hospitalModel.findOne({
-  where: { id: mother.hospitalId },
+const selectedHospitalId = hospitalId ?? mother.hospitalId;
+
+if (!selectedHospitalId) {
+  return next({
+    statusCode: 400,
+    message: 'Please select a hospital'
+  });
+}
+
+const hospital = await Hospital.findOne({
+  where: { id: selectedHospitalId },
   attributes: [
     'hospitalName',
-    'hospitalAddress',
-    'hospitalContact',
-    'estimatedDeliveryCost'
+    'address',
+    'phoneNumber',
+    'deliveryFee'
   ]
 });
 
@@ -382,14 +405,17 @@ const data = {
   allergies: allergies ?? mother.allergies,
   savingsGoalAmount: savingsGoalAmount ?? mother.savingsGoalAmount,
   weeklyContribution: weeklyContribution ?? mother.weeklyContribution,
+  linkedPaymentMethod: linkedPaymentMethod ?? mother.linkedPaymentMethod,
+  hospitalId: selectedHospitalId,
 
   selectedHospital: hospital.hospitalName,
-  hospitalAddress: hospital.hospitalAddress,
-  hospitalContact: hospital.hospitalContact,
-  estimatedDeliveryCost: hospital.estimatedDeliveryCost
+  hospitalAddress: hospital.address,
+  hospitalContact: hospital.phoneNumber,
+  estimatedDeliveryCost: hospital.deliveryFee,
+  isUpdated: true
 };
 
-await mother.update(data);
+const updatedMother = await mother.update(data);
 
     res.status(200).json({
         message: 'Mother updated successfully',
@@ -407,7 +433,10 @@ exports.getMotherProfile = async (req, res, next) => {
     try{
         const { id } = req.user;
 
-        const mother = await Mother.findOne({ where: { id } }).select('-password -otp -otpExpiresAt');
+        const mother = await Mother.findOne({
+            where: { id },
+            attributes: { exclude: ['password', 'otp', 'otpExpiresAt'] }
+        });
 
         if(!mother) {
             return next({

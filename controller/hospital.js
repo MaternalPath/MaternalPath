@@ -1,8 +1,12 @@
-const { Hospital } = require('../models');
+const { Hospital, Mother } = require('../models');
 const bcrypt = require('bcrypt');
 const { sendBrevoEmail } = require('../utils/brevo');
 const otpGenerator = require('otp-generator');
-const { signUpTemplate , resetPasswordTemplate} = require('../utils/emailTemplates');
+const {
+    signUpTemplate,
+    resetPasswordTemplate,
+    resetPasswordSuccessfulTemplate
+} = require('../utils/emailTemplates');
 const jwt = require('jsonwebtoken');
 const redisClient = require('../config/redis')
 
@@ -182,6 +186,140 @@ exports.loginHospital = async (req, res) => {
     }
 };
 
+exports.forgotPassword = async (req, res,next) => {
+    try {
+        const { email } = req.body;
+
+        const hospital = await Hospital.findOne({ where: { email: email.toLowerCase()}});
+
+        if (!hospital) {
+            return res.status(404).json({
+                message: `hospital with email: ${email} not found`
+            })
+        }
+
+        if (hospital.isVerified == false) {
+            return next({
+                message: 'Please verify your email to complete this action',
+                statusCode: 404
+            })
+        }
+
+        const OTP = otpGenerator.generate(6, { upperCaseAlphabets: false, lowerCaseAlphabets: false, specialChars: false });
+
+        const expiresAt = new Date(Date.now() + 10 * 60000);
+
+        const emailData = {
+            name: hospital.hospitalName,
+            otp: OTP
+        }
+
+        const emailOptions = {
+            email: hospital.email,
+            subject: 'Password reset OTP',
+            html: resetPasswordTemplate(emailData)
+        }
+
+        await sendBrevoEmail(emailOptions);
+
+        hospital.otp = OTP;
+        hospital.otpExpiresAt = expiresAt;
+
+        await hospital.save();
+
+        res.status(200).json({
+            message: 'Please check your email for password reset OTP'
+        })
+    } catch (error) {
+        next({
+            message: error.message,
+            statusCode: 500
+        })
+    }
+}
+
+exports.verifyResetOTP = async (req, res, next) => {
+    try {
+        const { email, otp } = req.body;
+
+        const hospital = await Hospital.findOne({ where: { email: email.toLowerCase() } });
+
+        if (!hospital) {
+            return next({
+                message: 'hospital not found',
+                statusCode: 404
+            })
+        }
+
+        if (new Date() > hospital.otpExpiresAt ||hospital.otp !== otp) {
+            return next({
+                message: 'Invalid OTP',
+                statusCode: 400
+            })
+        }
+
+        hospital.otp = null;
+        hospital.otpExpiresAt = null;
+
+        await hospital.save();
+
+        res.status(200).json({
+            message: 'OTP verified successfully'
+        })
+    } catch (error) {
+        next({
+            message: error.message,
+            statusCode: 500
+        })
+    }
+}
+
+exports.resetPassword = async (req, res, next) => {
+    try {
+        const { email, newPassword, confirmNewPassword } = req.body;
+
+        const hospital = await Hospital.findOne({ where: { email: email.toLowerCase() } });
+
+        if (!hospital) {
+            return next({
+                message: 'hospital not found',
+                statusCode: 404
+            })
+        }
+
+        if (newPassword !== confirmNewPassword) {
+            return next({
+                message: 'Passwords do not match',
+                statusCode: 400
+            })
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+        hospital.password = hashedPassword;
+
+        await hospital.save();
+
+        const emailOptions = {
+            email: hospital.email,
+            subject: 'Password Reset Successfully',
+            html: resetPasswordSuccessfulTemplate(hospital.hospitalName)
+        }
+
+        await sendBrevoEmail(emailOptions);
+
+        res.status(200).json({
+            message: 'Password reset successfully'
+        })
+    } catch (error) {
+        next({
+            message: error.message,
+            statusCode: 500
+        })
+    }
+}
+
 exports.changePassword = async(req, res)=>{
     try {
         const { id } = req.user;
@@ -216,55 +354,68 @@ exports.changePassword = async(req, res)=>{
     }
 };
 
-// exports.updateHospitalProfile = async (req, res) => {
-//     try {
-//         const { id } = req.params;
-//         const { hospitalName, phoneNumber, adminFullName, deliveryFee, medicalLicenseNumber } = req.body;
+exports.getHospitalMothers = async (req, res) => {
+    try {
+        const { id } = req.user;
 
-//         const hospital = await Hospital.findByPk(id);
+        const hospital = await Hospital.findByPk(id);
+        if (!hospital) {
+            return res.status(404).json({
+                message: 'Hospital not found'
+            });
+        }
 
-//         if (!hospital) {
-//             return res.status(404).json({
-//                 message: 'Hospital not found'
-//             });
-//         }
+        const mothers = await Mother.findAll({
+            where: { hospitalId: id },
+            attributes: {
+                exclude: ['password', 'otp', 'otpExpiresAt']
+            },
+            order: [['createdAt', 'DESC']]
+        });
 
-//         const hospitalLogo = req.files?.hospitalLogo?.[0];
-//         const verificationDocuments = req.files?.verificationDocuments || [];
+        res.status(200).json({
+            message: 'Mothers retrieved successfully',
+            count: mothers.length,
+            data: mothers
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: error.message
+        });
+    }
+};
 
-//         hospital.hospitalName = hospitalName || hospital.hospitalName;
-//         hospital.phoneNumber = phoneNumber || hospital.phoneNumber;
-//         hospital.hospitalLogo = hospitalLogo ? `/uploads/hospitals/${hospitalLogo.filename}` : hospital.hospitalLogo;
-//         hospital.adminFullName = adminFullName;
-//         hospital.deliveryFee = deliveryFee;
-//         hospital.medicalLicenseNumber = medicalLicenseNumber;
-//         hospital.verificationDocuments = JSON.stringify(
-//             verificationDocuments.map((file) => `/uploads/hospitals/${file.filename}`)
-//         );
+exports.getHospitalMother = async (req, res) => {
+    try {
+        const { id: hospitalId } = req.user;
+        const { motherId } = req.params;
 
-//         await hospital.save();
+        const mother = await Mother.findOne({
+            where: {
+                id: motherId,
+                hospitalId
+            },
+            attributes: {
+                exclude: ['password', 'otp', 'otpExpiresAt']
+            }
+        });
 
-//         res.status(200).json({
-//             message: 'Hospital profile updated successfully',
-//             data: {
-//                 id: hospital.id,
-//                 hospitalName: hospital.hospitalName,
-//                 email: hospital.email,
-//                 phoneNumber: hospital.phoneNumber,
-//                 address: hospital.address,
-//                 hospitalLogo: hospital.hospitalLogo,
-//                 adminFullName: hospital.adminFullName,
-//                 deliveryFee: hospital.deliveryFee,
-//                 medicalLicenseNumber: hospital.medicalLicenseNumber,
-//                 verificationDocuments: JSON.parse(hospital.verificationDocuments)
-//             }
-//         });
-//     } catch (error) {
-//         res.status(500).json({
-//             message: error.message
-//         });
-//     }
-// };
+        if (!mother) {
+            return res.status(404).json({
+                message: 'Mother not found for this hospital'
+            });
+        }
+
+        res.status(200).json({
+            message: 'Mother retrieved successfully',
+            data: mother
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: error.message
+        });
+    }
+};
 
 
 exports.logout = async (req, res, next) => {
