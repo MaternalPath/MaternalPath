@@ -20,12 +20,12 @@ passport.use(new GoogleStrategy({
     clientID: process.env.clientId,
     clientSecret: process.env.clientSecret,
     callbackURL: process.env.googleCallback,
-    scope: ['profile'],
+    scope: ['profile', 'email'],
     passReqToCallback: true
   },
   async function(request, accessToken, refreshToken, profile, done) {
     console.log("i am profile:", profile);
-     
+     console.log('email:', profile._json.email);
     const checkUser = await Mother.findOne({ where: { email: profile._json.email } }); // sequelize uses "where"
     let token;
 
