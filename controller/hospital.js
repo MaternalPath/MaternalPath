@@ -13,7 +13,7 @@ const redisClient = require('../config/redis')
 
 exports.createHospital = async (req, res) => {
     try {
-        const { hospitalName, email, phoneNumber, password, address, adminFullName, deliveryFee, medicalLicenseNumber } = req.body;
+        const { hospitalName, email, phoneNumber, password, address,  deliveryFee, medicalLicenseNumber } = req.body;
         const hospitalLogo = req.files?.hospitalLogo?.[0]
             ? `/uploads/hospitals/${req.files.hospitalLogo[0].filename}`
             : null;
@@ -42,7 +42,6 @@ exports.createHospital = async (req, res) => {
             address,
             hospitalLogo,
             verificationDocuments: JSON.stringify(verificationDocuments),
-            adminFullName,
             otp: OTP,
             otpExpiresAt: expiresAt,
             isVerified: false,
@@ -65,7 +64,6 @@ exports.createHospital = async (req, res) => {
             address: hospital.address,
             hospitalLogo: hospital.hospitalLogo,
             verificationDocuments,
-            adminFullName: hospital.adminFullName,
             otp: hospital.otp,
             deliveryFee: hospital.deliveryFee,
             medicalLicenseNumber: hospital.medicalLicenseNumber

@@ -53,10 +53,6 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: true
     },
-    adminFullName: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
     deliveryFee: {
       type: DataTypes.STRING,
       allowNull: true
