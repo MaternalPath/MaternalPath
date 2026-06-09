@@ -78,7 +78,6 @@ const router = express.Router();
  *               - password
  *               - confirmPassword
  *               - address
- *               - adminFullName
  *               - deliveryFee
  *               - medicalLicenseNumber
  *             properties:
@@ -114,9 +113,6 @@ const router = express.Router();
  *                 items:
  *                   type: string
  *                   format: binary
- *               adminFullName:
- *                 type: string
- *                 example: Ada Johnson
  *               deliveryFee:
  *                 type: string
  *                 example: "50000"
