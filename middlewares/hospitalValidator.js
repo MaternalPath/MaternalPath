@@ -60,28 +60,14 @@ exports.hospitalRegisterValidator = async (req, res, next) => {
 
 exports.hospitalLoginValidator = async (req, res, next) => {
     const schema = joi.object({
-        email: joi.string().trim().email().required().messages({
-            'string.email': 'Please enter a valid email',
-            'any.required': 'Email is required',
-            'string.empty': 'Email is required'
+        emailOrPhoneNumber: joi.string().trim().required().messages({
+            'any.required': 'Email or phone number is required',
+            'string.empty': 'Email or phone number is required'
         }),
         password: joi.string().trim().required().messages({
             'any.required': 'Password is required',
             'string.empty': 'Password cannot be empty'
         }),
-          hospitalName: joi.string().trim().min(2).messages({
-            'string.base': 'Hospital name must be a string',
-            'string.min': 'Hospital name must be at least 2 characters long'
-        }),
-        phoneNumber: joi.string().trim().pattern(/^[0-9]{10,15}$/).messages({
-            'string.pattern.base': 'Phone number must contain only digits and be 10 to 15 characters long'
-        }),
-        deliveryFee: joi.string().trim().messages({
-            'string.base': 'Delivery fee must be a string'
-        }),
-        medicalLicenseNumber: joi.string().trim().messages({
-            'string.base': 'Medical license number must be a string'
-        })
     });
 
     const { error } = schema.validate(req.body);
