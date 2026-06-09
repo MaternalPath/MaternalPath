@@ -181,6 +181,44 @@ router.post('/verify', verifyEmail);
 
 /**
  * @swagger
+ * /api/v1/hospital/resend-otp:
+ *   post:
+ *     summary: Resend verification OTP
+ *     tags: [Hospital]
+ *     description: Sends a new verification OTP to the hospital email address.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: hospital@example.com
+ *     responses:
+ *       200:
+ *         description: OTP resent successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: OTP resent successfully
+ *       404:
+ *         description: Hospital not found
+ *       500:
+ *         description: Internal server error
+ */
+router.post('/resend-otp', resendOTP);
+
+/**
+ * @swagger
  * /api/v1/hospital/verify-reset:
  *   post:
  *     tags:
