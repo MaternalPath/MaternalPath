@@ -32,8 +32,7 @@ module.exports = {
         
               },
             phoneNumber: {
-                type: Sequelize.STRING,
-                allowNull: false
+                type: Sequelize.STRING
               },
             password: {
                 type: Sequelize.STRING,
@@ -57,10 +56,13 @@ module.exports = {
             allergies: {
                 type: Sequelize.STRING
               },
-            amount: {
+            currentPregnancyWeek: {
                 type: Sequelize.INTEGER
              },
-            currentPregnancyWeek: {
+            pregnancyProgress: {
+                type: Sequelize.INTEGER
+             },
+            daysUntilDueDate: {
                 type: Sequelize.INTEGER
              },
             emergencyContact: {
@@ -82,9 +84,6 @@ module.exports = {
                 type: Sequelize.STRING
              },
             address: {
-                type: Sequelize.STRING
-             },
-            currentBalance: {
                 type: Sequelize.STRING
              },
             weeklyContribution: {

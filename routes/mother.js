@@ -1,6 +1,6 @@
 const express = require('express');
-const { createMother, verifyEmail, resendOTP, verifyResetOTP, resetPassword, updateMother, getMotherProfile, logout, loginMother, forgotPassword, balance } = require('../controller/mother');
-const { registerValidator } = require('../middlewares/validator');
+const { createMother, verifyEmail, resendOTP, verifyResetOTP, resetPassword, updateMother, getMotherProfile, logout, loginMother, forgotPassword } = require('../controller/mother');
+const { registerValidator, loginValidator } = require('../middlewares/validator');
 const passport = require('passport');
 const { Authentication } = require('../middlewares/auth');
 const router = express.Router();
@@ -210,7 +210,7 @@ router.post('/resend-otp',resendOTP);
  *         description: Email not verified
  */
 
-router.post('/loginMother', loginMother);
+router.post('/loginMother',loginValidator, loginMother);
 
 
 /**
@@ -423,7 +423,7 @@ router.post('/reset-password', resetPassword);
  *         description: Mother or hospital not found
  */
 
-router.put('/update-profile', updateMother);
+router.put('/update-profile', Authentication, updateMother);
 
 
 /**
@@ -480,41 +480,6 @@ router.get('/get-mother', getMotherProfile);
  */
 
 router.post('/logout', logout)
-
-/**
- * @swagger
- * /api/v1/mother/balance:
- *   post:
- *     tags:
- *       - Mother
- *     summary: Get mother balance
- *     description: Retrieves the authenticated mother's current balance
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: Balance retrieved successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Balance retrieved successfully
- *                 data:
- *                   type: object
- *                   properties:
- *                     currentBalance:
- *                       type: number
- *                       example: 50000.00
- *       401:
- *         description: Unauthorised - token not found or invalid
- *       404:
- *         description: Mother not found
- */
-
-router.post('/balance', Authentication, balance)
 
 router.get('/collect', passport.authenticate('google', {scope: ['profile', 'email']}))
 

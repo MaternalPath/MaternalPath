@@ -6,6 +6,9 @@ const motherRouter = require('./routes/mother');
 const hospitalRouter = require('./routes/hospital');
 const adminRouter = require('./routes/admin');
 const uploadedBillRouter = require('./routes/uploadedbill');
+const adminRouter = require('./routes/admin')
+const paymentRouter = require('./routes/payment')
+const trimesterRouter = require('./routes/trimester')
 const expressSession = require('express-session')
 const passport = require('passport');
 require('./controller/mother')
@@ -25,13 +28,14 @@ app.use(passport.initialize());
 app.use(passport.session())
 app.use(morgan('dev'));
 
-app.use(express.json());
 
 app.use('/api/v1/mother/', motherRouter);
 app.use('/api/v1/hospital/', hospitalRouter);
 app.use('/api/v1/admin/', adminRouter);
 app.use('/api/v1/bill/', uploadedBillRouter);
 
+app.use('/api/v1/payment/', paymentRouter);
+app.use('/api/v1', trimesterRouter);
 
 app.get('/', (req, res) => {
     res.send('Welcome to MaternalPath API');
@@ -99,6 +103,12 @@ app.use((error, req, res, next) => {
 
 const database = async () => {
     try {
+      redisClient.connect()
+        .then(() => {
+          console.log('Connected to Redis');
+      }).catch((err) => {
+          console.error('Error connecting to Redis: ', err);
+      });
         await sequelize.authenticate();
         console.log('Connection to Database has been established successfully.');
     } catch (error) {
