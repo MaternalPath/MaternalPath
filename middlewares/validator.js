@@ -2,13 +2,13 @@ const joi = require('joi');
 
 exports.registerValidator = async (req, res, next) => {
     const schema = joi.object({
-        firstName: joi.string().trim().min(2).required().messages({
+        firstName: joi.string().trim().min(4).required().messages({
             'string.base': 'Firstname must be a string',
             'string.empty': 'Firstname is required',
-            'string.min': 'Firstname must be at least 2 characters long',
+            'string.min': 'Firstname must be at least 4 characters long',
             'any.required': 'Firstname is required'
         }),
-        lastName: joi.string().trim().min(2).required().messages({
+        lastName: joi.string().trim().min(4).required().messages({
             'string.base': 'Lastname must be a string',
             'string.empty': 'Lastname is required'
         }),
@@ -33,6 +33,27 @@ exports.registerValidator = async (req, res, next) => {
         hospitalId: joi.string().trim().guid({ version: ['uuidv4'] }).optional().messages({
             'string.guid': 'Hospital ID must be a valid UUID'
         })
+    });
+
+    const { error } = schema.validate(req.body);
+    if (error) {
+        return res.status(400).json({
+            message: error.details[0].message
+        });
+    }
+
+    next();
+};
+exports.loginValidator = async (req, res, next) => {
+    const schema = joi.object({
+        emailOrPhoneNumber: joi.string().trim().required().messages({
+              'string.empty': 'Empty or PhoneNumber cannot be Empty',
+              'any required':'Email or Phone Number is required',
+        }),
+        password: joi.string().required().messages({
+        'any required':'Password is required',
+        'string.empty':'Password cannot be Empty'
+        }),
     });
 
     const { error } = schema.validate(req.body);

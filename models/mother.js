@@ -8,6 +8,10 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'hospitalId',
         as: 'Hospital'
       });
+       Mother.hasMany(models.payment, {
+    foreignKey: 'motherId',
+    as: 'payments'
+  });
     }
   }
 
@@ -30,12 +34,14 @@ module.exports = (sequelize, DataTypes) => {
     firstName: { type: DataTypes.STRING, allowNull: false },
     lastName: { type: DataTypes.STRING, allowNull: false },
     email: { type: DataTypes.STRING, allowNull: false },
-    phoneNumber: { type: DataTypes.STRING, allowNull: false },
+    phoneNumber: { type: DataTypes.STRING },
     password: { type: DataTypes.STRING, allowNull: false },
     dateOfBirth: { type: DataTypes.STRING },
     estimatedDueDate: { type: DataTypes.STRING },
     trimester: { type: DataTypes.STRING },
     bloodType: { type: DataTypes.STRING },
+    daysUntilDueDate: { type: DataTypes.INTEGER },
+    pregnancyProgress: { type: DataTypes.INTEGER },
     existingHealthConditions: { type: DataTypes.STRING },
     allergies: { type: DataTypes.STRING },
     currentPregnancyWeek: { type: DataTypes.INTEGER },
@@ -46,12 +52,9 @@ module.exports = (sequelize, DataTypes) => {
     estimatedDeliveryCost: { type: DataTypes.STRING },
     savingsGoalAmount: { type: DataTypes.STRING },
     address: { type: DataTypes.STRING },
-    currentBalance: { type: DataTypes.STRING },
     weeklyContribution: { type: DataTypes.STRING },
     linkedPaymentMethod: { type: DataTypes.STRING },
     estimatedDueDate: { type: DataTypes.STRING },
-    amount: { type: DataTypes.INTEGER }, 
-    currentBalance: { type: DataTypes.INTEGER }, 
     otp: { type: DataTypes.STRING },    
     otpExpiresAt: { type: DataTypes.DATE },
     isVerified: { type: DataTypes.BOOLEAN, defaultValue: false },
