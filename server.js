@@ -6,7 +6,6 @@ const motherRouter = require('./routes/mother');
 const hospitalRouter = require('./routes/hospital');
 const adminRouter = require('./routes/admin');
 const uploadedBillRouter = require('./routes/uploadedbill');
-const adminRouter = require('./routes/admin')
 const paymentRouter = require('./routes/payment')
 const trimesterRouter = require('./routes/trimester')
 const expressSession = require('express-session')

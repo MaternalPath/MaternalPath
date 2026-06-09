@@ -83,7 +83,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'Hospital',
-    tableName: 'hospitals'
+    tableName: 'Hospitals'
   });
   return Hospital;
 };
