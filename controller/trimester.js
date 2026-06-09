@@ -1,4 +1,4 @@
-const firsttrimester = require("../models/firsttrimester");
+const {firsttrimester} = require("../models");
 
 
 exports.createFirst = async (req, res, next) => {
@@ -10,7 +10,7 @@ exports.createFirst = async (req, res, next) => {
         const trimester = await firsttrimester.create({
             whatToExpect,
             nutritionGuidiance
-        })
+        });
 
         res.status(201).json({
       message: "Information created successfully",
