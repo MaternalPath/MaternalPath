@@ -2,15 +2,19 @@ const joi = require('joi');
 
 exports.registerValidator = async (req, res, next) => {
     const schema = joi.object({
-        firstName: joi.string().trim().min(4).required().messages({
+        firstName: joi.string().trim().pattern(/^[a-zA-Z\s]{3,}$/).required().messages({
             'string.base': 'Firstname must be a string',
             'string.empty': 'Firstname is required',
             'string.min': 'Firstname must be at least 4 characters long',
-            'any.required': 'Firstname is required'
+            'any.required': 'Firstname is required',
+            'string.pattern.base': 'First name cannot contain digits and must be a minimum of 3 characters'
         }),
-        lastName: joi.string().trim().min(4).required().messages({
+        lastName: joi.string().trim().pattern(/^[a-zA-Z\s]{3,}$/).required().messages({
             'string.base': 'Lastname must be a string',
-            'string.empty': 'Lastname is required'
+            'string.empty': 'Lastname is required',
+            'string.min': 'Lastname must be at least 4 characters long',
+            'any.required': 'Lastname is required',
+            'string.pattern.base': 'School name cannot contain digits and must be a minimum of 3 characters'
         }),
         email: joi.string().trim().email().required().messages({
               'string.email': 'Please enter a valid email',
@@ -26,9 +30,10 @@ exports.registerValidator = async (req, res, next) => {
             'any.required': 'Confirm password is required',
             'string.empty': 'Confirm password cannot be empty'
         }),
-        phoneNumber: joi.string().trim().required().messages({
+        phoneNumber: joi.string().trim().pattern(/^[0-9]{10}$/).required().messages({
             'string.empty': 'Phone number cannot be empty',
-            'any.required': 'Phone number is required'
+            'any.required': 'Phone number is required',
+            'string.pattern.base': 'Phone number must contain only 10 digit numbers'
         }),
         hospitalId: joi.string().trim().guid({ version: ['uuidv4'] }).optional().messages({
             'string.guid': 'Hospital ID must be a valid UUID'
