@@ -7,6 +7,7 @@ const {
     resetPasswordTemplate,
     resetPasswordSuccessfulTemplate
 } = require('../utils/emailTemplates');
+const { Op } = require("sequelize");
 const jwt = require('jsonwebtoken');
 const redisClient = require('../config/redis')
 
