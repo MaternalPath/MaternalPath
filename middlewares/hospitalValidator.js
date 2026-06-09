@@ -34,12 +34,6 @@ exports.hospitalRegisterValidator = async (req, res, next) => {
             'string.min': 'Address must be at least 5 characters long',
             'any.required': 'Address is required'
         }),
-        adminFullName: joi.string().trim().min(5).required().messages({
-            'string.base': 'Admin full name must be a string',
-            'string.empty': 'Admin full name is required',
-            'string.min': 'Admin full name must be at least 5 characters long',
-            'any.required': 'Admin full name is required'
-        }),
         deliveryFee: joi.string().trim().pattern(/^[0-9]{5,15}$/).required().messages({
             'string.base': 'Delivery fee must be a string',
             'string.empty': 'Delivery fee is required',
@@ -81,10 +75,6 @@ exports.hospitalLoginValidator = async (req, res, next) => {
         }),
         phoneNumber: joi.string().trim().pattern(/^[0-9]{10,15}$/).messages({
             'string.pattern.base': 'Phone number must contain only digits and be 10 to 15 characters long'
-        }),
-        adminFullName: joi.string().trim().min(5).messages({
-            'string.base': 'Admin full name must be a string',
-            'string.min': 'Admin full name must be at least 5 characters long'
         }),
         deliveryFee: joi.string().trim().messages({
             'string.base': 'Delivery fee must be a string'
