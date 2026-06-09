@@ -7,7 +7,7 @@ exports.registerValidator = async (req, res, next) => {
             'string.empty': 'Firstname is required',
             'string.min': 'Firstname must be at least 4 characters long',
             'any.required': 'Firstname is required',
-            'string.pattern.base': 'School name cannot contain digits and must be a minimum of 3 characters'
+            'string.pattern.base': 'First name cannot contain digits and must be a minimum of 3 characters'
         }),
         lastName: joi.string().trim().pattern(/^[a-zA-Z\s]{3,}$/).required().messages({
             'string.base': 'Lastname must be a string',

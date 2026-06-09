@@ -289,7 +289,7 @@ exports.loginMother = async (req, res, next) => {
       message: "Login successful",
       token,
       id: mother.id,
-      name: mother.firstName + + mother.lastName,
+      name: `${mother.firstName} ${mother.lastName}`,
       isUpdated: check,
     });
   } catch (error) {
@@ -580,9 +580,12 @@ exports.getMotherProfile = async (req, res, next) => {
       });
     }
 
+    const remainingAmountNeeded = Mother.savingsGoalAmount - walletRec.dataValues.currentBalance
+
     res.status(200).json({
       message: "Mother profile retrieved successfully",
       data: mother,
+      remainingAmountNeeded
     });
   } catch (error) {
     next({

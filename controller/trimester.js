@@ -1,4 +1,6 @@
-const {firstTrimester, secondTrimester, thirdTrimester, Mother, pregnancyTip} = require("../models");
+const { where } = require("sequelize");
+const {firstTrimester, secondTrimester, thirdTrimester, Mother, pregnancyTip, dailyReminder} = require("../models");
+
 
 
 exports.createFirst = async (req, res, next) => {
@@ -144,6 +146,14 @@ exports.createMessage = async (req, res, next) => {
 
 exports.weeklyMessage = async (req, res, next) => {
     try {
+        const id = req.user?.id;
+        const mother = await Mother.findOne({where: {id}})
+        if (!mother) {
+            return next({
+                message: 'mother does not exist',
+                statusCode: 400
+            })
+        }
         const today = new Date();
 
     const dueDate = new Date(mother.estimatedDueDate);
@@ -154,7 +164,7 @@ exports.weeklyMessage = async (req, res, next) => {
 
     const currentWeek = 40 - Math.floor(daysLeft / 7);
 
-    const tip = await pregnancytip.findOne({
+    const tip = await pregnancyTip.findOne({
    where: { week: currentWeek }
     });
 
@@ -166,5 +176,63 @@ exports.weeklyMessage = async (req, res, next) => {
       message: error.message,
       statusCode: 500,
     });
+    }
+}
+
+exports.createDaily = async (req, res, next) => {
+    try {
+       const {dayNumber, message} = req.body;
+       
+       const data = await dailyReminder.create({
+        dayNumber,
+        message
+       })
+
+       res.status(201).json({
+        message: 'day created successfully',
+        data
+       })
+    } catch (error) {
+      next({
+      message: error.message,
+      statusCode: 500,
+    });  
+    }
+}
+
+exports.dailyMessage = async (req, res, next) => {
+    try {
+        const id = req.user?.id;
+        const mother = await Mother.findOne({where: {id}})
+
+        const dueDate = new Date(Mother.estimatedDueDate);
+        const today = new Date();
+
+        today.setHours(0, 0, 0, 0);
+        dueDate.setHours(0, 0, 0, 0);
+
+        const daysLeft = Math.ceil(
+        (dueDate - today) / (1000 * 60 * 60 * 24)
+        );
+
+        const pregnancyDay = 280 - daysLeft;
+
+        const day = Math.max(1, Math.min(280, pregnancyDay));
+
+        const reminder = await dailyReminder.findOne({
+        where: {
+            dayNumber: day
+        }
+        });
+
+        res.status(200).json({
+        pregnancyDay: day,
+        reminder: reminder?.message || "No reminder available."
+        });
+    } catch (error) {
+        next({
+            message: error.message,
+            statusCode: 500
+        })
     }
 }
