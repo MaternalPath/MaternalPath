@@ -56,7 +56,6 @@ passport.use(
   ),
 );
 
-// These must be OUTSIDE the strategy 👇
 passport.serializeUser((token, done) => {
   return done(null, token);
 });
@@ -290,6 +289,7 @@ exports.loginMother = async (req, res, next) => {
       message: "Login successful",
       token,
       id: mother.id,
+      name: mother.firstName + + mother.lastName,
       isUpdated: check,
     });
   } catch (error) {
@@ -481,6 +481,12 @@ exports.updateMother = async (req, res, next) => {
         statusCode: 404,
         message: "Mother not found",
       });
+    }
+
+    if (trimester > 3) {
+      return next({
+        message: 'invalid trimester'
+      })
     }
 
     const selectedHospitalId = hospitalId ?? mother.hospitalId;
