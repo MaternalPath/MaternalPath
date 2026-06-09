@@ -351,6 +351,14 @@ router.post('/reset-password', resetPassword);
  *       - Mother
  *     summary: Update mother profile
  *     description: Updates the authenticated mother's profile information
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: The Account ID
+ *         schema:
+ *           type: string
+ *           example: 69f6fc59f069dce732d54a15
  *     security:
  *       - bearerAuth: []
  *     requestBody:
