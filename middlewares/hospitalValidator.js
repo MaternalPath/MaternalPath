@@ -62,7 +62,7 @@ exports.hospitalLoginValidator = async (req, res, next) => {
     const schema = joi.object({
         emailOrPhoneNumber: joi.string().trim().required().messages({
             'any.required': 'Email or phone number is required',
-            'string.empty': 'Email or phone number is required'
+            'string.empty': 'Email or phone number cannot be empty'
         }),
         password: joi.string().trim().required().messages({
             'any.required': 'Password is required',
