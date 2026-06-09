@@ -126,7 +126,7 @@ exports.changePasswordValidator = (req, res, next) => {
         })
     }
 
-    next()
+    next() 
 }
 
 // exports.updateHospitalProfileValidator = (req, res, next) => {

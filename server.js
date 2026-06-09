@@ -4,7 +4,8 @@ const PORT = process.env.PORT || 2245;
 const sequelize = require('./database/db');
 const motherRouter = require('./routes/mother');
 const hospitalRouter = require('./routes/hospital');
-const adminRouter = require('./routes/admin')
+const adminRouter = require('./routes/admin');
+const uploadedBillRouter = require('./routes/uploadedbill');
 const expressSession = require('express-session')
 const passport = require('passport');
 require('./controller/mother')
@@ -29,6 +30,8 @@ app.use(express.json());
 app.use('/api/v1/mother/', motherRouter);
 app.use('/api/v1/hospital/', hospitalRouter);
 app.use('/api/v1/admin/', adminRouter);
+app.use('/api/v1/bill/', uploadedBillRouter);
+
 
 app.get('/', (req, res) => {
     res.send('Welcome to MaternalPath API');
@@ -78,7 +81,7 @@ const swaggerDefinition = {
 
 const options = {
     swaggerDefinition,
-    apis: ['./routes/*.js']
+    apis: ['./routes/*.js', './routes/**/*.js']
 }
 
 const swaggerSpec = swaggerJsdoc(options);
