@@ -5,10 +5,7 @@ const WORKFLOW_STAGES = ['uploadedBill', 'customerReview', 'fundValidation', 'fi
 const SYSTEM_VALIDATIONS = ['patienceIdMatched', 'fileUploadedProgress', 'billingVerification', 'requiredFieldComplete'];
 const BILL_SUMMARY_FIELDS = ['patienceName', 'category', 'date', 'totalAmount'];
 
-/**
- * STAGE 1: Hospital uploads a bill for a patient
- * Creates the bill record and sets workflow stage to 'uploadedBill'
- */
+
 exports.uploadBill = async (req, res) => {
     try {
         const { id: hospitalId } = req.user;
@@ -103,7 +100,6 @@ exports.uploadBill = async (req, res) => {
 };
 
 /**
- * STAGE 2: Mother (or hospital on her behalf) reviews the bill
  * Moves workflow from 'uploadedBill' to 'customerReview'
  */
 exports.customerReview = async (req, res) => {
@@ -154,7 +150,6 @@ exports.customerReview = async (req, res) => {
 };
 
 /**
- * STAGE 3: Validate the mother's available funds against the bill amount
  * Moves workflow from 'customerReview' to 'fundValidation'
  */
 exports.validateFunds = async (req, res) => {
@@ -223,7 +218,6 @@ exports.validateFunds = async (req, res) => {
 };
 
 /**
- * STAGE 4: Admin/Hospital gives final approval and the workflow completes
  * Moves workflow from 'fundValidation' to 'finalApproval'
  */
 exports.finalApproval = async (req, res) => {
