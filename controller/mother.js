@@ -446,6 +446,9 @@ exports.resetPassword = async (req, res, next) => {
 
 exports.updateMother = async (req, res, next) => {
   try {
+    const id = req.user?.id;
+    const hospitalId = req.params.id;
+
     const {
       firstName,
       lastName,
@@ -461,11 +464,9 @@ exports.updateMother = async (req, res, next) => {
       allergies,
       savingsGoalAmount,
       weeklyContribution,
-      linkedPaymentMethod,
-      hospitalId,
+      linkedPaymentMethod
     } = req.body;
 
-    const id = req.user?.id;
 
     if (!id) {
       return next({
