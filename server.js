@@ -4,6 +4,8 @@ const PORT = process.env.PORT || 2245;
 const sequelize = require('./database/db');
 const motherRouter = require('./routes/mother');
 const hospitalRouter = require('./routes/hospital');
+const adminRouter = require('./routes/admin');
+const uploadedBillRouter = require('./routes/uploadedbill');
 const adminRouter = require('./routes/admin')
 const paymentRouter = require('./routes/payment')
 const trimesterRouter = require('./routes/trimester')
@@ -30,6 +32,8 @@ app.use(morgan('dev'));
 app.use('/api/v1/mother/', motherRouter);
 app.use('/api/v1/hospital/', hospitalRouter);
 app.use('/api/v1/admin/', adminRouter);
+app.use('/api/v1/bill/', uploadedBillRouter);
+
 app.use('/api/v1/payment/', paymentRouter);
 app.use('/api/v1', trimesterRouter);
 
@@ -81,7 +85,7 @@ const swaggerDefinition = {
 
 const options = {
     swaggerDefinition,
-    apis: ['./routes/*.js']
+    apis: ['./routes/*.js', './routes/**/*.js']
 }
 
 const swaggerSpec = swaggerJsdoc(options);
