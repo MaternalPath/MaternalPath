@@ -2,6 +2,7 @@ const express = require('express');
 const { createMother, verifyEmail, resendOTP, verifyResetOTP, resetPassword, updateMother, getMotherProfile, logout, loginMother, forgotPassword } = require('../controller/mother');
 const { registerValidator, loginValidator } = require('../middlewares/validator');
 const passport = require('passport');
+const upload = require('../middlewares/multer');
 const { Authentication } = require('../middlewares/auth');
 const router = express.Router();
 
@@ -345,22 +346,22 @@ router.post('/reset-password', resetPassword);
 
 /**
  * @swagger
- * /api/v1/mother/update-profile:
+ * /api/v1/mother/update-profile/{id}:
  *   put:
  *     tags:
  *       - Mother
  *     summary: Update mother profile
- *     description: Updates the authenticated mother's profile information
+ *     description: Updates the authenticated mother's profile. The id parameter is the hospital's ID.
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
- *         description: The Account ID
  *         schema:
  *           type: string
- *           example: 69f6fc59f069dce732d54a15
- *     security:
- *       - bearerAuth: []
+ *         description: The hospital's ID
+ *         example: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
  *     requestBody:
  *       required: true
  *       content:
@@ -368,6 +369,10 @@ router.post('/reset-password', resetPassword);
  *           schema:
  *             type: object
  *             properties:
+ *               image:
+ *                 type: string
+ *                 format: binary
+ *                 description: JPG, JPEG, PNG, or PDF file. Maximum size is 5MB.
  *               firstName:
  *                 type: string
  *                 example: Jane
@@ -388,8 +393,9 @@ router.post('/reset-password', resetPassword);
  *                 format: date
  *                 example: "2025-12-01"
  *               trimester:
- *                 type: string
- *                 example: second
+ *                 type: integer
+ *                 example: 2
+ *                 description: Must be 1, 2 or 3
  *               bloodType:
  *                 type: string
  *                 example: O+
@@ -401,13 +407,16 @@ router.post('/reset-password', resetPassword);
  *                 example: 20
  *               emergencyContact:
  *                 type: string
- *                 example: "james +2348098765432"
+ *                 example: "+2348098765432"
  *               allergies:
  *                 type: string
  *                 example: Penicillin
  *               savingsGoalAmount:
  *                 type: number
  *                 example: 500000
+ *               dateOfBirth:
+ *                 type: number
+ *                 example: 2020-10-06
  *               weeklyContribution:
  *                 type: number
  *                 example: 10000
@@ -427,11 +436,42 @@ router.post('/reset-password', resetPassword);
  *                   example: Mother updated successfully
  *                 data:
  *                   type: object
+ *                   properties:
+ *                     firstName:
+ *                       type: string
+ *                       example: Jane
+ *                     lastName:
+ *                       type: string
+ *                       example: Doe
+ *                     email:
+ *                       type: string
+ *                       example: jane.doe@example.com
+ *                     selectedHospital:
+ *                       type: string
+ *                       example: Lagos General Hospital
+ *                     hospitalAddress:
+ *                       type: string
+ *                       example: 45 Hospital Road, Lagos
+ *                     hospitalContact:
+ *                       type: string
+ *                       example: "+2348012345678"
+ *                     estimatedDeliveryCost:
+ *                       type: number
+ *                       example: 150000
+ *                     pregnancyProgress:
+ *                       type: number
+ *                       example: 50
+ *                     daysUntilDueDate:
+ *                       type: integer
+ *                       example: 140
+ *       400:
+ *         description: Invalid trimester value
+ *       401:
+ *         description: Unauthorized - token not found or invalid
  *       404:
  *         description: Mother or hospital not found
  */
-
-router.put('/update-profile', Authentication, updateMother);
+router.put('/update-profile/:id', Authentication, upload.single('image'), updateMother);
 
 
 /**

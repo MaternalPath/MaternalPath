@@ -430,7 +430,7 @@ router.get('/getMother', getMother);
  *         description: Unauthorised
  */
 
-router.get('/getHospitals', getHospital);
+router.get('/getHospitals', checkAdmin, getHospitals);
 
 /**
  * @swagger
