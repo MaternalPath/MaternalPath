@@ -401,7 +401,7 @@ router.post('/reset-password', resetPassword);
  *                 example: 20
  *               emergencyContact:
  *                 type: string
- *                 example: "+2348098765432"
+ *                 example: "james +2348098765432"
  *               allergies:
  *                 type: string
  *                 example: Penicillin

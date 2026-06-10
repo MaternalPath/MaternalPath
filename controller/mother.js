@@ -491,18 +491,13 @@ exports.updateMother = async (req, res, next) => {
     }
 
     const selectedHospitalId = hospitalId ?? mother.hospitalId;
-
-    if (!selectedHospitalId) {
-      return next({
-        statusCode: 400,
-        message: "Please select a hospital",
-      });
-    }
-
     const hospital = await Hospital.findOne({
       where: { id: selectedHospitalId },
       attributes: ["hospitalName", "address", "phoneNumber", "deliveryFee"],
     });
+
+    // git 
+
 
     if (!hospital) {
       return next({
