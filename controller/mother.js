@@ -1,4 +1,4 @@
-const { Mother, Hospital, wallet } = require("../models");
+const { Mother, Hospital, wallet,MotherUpdate } = require("../models");
 const bcrypt = require("bcrypt");
 const { sendBrevoEmail } = require("../utils/brevo");
 const otpGenerator = require("otp-generator");
@@ -11,6 +11,7 @@ const jwt = require("jsonwebtoken");
 const redisClient = require("../config/redis");
 const { Op } = require("sequelize");
 const passport = require("passport");
+const fs = require('fs')
 
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 
@@ -447,26 +448,9 @@ exports.resetPassword = async (req, res, next) => {
 exports.updateMother = async (req, res, next) => {
   try {
     const id = req.user?.id;
-    const hospitalId = req.params.id;
+    const hospitalId = req.params?.id;
 
-    const {
-      firstName,
-      lastName,
-      phoneNumber,
-      email,
-      address,
-      estimatedDueDate,
-      trimester,
-      bloodType,
-      existingHealthConditions,
-      currentPregnancyWeek,
-      emergencyContact,
-      allergies,
-      savingsGoalAmount,
-      weeklyContribution,
-      linkedPaymentMethod
-    } = req.body;
-
+    console.log('hospitalid', hospitalId)
 
     if (!id) {
       return next({
@@ -484,25 +468,13 @@ exports.updateMother = async (req, res, next) => {
       });
     }
 
-    if (trimester > 3) {
-      return next({
-        message: 'invalid trimester'
-      })
-    }
-
     const selectedHospitalId = hospitalId ?? mother.hospitalId;
-
-    if (!selectedHospitalId) {
-      return next({
-        statusCode: 400,
-        message: "Please select a hospital",
-      });
-    }
-
     const hospital = await Hospital.findOne({
       where: { id: selectedHospitalId },
       attributes: ["hospitalName", "address", "phoneNumber", "deliveryFee"],
     });
+    console.log("selectedHospitalId:", hospital);
+
 
     if (!hospital) {
       return next({
@@ -510,6 +482,32 @@ exports.updateMother = async (req, res, next) => {
         message: "Hospital not found",
       });
     }
+
+    const {
+      firstName,
+      lastName,
+      phoneNumber,
+      email,
+      address,
+      estimatedDueDate,
+      dateOfBirth,
+      trimester,
+      bloodType,
+      existingHealthConditions,
+      currentPregnancyWeek,
+      emergencyContact,
+      allergies,
+      savingsGoalAmount,
+      weeklyContribution,
+      linkedPaymentMethod
+    } = req.body;
+
+    if (trimester > 3) {
+      return next({
+        message: 'invalid trimester'
+      })
+    }
+    
 
     const today = new Date();
     //today.setHours(0, 0, 0, 0);
@@ -520,24 +518,31 @@ exports.updateMother = async (req, res, next) => {
 
     const progress = currentPregnancyWeek * 100 / 40
 
-    const data = {
+    const details = {
       firstName: firstName ?? mother.firstName,
       lastName: lastName ?? mother.lastName,
       email: email ?? mother.email,
-      address: address ?? mother.address,
       phoneNumber: phoneNumber ?? mother.phoneNumber,
+      isUpdated: true,
+    }
 
-      estimatedDueDate: estimatedDueDate ?? mother.estimatedDueDate,
-      trimester: trimester ?? mother.trimester,
-      bloodType: bloodType ?? mother.bloodType,
+    const data = {
+      motherId: mother.id,
+      image: req.file.path,
+
+      estimatedDueDate: estimatedDueDate ?? MotherUpdate.estimatedDueDate,
+      trimester: trimester ?? MotherUpdate.trimester,
+      bloodType: bloodType ?? MotherUpdate.bloodType,
+      dateOfBirth: dateOfBirth ?? MotherUpdate.dateOfBirth,
+      address: address ?? MotherUpdate.address,
       existingHealthConditions:
-        existingHealthConditions ?? mother.existingHealthConditions,
-      currentPregnancyWeek: currentPregnancyWeek ?? mother.currentPregnancyWeek,
-      emergencyContact: emergencyContact ?? mother.emergencyContact,
-      allergies: allergies ?? mother.allergies,
-      savingsGoalAmount: savingsGoalAmount ?? mother.savingsGoalAmount,
-      weeklyContribution: weeklyContribution ?? mother.weeklyContribution,
-      linkedPaymentMethod: linkedPaymentMethod ?? mother.linkedPaymentMethod,
+        existingHealthConditions ?? MotherUpdate.existingHealthConditions,
+      currentPregnancyWeek: currentPregnancyWeek ?? MotherUpdate.currentPregnancyWeek,
+      emergencyContact: emergencyContact ?? MotherUpdate.emergencyContact,
+      allergies: allergies ?? MotherUpdate.allergies,
+      savingsGoalAmount: savingsGoalAmount ?? MotherUpdate.savingsGoalAmount,
+      weeklyContribution: weeklyContribution ?? MotherUpdate.weeklyContribution,
+      linkedPaymentMethod: linkedPaymentMethod ?? MotherUpdate.linkedPaymentMethod,
       hospitalId: selectedHospitalId,
 
       selectedHospital: hospital.hospitalName,
@@ -545,17 +550,29 @@ exports.updateMother = async (req, res, next) => {
       hospitalContact: hospital.phoneNumber,
       estimatedDeliveryCost: hospital.deliveryFee,
       pregnancyProgress: progress,
-      daysUntilDueDate: daysLeft,
-      isUpdated: true,
+      daysUntilDueDate: daysLeft
     };
 
-    mother.isUpdated = true;
-
-    const updatedMother = await mother.update(data);
+    if (mother.isUpdated === false) {
+  await MotherUpdate.create(data);
+  await mother.update(details);
+} else{
+  await MotherUpdate.update(data,{
+    where: {
+      motherId: mother.id
+    }
+  });
+  await mother.update(details, {
+    where: {
+      id: mother.id
+    }
+  });
+}
 
     res.status(200).json({
       message: "Mother updated successfully",
-      data: updatedMother,
+      data: details,
+      data
     });
   } catch (error) {
     next({

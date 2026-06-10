@@ -38,60 +38,6 @@ module.exports = {
                 type: Sequelize.STRING,
                 allowNull: false
               },
-            dateOfBirth: {
-                type: Sequelize.STRING,
-              },
-            estimatedDueDate: {
-                type: Sequelize.DATEONLY
-              },
-            trimester: {
-                type: Sequelize.STRING
-              },
-            bloodType: {
-                type: Sequelize.STRING
-              },
-            existingHealthConditions: {
-                type: Sequelize.STRING
-              },
-            allergies: {
-                type: Sequelize.STRING
-              },
-            currentPregnancyWeek: {
-                type: Sequelize.INTEGER
-             },
-            pregnancyProgress: {
-                type: Sequelize.INTEGER
-             },
-            daysUntilDueDate: {
-                type: Sequelize.INTEGER
-             },
-            emergencyContact: {
-                type: Sequelize.STRING
-             },
-            selectedHospital: {
-                type: Sequelize.STRING
-             },
-            hospitalAddress: {
-                type: Sequelize.STRING
-             },
-            hospitalContact: {
-                type: Sequelize.STRING
-             },
-            estimatedDeliveryCost: {
-                type: Sequelize.STRING
-             },
-            savingsGoalAmount: {
-                type: Sequelize.STRING
-             },
-            address: {
-                type: Sequelize.STRING
-             },
-            weeklyContribution: {
-                type: Sequelize.STRING
-             },
-            linkedPaymentMethod: {
-                type: Sequelize.STRING
-             },
              otp: {
                 type: Sequelize.STRING
             },

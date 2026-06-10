@@ -28,12 +28,11 @@ app.use(passport.session())
 app.use(morgan('dev'));
 
 
-app.use('/api/v1/mother/', motherRouter);
-app.use('/api/v1/hospital/', hospitalRouter);
-app.use('/api/v1/admin/', adminRouter);
-app.use('/api/v1/bill/', uploadedBillRouter);
-
-app.use('/api/v1/payment/', paymentRouter);
+app.use('/api/v1/mother', motherRouter);
+app.use('/api/v1/hospital', hospitalRouter);
+app.use('/api/v1/admin', adminRouter);
+app.use('/api/v1/bill', uploadedBillRouter);
+app.use('/api/v1/payment', paymentRouter);
 app.use('/api/v1', trimesterRouter);
 
 app.get('/', (req, res) => {

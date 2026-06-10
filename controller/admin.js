@@ -1,4 +1,4 @@
-const { Mother } = require('../models');
+const { Mother, Hospital } = require('../models');
 const hospitalModel = require('../models/hospital');
 const { Admin } = require('../models')
 const bcrypt = require('bcrypt');
@@ -7,7 +7,6 @@ const otpGenerator = require('otp-generator');
 const { signUpTemplate , resetPasswordTemplate} = require('../utils/emailTemplates');
 const jwt = require('jsonwebtoken');
 const redisClient = require('../config/redis');
-const hospital = require('../models/hospital');
 const { Op } = require('sequelize');
 
 exports.createAdmin = async (req, res, next) => {
@@ -381,8 +380,9 @@ exports.getMother = async (req, res, next) => {
     }
 }
 exports.getHospitals = async (req, res, next) => {
-    try {
-        const { id } = req.user;
+     try {
+        const id = req.user.id;
+        console.log(req.user)
         const user = await Admin.findOne({where: {id}});
         if (user.role !== 'admin') {
             return next({
@@ -390,7 +390,7 @@ exports.getHospitals = async (req, res, next) => {
                 statusCode: 403
             })
         }
-        const hospitals = await hospital.findAll({ attributes: {exclude: ['password']}});
+        const hospitals = await Hospital.findAll({ attributes: {exclude: ['password']}});
         res.status(200).json({
             message: 'All hospitals fetched successfully',
             hospitals

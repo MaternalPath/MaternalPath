@@ -1,6 +1,6 @@
 const express = require('express');
 const { Authentication } = require('../middlewares/auth');
-const { makePayment, verifyPayment } = require('../controller/payment');
+const { makePayment, verifyPayment, monthlyGoals } = require('../controller/payment');
 const router = express.Router();
 
 
@@ -88,6 +88,8 @@ router.post('/balance', Authentication, makePayment)
  */
 
 router.get('/payment', verifyPayment)
+
+router.get('/history', Authentication,monthlyGoals)
 
 
 module.exports = router

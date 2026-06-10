@@ -1,4 +1,4 @@
-const { Mother, wallet, payment } = require("../models");
+const { Mother, wallet, payment, MotherUpdate } = require("../models");
 const otpGenerator = require("otp-generator");
 const reference = otpGenerator.generate(10, {
   digits: true,
@@ -110,13 +110,23 @@ exports.verifyPayment = async (req, res, next) => {
       });
     }
 
+    console.log(walletRec.currentBalance)
+
     if (data.status === true && data.data.status === "success") {
       paymentRecord.status = "successful";
       walletRec.dataValues.currentBalance += paymentRecord.dataValues.amount;
       await walletRec.save();
       await paymentRecord.save();
+
+      const balance = walletRec.currentBalance
+      const goals = MotherUpdate.savingsGoalAmount
+      const remainingAmountNeeded = goals - balance
+
       return res.status(200).json({
         message: "Payment successful",
+        balance,
+        goals,
+        remainingAmount: remainingAmountNeeded
       });
     }
   } catch (error) {
@@ -127,3 +137,45 @@ exports.verifyPayment = async (req, res, next) => {
     });
   }
 };
+
+exports.monthlyGoals = async (req, res, next) => {
+  try {
+    const { Op } = require('sequelize');
+
+const now = new Date();
+
+const startOfMonth = new Date(
+  now.getFullYear(),
+  now.getMonth(),
+  1
+);
+
+const endOfMonth = new Date(
+  now.getFullYear(),
+  now.getMonth() + 1,
+  1
+);
+
+const monthlyTotal = await payment.sum('amount', {
+  where: {
+    motherId: req.user.id,
+    createdAt: {
+      [Op.gte]: startOfMonth,
+      [Op.lt]: endOfMonth
+    }
+  }
+});
+
+console.log(monthlyTotal || 0);
+
+res.status(200).json({
+  message: "monthly payment retrieved successfully",
+  monthlyTotal
+})
+  } catch (error) {
+    next({
+      message: error.message,
+      statusCode: 500
+    })
+  }
+}
