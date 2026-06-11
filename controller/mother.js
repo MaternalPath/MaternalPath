@@ -584,7 +584,8 @@ exports.updateMother = async (req, res, next) => {
 
 exports.getMotherProfile = async (req, res, next) => {
   try {
-    const { id } = req.user;
+    const id = req.user?.id;
+
 
     const mother = await Mother.findOne({
       where: { id },
@@ -598,7 +599,7 @@ exports.getMotherProfile = async (req, res, next) => {
       });
     }
 
-    const remainingAmountNeeded = Mother.savingsGoalAmount - walletRec.dataValues.currentBalance
+    const remainingAmountNeeded = mother.savingsGoalAmount - wallet.currentBalance;
 
     res.status(200).json({
       message: "Mother profile retrieved successfully",
