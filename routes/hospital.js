@@ -99,6 +99,7 @@ const router = express.Router();
  *                 type: string
  *                 format: password
  *                 example: Password123
+ * 
  *               address:
  *                 type: string
  *                 example: 12 Hospital Road, Lagos
