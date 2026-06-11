@@ -80,7 +80,7 @@ exports.createThird = async (req, res, next) => {
 
 exports.getTrimester = async (req, res, next) => {
     try {
-        const { id } = req.user;
+        const id = req.user?.id;
 
     const mother = await Mother.findOne({
       where: { id },
