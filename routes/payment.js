@@ -89,6 +89,36 @@ router.post('/balance', Authentication, makePayment)
 
 router.get('/payment', verifyPayment)
 
+/**
+ * @swagger
+ * /api/v1/payment/history:
+ *   get:
+ *     tags:
+ *       - Payment
+ *     summary: Get monthly payment goals
+ *     description: Retrieves the authenticated mother's total payment amount for the current month
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Monthly payment retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: monthly payment retrieved successfully
+ *                 monthlyTotal:
+ *                   type: number
+ *                   example: 50000.00
+ *       401:
+ *         description: Unauthorized - token not found or invalid
+ *       500:
+ *         description: Internal server error
+ */
+
 router.get('/history', Authentication,monthlyGoals)
 
 

@@ -100,15 +100,13 @@ exports.getTrimester = async (req, res, next) => {
                 perTrimester,
                 firsttrim
             })
-        }
-        if (currentweek <= 26) {
+        }else if (currentweek <= 26) {
             const perTrimester = await secondTrimester.findAll({ attributes: { exclude: ['id']}});
             res.status(200).json({
                 perTrimester,
                 secondtrim
             })    
-            }
-        if (currentweek >= 27) {
+            }else {
             const perTrimester = await thirdTrimester.findAll({ attributes: { exclude: ['id']}});
             res.status(200).json({
                 perTrimester,
@@ -205,7 +203,7 @@ exports.dailyMessage = async (req, res, next) => {
         const id = req.user?.id;
         const mother = await Mother.findOne({where: {id}})
 
-        const dueDate = new Date(Mother.estimatedDueDate);
+        const dueDate = new Date(mother.estimatedDueDate);
         const today = new Date();
 
         today.setHours(0, 0, 0, 0);
