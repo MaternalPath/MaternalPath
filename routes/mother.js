@@ -427,7 +427,7 @@ router.post('/reset-password', resetPassword);
  *       200:
  *         description: Mother updated successfully
  *         content:
- *           application/json:
+ *           multipart/form-data:
  *             schema:
  *               type: object
  *               properties:
