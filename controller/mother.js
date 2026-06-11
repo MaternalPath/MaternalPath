@@ -586,7 +586,6 @@ exports.getMotherProfile = async (req, res, next) => {
   try {
     const id = req.user?.id;
 
-
     const mother = await Mother.findOne({
       where: { id },
       attributes: { exclude: ["password", "otp", "otpExpiresAt"] },
