@@ -17,7 +17,7 @@ router.post('/third', createThird);
 
 /**
  * @swagger
- * /api/v1/trimester/getTrimester:
+ * /api/v1/getTrimester:
  *   get:
  *     tags:
  *       - Trimester
@@ -61,7 +61,7 @@ router.post('/createMessage', createMessage);
 
 /**
  * @swagger
- * /api/v1/trimester/weeklyMessage:
+ * /api/v1/weeklyMessage:
  *   get:
  *     tags:
  *       - Trimester
@@ -100,7 +100,7 @@ router.post('/dailyMessage', createDaily);
 
 /**
  * @swagger
- * /api/v1/trimester/getDailyMessage:
+ * /api/v1/getDailyMessage:
  *   get:
  *     tags:
  *       - Trimester
