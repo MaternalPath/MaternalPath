@@ -102,17 +102,17 @@ const router = express.Router();
  *               address:
  *                 type: string
  *                 example: 12 Hospital Road, Lagos
- *               
- *               verificationDocuments:
- *                 type: array
- *                 maxItems: 5
- *                 description: Upload only 1 JPG, JPEG, PNG, or PDF file. file must be 5MB or less.
- *                 items:
- *                   type: stringhospitalLogo:
+ *               hospitalLogo:
  *                 type: string
  *                 format: binary
  *                 description: JPG, JPEG, PNG, or PDF file. Maximum size is 5MB.
+ *               verificationDocuments:
+ *                 type: array
+ *                 items:
+ *                   type: string
  *                   format: binary
+ *                 maxItems: 2
+ *                 description: Upload only 1 JPG, JPEG, PNG, or PDF file. file must be 5MB or less.
  *               deliveryFee:
  *                 type: string
  *                 example: "50000"

@@ -41,10 +41,6 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false
       },
-      dueDate: {
-        type: Sequelize.DATE,
-        allowNull: false
-      },
       walletBalance: {
         type: Sequelize.INTEGER,
         allowNull: false,
