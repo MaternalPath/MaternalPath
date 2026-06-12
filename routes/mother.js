@@ -379,9 +379,6 @@ router.post('/reset-password', resetPassword);
  *               lastName:
  *                 type: string
  *                 example: Doe
- *               email:
- *                 type: string
- *                 example: jane.doe@example.com
  *               phoneNumber:
  *                 type: string
  *                 example: "8012345678"
@@ -444,9 +441,6 @@ router.post('/reset-password', resetPassword);
  *                     lastName:
  *                       type: string
  *                       example: Doe
- *                     email:
- *                       type: string
- *                       example: jane.doe@example.com
  *                     image:
  *                       type: string
  *                       example: "https://res.cloudinary.com/sample/image.jpg"

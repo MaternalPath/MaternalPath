@@ -487,7 +487,6 @@ exports.updateMother = async (req, res, next) => {
       firstName,
       lastName,
       phoneNumber,
-      email,
       address,
       image,
       estimatedDueDate,
@@ -522,7 +521,6 @@ exports.updateMother = async (req, res, next) => {
     const details = {
       firstName: firstName ?? mother.firstName,
       lastName: lastName ?? mother.lastName,
-      email: email ?? mother.email,
       phoneNumber: phoneNumber ?? mother.phoneNumber,
       isUpdated: true,
     }
