@@ -489,6 +489,7 @@ exports.updateMother = async (req, res, next) => {
       phoneNumber,
       email,
       address,
+      image,
       estimatedDueDate,
       dateOfBirth,
       trimester,
@@ -528,7 +529,7 @@ exports.updateMother = async (req, res, next) => {
 
     const data = {
       motherId: mother.id,
-      image: req.file.path,
+      image: req.file?.path,
 
       estimatedDueDate: estimatedDueDate ?? MotherUpdate.estimatedDueDate,
       trimester: trimester ?? MotherUpdate.trimester,
