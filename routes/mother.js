@@ -351,7 +351,7 @@ router.post('/reset-password', resetPassword);
  *     tags:
  *       - Mother
  *     summary: Update mother profile
- *     description: Updates the authenticated mother's profile. The id parameter is the hospital's ID.
+ *     description: Updates the authenticated mother's profile including an optional image upload. The id parameter is the hospital's ID.
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -365,7 +365,7 @@ router.post('/reset-password', resetPassword);
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
  *             properties:
@@ -379,15 +379,16 @@ router.post('/reset-password', resetPassword);
  *               lastName:
  *                 type: string
  *                 example: Doe
- *               email:
- *                 type: string
- *                 example: jane.doe@example.com
  *               phoneNumber:
  *                 type: string
  *                 example: "8012345678"
  *               address:
  *                 type: string
  *                 example: 123 Main St, Lagos
+ *               dateOfBirth:
+ *                 type: string
+ *                 format: date
+ *                 example: "1995-06-15"
  *               estimatedDueDate:
  *                 type: string
  *                 format: date
@@ -414,9 +415,6 @@ router.post('/reset-password', resetPassword);
  *               savingsGoalAmount:
  *                 type: number
  *                 example: 500000
- *               dateOfBirth:
- *                 type: number
- *                 example: 2020-10-06
  *               weeklyContribution:
  *                 type: number
  *                 example: 10000
@@ -443,9 +441,9 @@ router.post('/reset-password', resetPassword);
  *                     lastName:
  *                       type: string
  *                       example: Doe
- *                     email:
+ *                     image:
  *                       type: string
- *                       example: jane.doe@example.com
+ *                       example: "https://res.cloudinary.com/sample/image.jpg"
  *                     selectedHospital:
  *                       type: string
  *                       example: Lagos General Hospital
@@ -471,7 +469,7 @@ router.post('/reset-password', resetPassword);
  *       404:
  *         description: Mother or hospital not found
  */
-router.put('/update-profile/:id', Authentication, upload.single('image'), updateMother);
+router.put('/update-profile/:id', upload.single('image'), Authentication, updateMother);
 
 
 /**
@@ -501,7 +499,7 @@ router.put('/update-profile/:id', Authentication, upload.single('image'), update
  *         description: Mother not found
  */
 
-router.get('/get-mother', getMotherProfile);
+router.get('/get-mother',Authentication, getMotherProfile);
 
 
 /**
