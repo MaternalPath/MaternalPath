@@ -3,26 +3,26 @@ const {
   Model
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  class PatientFundVerification extends Model {
+  class verifyPatientFund extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      PatientFundVerification.belongsTo(models.Mother, {
+      verifyPatientFund.belongsTo(models.Mother, {
         foreignKey: 'maternalId',
         targetKey: 'id',
         as: 'mother'
       });
-      PatientFundVerification.belongsTo(models.Hospital, {
+      verifyPatientFund.belongsTo(models.Hospital, {
         foreignKey: 'hospitalId',
         targetKey: 'id',
         as: 'hospital'
       });
     }
   }
-  PatientFundVerification.init({
+  verifyPatientFund.init({
     id: {
       allowNull: false,
       autoIncrement: true,
@@ -81,7 +81,7 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: 0
     },
     status: {
-      type: DataTypes.STRING,
+      type: DataTypes.ENUM('Pending', 'Approved', 'Rejected'),
       allowNull: false,
       defaultValue: 'Pending'
     },
@@ -104,8 +104,8 @@ module.exports = (sequelize, DataTypes) => {
     }
   }, {
     sequelize,
-    modelName: 'PatientFundVerification',
-    tableName: 'patientFundVerifications'
+    modelName: 'verifyPatientFund',
+    tableName: 'verifyPatientFunds'
   });
-  return PatientFundVerification;
+  return verifyPatientFund;
 };

@@ -113,6 +113,13 @@ const router = express.Router();
  *                 type: string
  *                 format: binary
  *                 description: JPG, JPEG, PNG, or PDF file. Maximum size is 5MB.
+ *               verificationDocuments:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                   format: binary
+ *                 maxItems: 2
+ *                 description: Upload only 1 JPG, JPEG, PNG, or PDF file. file must be 5MB or less.
  *               deliveryFee:
  *                 type: string
  *                 example: "50000"
