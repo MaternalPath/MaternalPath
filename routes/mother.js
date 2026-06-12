@@ -499,7 +499,7 @@ router.put('/update-profile/:id', upload.single('image'), Authentication, update
  *         description: Mother not found
  */
 
-router.get('/get-mother', getMotherProfile);
+router.get('/get-mother',Authentication, getMotherProfile);
 
 
 /**
