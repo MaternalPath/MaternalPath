@@ -9,7 +9,59 @@ const {
 } = require('../utils/emailTemplates');
 const { Op } = require("sequelize");
 const jwt = require('jsonwebtoken');
+const passport = require("passport");
 const redisClient = require('../config/redis')
+
+const GoogleStrategy = require("passport-google-oauth20").Strategy;
+
+passport.use(
+  new GoogleStrategy(
+    {
+      clientID: process.env.clientId,
+      clientSecret: process.env.clientSecret,
+      callbackURL: process.env.googleCallback,
+      scope: ["profile", "email"],
+      passReqToCallback: true,
+    },
+    async function (request, accessToken, refreshToken, profile, done) {
+      console.log("i am profile:", profile);
+      console.log("email:", profile._json.email);
+      const checkUser = await Mother.findOne({
+        where: { email: profile._json.email },
+      }); // sequelize uses "where"
+      let token;
+
+      if (checkUser) {
+        token = jwt.sign({ id: checkUser.id }, process.env.JWT_SECRET, {
+          expiresIn: "1day",
+        });
+      } else {
+        const createUser = await Hospital.create({
+          firstName: profile._json.given_name,
+          lastName: profile._json.family_name,
+          email: profile._json.email,
+          isVerified: profile._json.email_verified,
+          password: " ",
+        });
+        token = jwt.sign({ id: createUser.id }, process.env.JWT_SECRET, {
+          expiresIn: "1day",
+        });
+        await wallet.create({
+          hospitalId: createUser.dataValues.id,
+        });
+      }
+      return done(null, token);
+    },
+  ),
+);
+
+passport.serializeUser((token, done) => {
+  return done(null, token);
+});
+
+passport.deserializeUser((token, done) => {
+  return done(null, token);
+});
 
 
 exports.createHospital = async (req, res) => {
@@ -186,10 +238,10 @@ exports.loginHospital = async (req, res) => {
 
         const token = jwt.sign(
             { id: hospital.id, email: hospital.email },
-            process.env.SECRET_KEY || 'your-secret-key-change-this-in-production',
+            process.env.JWT_SECRET || 'olachi',
             { expiresIn: '1d' }
         );
-
+           
         // redisClient.setex(`hospital_${hospital.id}`, 7 * 24 * 60 * 60, token);
 
         res.status(200).json({
