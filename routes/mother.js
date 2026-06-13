@@ -527,7 +527,41 @@ router.get('/get-mother',Authentication, getMotherProfile);
 
 router.post('/logout', logout)
 
+/**
+ * @swagger
+ * tags:
+ *   name: Google Auth
+ *   description: Google OAuth2 authentication
+ */
+
+
+/**
+ * @swagger
+ * /api/v1/mother/collect:
+ *   get:
+ *     tags:
+ *       - Google Auth
+ *     summary: Initiate Google login
+ *     description: Redirects the user to Google to authenticate and grant profile and email access
+ *     responses:
+ *       302:
+ *         description: Redirects to Google OAuth consent screen
+ */
+
 router.get('/collect', passport.authenticate('google', {scope: ['profile', 'email']}))
+
+/**
+ * @swagger
+ * /api/v1/mother/googleSignUp:
+ *   get:
+ *     tags:
+ *       - Google Auth
+ *     summary: Google OAuth callback
+ *     description: Handles the callback from Google after authentication. Redirects to login success or failure.
+ *     responses:
+ *       302:
+ *         description: Redirects to /api/v1/mother/loginsuccess on success or /api/v1/mother/loginfailed on failure
+ */
 
 router.get('/googleSignUp', passport.authenticate('google', {
     successRedirect: '/api/v1/mother/loginsuccess', 
@@ -541,10 +575,56 @@ router.get('/googleSignUp', passport.authenticate('google', {
     // successRedirect: '/api/user/loginsuccess', 
     // failureRedirect: '/api/user/loginfailed'}))
 
+/**
+ * @swagger
+ * /api/v1/mother/loginsuccess:
+ *   get:
+ *     tags:
+ *       - Google Auth
+ *     summary: Google login success
+ *     description: Returns the authenticated mother's JWT token after successful Google login
+ *     responses:
+ *       200:
+ *         description: Login successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Login successful
+ *                 data:
+ *                   type: string
+ *                   description: JWT token
+ *                   example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+ */
+
 router.get('/loginsuccess', (req, res) => {
         res.json({message: 'Login successful',  
             data: req.user})
     }) 
+
+/**
+ * @swagger
+ * /api/v1/mother/loginfailed:
+ *   get:
+ *     tags:
+ *       - Google Auth
+ *     summary: Google login failed
+ *     description: Returns a failure message when Google authentication fails
+ *     responses:
+ *       200:
+ *         description: Login failed
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Login failed
+ */
 
 router.get('/loginfailed', (req, res) => {
         res.json({message: 'Login failed'})

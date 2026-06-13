@@ -589,6 +589,9 @@ exports.getMotherProfile = async (req, res, next) => {
       where: { id },
       attributes: { exclude: ["password", "otp", "otpExpiresAt"] },
     });
+    const mom = await MotherUpdate.findOne({
+      where: { motherId: id }
+    });
 
     if (!mother) {
       return next({
@@ -602,6 +605,7 @@ exports.getMotherProfile = async (req, res, next) => {
     res.status(200).json({
       message: "Mother profile retrieved successfully",
       data: mother,
+      mom,
       remainingAmountNeeded
     });
   } catch (error) {
