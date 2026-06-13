@@ -12,7 +12,8 @@ const {
   resetPassword,
   forgotPassword,
   getHospitalMothers,
-  getHospitalMother
+  getHospitalMother,
+  getHospitalProfile
 } = require('../controller/hospital');
 const { hospitalRegisterValidator, hospitalLoginValidator, changePasswordValidator } = require('../middlewares/hospitalValidator');
 const { Authentication } = require('../middlewares/auth');
@@ -564,5 +565,26 @@ router.get('/mothers/:motherId', Authentication, getHospitalMother);
  *         description: Internal server error
  */
 router.put('/change-password', Authentication, changePasswordValidator, changePassword);
+
+/**
+ * @swagger
+ * /api/v1/hospital/profile:
+ *   get:
+ *     summary: Get hospital profile
+ *     tags: [Hospital]
+ *     security:
+ *       - bearerAuth: []
+ *     description: Returns the authenticated hospital's profile including hospitalName, email, phoneNumber, address, hospitalLogo, deliveryFee, medicalLicenseNumber, and verificationDocuments.
+ *     responses:
+ *       200:
+ *         description: Hospital profile retrieved successfully
+ *       401:
+ *         description: Missing or invalid token
+ *       404:
+ *         description: Hospital not found
+ *       500:
+ *         description: Internal server error
+ */
+router.get('/profile', Authentication, getHospitalProfile);
 
 module.exports = router;
