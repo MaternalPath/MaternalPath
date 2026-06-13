@@ -150,8 +150,14 @@ const payments = await payment.findAll({
 
 const monthlySavings = {};
 
+for (let i = 0; i < 12; i++) {
+  const month = dayjs().month(i).format("MMMM");
+  monthlySavings[month] = 0;
+}
+
 payments.forEach((payment) => {
-  const month = dayjs(payment.createdAt).format("YYYY-MM");
+  const month = dayjs(payment.createdAt).format("MMMM");
+  monthlySavings[month] += Number(payment.amount)
 
   if (!monthlySavings[month]) {
     monthlySavings[month] = 0;
