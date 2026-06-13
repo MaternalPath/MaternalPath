@@ -41,6 +41,17 @@ module.exports = (sequelize, DataTypes) => {
     isVerified: { type: DataTypes.BOOLEAN, defaultValue: false },
     isUpdated: { type: DataTypes.BOOLEAN, defaultValue: false },
     role: { type: DataTypes.STRING, enum: ['mother','admin', 'hospital'],defaultValue: 'mother' },
+    isBlocked: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+    },
+    loginAttempts: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0  
+    },
+    lockUntil: {
+        type: DataTypes.DATE
+    },
     createdAt: { allowNull: false, type: DataTypes.DATE },
     updatedAt: { allowNull: false, type: DataTypes.DATE }
   }, {
