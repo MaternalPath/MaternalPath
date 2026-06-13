@@ -6,7 +6,7 @@ const {
   createHospital,
   verifyEmail,
   resendOTP,
-  loginHospital,
+  loginHospital, 
   changePassword,
   verifyResetOTP,
   resetPassword,
