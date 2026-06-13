@@ -5,10 +5,23 @@ module.exports = {
     await queryInterface.createTable('uploadedBills', {
       id: {
         allowNull: false,
-        autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.UUID,
+        defaultValue: Sequelize.UUIDV4
       },
+      // hospitalId: {
+      //         type: Sequelize.UUID,
+      //         references: {
+      //           model: "Hospitals",
+      //           key: "id",
+      //         },
+      //         onDelete: "CASCADE",
+      //         onUpdate: "CASCADE",
+      //        },
+      // billId: {
+      //   type: Sequelize.STRING,
+      //   allowNull: false
+      // },
       fullName: {
         type: Sequelize.STRING
       },

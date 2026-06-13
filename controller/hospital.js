@@ -503,6 +503,32 @@ exports.getHospitalMother = async (req, res) => {
     }
 };
 
+exports.getHospitalProfile = async (req, res) => {
+    try {
+        const { id } = req.user; 
+
+        const hospital = await Hospital.findByPk(id, {
+            attributes: {
+                exclude: ['password', 'otp', 'otpExpiresAt']
+            }
+        });
+
+        if (!hospital) {
+            return res.status(404).json({
+                message: 'Hospital not found'
+            });
+        }
+
+        res.status(200).json({
+            message: 'Hospital profile retrieved successfully',
+            data: hospital
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: error.message
+        });
+    }
+};
 
 exports.logout = async (req, res, next) => {
     try {

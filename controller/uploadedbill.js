@@ -8,7 +8,7 @@ const BILL_SUMMARY_FIELDS = ['patienceName', 'category', 'date', 'totalAmount'];
 
 exports.uploadBill = async (req, res) => {
     try {
-        const { id: hospitalId } = req.user;
+        const { id } = req.user;
         const {
             fullName,
             maternalId,
@@ -36,7 +36,7 @@ exports.uploadBill = async (req, res) => {
         }
 
         // Verify hospital exists
-        const hospital = await Hospital.findByPk(hospitalId);
+        const hospital = await Hospital.findByPk(id);
         if (!hospital) {
             return res.status(404).json({
                 message: 'Hospital not found'
@@ -62,12 +62,18 @@ exports.uploadBill = async (req, res) => {
         if (!documentUpload) {
             return res.status(400).json({
                 message: 'Bill document is required',
-                systemValidation: 'fileUploadedProgress'
+                systemValidation: 'fileUploadedProgress'  
             });
         }
 
+        // Generate a unique bill ID
+        const billId = `BILL-${Date.now()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+
         // Create bill and kick off the workflow at stage 1
         const bill = await uploadedBill.create({
+            billId,
+            // hospitalId: id,
+            // motherId: mother.id,
             fullName,
             maternalId,
             phoneNumber,
@@ -82,6 +88,8 @@ exports.uploadBill = async (req, res) => {
             billSummary: 'patienceName',
             documentUpload
         });
+
+        // console.log('Bill created:', bill);
 
         res.status(201).json({
             message: 'Bill uploaded successfully and entered customer review',
@@ -104,7 +112,7 @@ exports.uploadBill = async (req, res) => {
  */
 exports.customerReview = async (req, res) => {
     try {
-        const { billId } = req.params;
+        // const { billId } = req.params;
         const { approved } = req.body;
 
         const bill = await uploadedBill.findByPk(billId);
@@ -142,7 +150,7 @@ exports.customerReview = async (req, res) => {
             }
         });
     } catch (error) {
-        console.log(error);
+        console.log("error:", error);
         res.status(500).json({
             message: error.message
         });
