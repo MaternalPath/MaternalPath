@@ -7,7 +7,8 @@ module.exports = {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        defaultValue: Sequelize.UUIDV4
       },
       patientName: {
         type: Sequelize.STRING,

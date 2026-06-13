@@ -1,19 +1,39 @@
 'use strict';
-const {
-  Model
-} = require('sequelize');
+const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class uploadedBill extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
     static associate(models) {
-      // define association here
+      uploadedBill.belongsTo(models.Hospital, {
+        foreignKey: 'hospitalId',
+        as: 'hospital'
+      });
+      uploadedBill.belongsTo(models.Mother, {
+        foreignKey: 'motherId',
+        as: 'mother'
+      });
     }
   }
   uploadedBill.init({
+    id: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
+      primaryKey: true,
+      allowNull: false
+    },
+    // hospitalId: {
+    //   type: DataTypes.UUID,
+    //   allowNull: false,
+    //   references: {
+    //     model: 'Hospitals',
+    //     key: 'id'
+    //   },
+    //   onDelete: 'CASCADE',
+    //   onUpdate: 'CASCADE'
+    // },
+    billId: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
     fullName: DataTypes.STRING,
     maternalId: DataTypes.STRING,
     phoneNumber: DataTypes.STRING,
@@ -23,15 +43,23 @@ module.exports = (sequelize, DataTypes) => {
     amount: DataTypes.INTEGER,
     billingDate: DataTypes.DATE,
     dueDate: DataTypes.DATE,
-    verificationWorkFlow: DataTypes.STRING, enum: ['uploadedBill', 'customerReview', 'fundValidation', 'finalApproval'],
-    systemValidation: DataTypes.STRING, enum: ['patienceIdMatched', 'fileUploadedProgress', 'billingVerification', 'requiredFieldComplete'],
-    billSummary: DataTypes.STRING, enum: ['patienceName', 'category', 'date', 'totalAmount'],
+    verificationWorkFlow: {
+      type: DataTypes.STRING,
+      values: ['uploadedBill', 'customerReview', 'fundValidation', 'finalApproval']
+    },
+    systemValidation: {
+      type: DataTypes.STRING,
+      values: ['patienceIdMatched', 'fileUploadedProgress', 'billingVerification', 'requiredFieldComplete']
+    },
+    billSummary: {
+      type: DataTypes.STRING,
+      values: ['patienceName', 'category', 'date', 'totalAmount']
+    },
     documentUpload: DataTypes.STRING
   }, {
     sequelize,
     modelName: 'uploadedBill',
+    tableName: 'uploadedBills'
   });
   return uploadedBill;
 };
-
-

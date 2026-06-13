@@ -3,6 +3,7 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const {
+  // getBill, // Ensure getBill is imported correctly
   uploadBill,
   customerReview,
   validateFunds,
@@ -153,6 +154,46 @@ const router = express.Router();
  *         description: Internal server error
  */
 router.post('/upload', Authentication, upload.single('documentUpload'), uploadBill);
+
+// // Add a diagnostic check to ensure getBill is a function
+// if (typeof getBill !== 'function') {
+//   console.error('CRITICAL ERROR: The "getBill" handler is not a function. Please ensure it is correctly exported from `../controller/uploadedbill.js` and that the server has been fully restarted to pick up changes.');
+//   // Depending on desired behavior, you might want to throw an error here to prevent the server from starting with a broken route.
+//   // throw new TypeError('Route handler for /api/v1/bill/{billId} must be a function.');
+// }
+// /**
+//  * @swagger
+//  * /api/v1/bill/{billId}:
+//  *   get:
+//  *     summary: Get a single bill by Bill ID
+//  *     tags: [UploadedBill]
+//  *     security:
+//  *       - bearerAuth: []
+//  *     parameters:
+//  *       - in: path
+//  *         name: billId
+//  *         required: true
+//  *         schema:
+//  *           type: string
+//  *         description: The custom Bill ID (e.g., BILL-17182...)
+//  *     responses:
+//  *       200:
+//  *         description: Bill retrieved successfully
+//  *         content:
+//  *           application/json:
+//  *             schema:
+//  *               type: object
+//  *               properties:
+//  *                 message:
+//  *                   type: string
+//  *                 data:
+//  *                   type: object
+//  *       404:
+//  *         description: Bill not found
+//  *       500:
+//  *         description: Internal server error
+//  */
+// router.get('/:billId', Authentication, getBill);
 
 /**
  * @swagger
