@@ -1,5 +1,6 @@
 const express = require('express');
 const { createFirst, createSecond, createThird, getTrimester, createMessage, weeklyMessage, createDaily, dailyMessage } = require('../controller/trimester');
+const { Authentication } = require('../middlewares/auth');
 const router = express.Router();
 
 /**
@@ -55,7 +56,7 @@ router.post('/third', createThird);
  *         description: Internal server error
  */
 
-router.get('/getTrimester', getTrimester)
+router.get('/getTrimester',Authentication , getTrimester)
 
 router.post('/createMessage', createMessage);
 

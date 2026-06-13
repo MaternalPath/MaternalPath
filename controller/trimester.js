@@ -1,5 +1,5 @@
 const { where } = require("sequelize");
-const {firstTrimester, secondTrimester, thirdTrimester, Mother, pregnancyTip, dailyReminder} = require("../models");
+const {firstTrimester, secondTrimester, thirdTrimester, Mother, pregnancyTip, dailyReminder, MotherUpdate} = require("../models");
 
 
 
@@ -82,9 +82,10 @@ exports.getTrimester = async (req, res, next) => {
     try {
         const id = req.user?.id;
 
-    const mother = await Mother.findOne({
-      where: { id },
+    const mother = await MotherUpdate.findOne({
+      where: { motherId: id },
     });
+
 
     // cron.schedule('0 9 * * 1', async () => {
     //     console.log('Running weekly reminders...');
