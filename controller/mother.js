@@ -614,13 +614,21 @@ exports.getMotherProfile = async (req, res, next) => {
     }
 
     const remainingAmountNeeded = mother.savingsGoalAmount - wallet.currentBalance;
+    const info = `${mother.firstName} ${mother.lastName}, ${mother.email}, ${mother.phoneNumber}`
 
-    res.status(200).json({
+    if (mother.isUpdated === false) {
+      return res.status(200).json({
+        message: 'Please Update your profile',
+        data: info
+      })
+    }else{
+      return res.status(200).json({
       message: "Mother profile retrieved successfully",
       data: mother,
       mom,
       remainingAmountNeeded
     });
+  }
   } catch (error) {
     next({
       message: error.message,
@@ -628,6 +636,17 @@ exports.getMotherProfile = async (req, res, next) => {
     });
   }
 };
+
+exports.getMotherBeforeUpdate = async (req, res, next) => {
+  try {
+    
+  } catch (error) {
+    next({
+      message: error.message,
+      statusCode: 500
+    })
+  }
+}
 
 exports.logout = async (req, res, next) => {
   try {
