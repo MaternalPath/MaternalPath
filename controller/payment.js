@@ -1,5 +1,6 @@
 const { Mother, wallet, payment, MotherUpdate } = require("../models");
 const otpGenerator = require("otp-generator");
+const dayjs = require("dayjs");
 const reference = otpGenerator.generate(10, {
   digits: true,
   upperCaseAlphabets: false,
@@ -140,37 +141,36 @@ exports.verifyPayment = async (req, res, next) => {
 
 exports.monthlyGoals = async (req, res, next) => {
   try {
-    const { Op } = require('sequelize');
-
-const now = new Date();
-
-const startOfMonth = new Date(
-  now.getFullYear(),
-  now.getMonth(),
-  1
-);
-
-const endOfMonth = new Date(
-  now.getFullYear(),
-  now.getMonth() + 1,
-  1
-);
-
-const monthlyTotal = await payment.sum('amount', {
+const payments = await payment.findAll({
   where: {
     motherId: req.user.id,
-    createdAt: {
-      [Op.gte]: startOfMonth,
-      [Op.lt]: endOfMonth
-    }
+    status: "successful"
   }
 });
 
-console.log(monthlyTotal || 0);
+const monthlySavings = {};
+
+for (let i = 0; i < 12; i++) {
+  const month = dayjs().month(i).format("MMMM");
+  monthlySavings[month] = 0;
+}
+
+payments.forEach((payment) => {
+  const month = dayjs(payment.createdAt).format("MMMM");
+  monthlySavings[month] += Number(payment.amount)
+
+  if (!monthlySavings[month]) {
+    monthlySavings[month] = 0;
+  }
+
+  monthlySavings[month] += Number(payment.amount);
+});
+
+console.log(monthlySavings);
 
 res.status(200).json({
   message: "monthly payment retrieved successfully",
-  monthlyTotal
+  monthlySavings
 })
   } catch (error) {
     next({

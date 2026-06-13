@@ -487,8 +487,8 @@ exports.updateMother = async (req, res, next) => {
       firstName,
       lastName,
       phoneNumber,
-      email,
       address,
+      image,
       estimatedDueDate,
       dateOfBirth,
       trimester,
@@ -521,14 +521,13 @@ exports.updateMother = async (req, res, next) => {
     const details = {
       firstName: firstName ?? mother.firstName,
       lastName: lastName ?? mother.lastName,
-      email: email ?? mother.email,
       phoneNumber: phoneNumber ?? mother.phoneNumber,
       isUpdated: true,
     }
 
     const data = {
       motherId: mother.id,
-      image: req.file.path,
+      image: req.file?.path,
 
       estimatedDueDate: estimatedDueDate ?? MotherUpdate.estimatedDueDate,
       trimester: trimester ?? MotherUpdate.trimester,
@@ -584,11 +583,14 @@ exports.updateMother = async (req, res, next) => {
 
 exports.getMotherProfile = async (req, res, next) => {
   try {
-    const { id } = req.user;
+    const id = req.user?.id;
 
     const mother = await Mother.findOne({
       where: { id },
       attributes: { exclude: ["password", "otp", "otpExpiresAt"] },
+    });
+    const mom = await MotherUpdate.findOne({
+      where: { motherId: id }
     });
 
     if (!mother) {
@@ -598,11 +600,12 @@ exports.getMotherProfile = async (req, res, next) => {
       });
     }
 
-    const remainingAmountNeeded = Mother.savingsGoalAmount - walletRec.dataValues.currentBalance
+    const remainingAmountNeeded = mother.savingsGoalAmount - wallet.currentBalance;
 
     res.status(200).json({
       message: "Mother profile retrieved successfully",
       data: mother,
+      mom,
       remainingAmountNeeded
     });
   } catch (error) {

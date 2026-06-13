@@ -53,6 +53,17 @@ module.exports = {
                 defaultValue: false
             },
             role: { type: Sequelize.STRING, enum: ['mother','admin', 'hospital'],defaultValue: 'mother' },
+            isBlocked: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false
+    },
+    loginAttempts: {
+        type: Sequelize.INTEGER,
+        defaultValue: 0  
+    },
+    lockUntil: {
+        type: Sequelize.DATE
+    },
             createdAt: {
                 type: Sequelize.DATE,
                 allowNull: false

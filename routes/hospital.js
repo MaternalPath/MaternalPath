@@ -102,6 +102,13 @@ const router = express.Router();
  *               address:
  *                 type: string
  *                 example: 12 Hospital Road, Lagos
+ *               verificationDocuments:
+ *                 type: array
+ *                 maxItems: 5
+ *                 description: Upload only 1 JPG, JPEG, PNG, or PDF file. file must be 5MB or less.
+ *                 items:
+ *                   type: string
+ *                   format: binary
  *               hospitalLogo:
  *                 type: string
  *                 format: binary
@@ -127,8 +134,7 @@ const router = express.Router();
  *       500:
  *         description: Internal server error
  */
-router.post('/register',
-  upload.fields([
+router.post('/register',upload.fields([
         { name: 'hospitalLogo', maxCount: 1 },
         { name: 'verificationDocuments', maxCount: 5 }
     ]), hospitalRegisterValidator, createHospital);
