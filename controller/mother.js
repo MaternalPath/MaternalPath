@@ -637,17 +637,6 @@ exports.getMotherProfile = async (req, res, next) => {
   }
 };
 
-exports.getMotherBeforeUpdate = async (req, res, next) => {
-  try {
-    
-  } catch (error) {
-    next({
-      message: error.message,
-      statusCode: 500
-    })
-  }
-}
-
 exports.logout = async (req, res, next) => {
   try {
     const id = req.user?.id;
