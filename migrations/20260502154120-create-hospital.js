@@ -29,6 +29,17 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false
       },
+      isBlocked: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false
+    },
+    loginAttempts: {
+        type: Sequelize.INTEGER,
+        defaultValue: 0  
+    },
+    lockUntil: {
+        type: Sequelize.DATE
+    },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

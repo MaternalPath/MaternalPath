@@ -251,8 +251,15 @@ exports.loginMother = async (req, res, next) => {
 
     if (!mother) {
       return res.status(400).json({
-        message: "Invalid credentials",
+        message: `Mother with email ${emailOrPhoneNumber} does not exist`,
+        statusCode: 404
       });
+    }
+    if (mother.lockUntil && mother.lockUntil > Date.now()) {
+      return next({
+        message: `Account locked until ${mother.lockUntil}`,
+        statusCode: 403
+      })
     }
 
     if (mother.isVerified == false) {
@@ -265,6 +272,12 @@ exports.loginMother = async (req, res, next) => {
     const passwordMatch = await bcrypt.compare(password, mother.password);
 
     if (!passwordMatch) {
+      mother.loginAttempts += 1;
+      if (mother.loginAttempts >= 5) {
+        mother.lockUntil = new Date(Date.now() + 30 + 60 * 1000);
+        mother.loginAttempts = 0
+      }
+      await mother.save();
       return res.status(400).json({
         message: "Invalid credentials",
       });
