@@ -530,8 +530,8 @@ router.post('/logout', logout)
 /**
  * @swagger
  * tags:
- *   name: Google Auth
- *   description: Google OAuth2 authentication for mother accounts
+ *   - name: Google Auth
+ *     description: Google OAuth2 authentication for mother accounts
  */
 
 /**
@@ -540,11 +540,11 @@ router.post('/logout', logout)
  *   get:
  *     tags:
  *       - Google Auth
- *     summary: Start Google authentication
- *     description: Redirects the user to Google OAuth consent screen to sign in with Google and grant profile and email access.
+ *     summary: Start Google login
+ *     description: Redirects the user to Google OAuth consent screen to authenticate with profile and email access.
  *     responses:
  *       302:
- *         description: Redirects to Google authentication page
+ *         description: Redirect to Google OAuth page
  */
 
 router.get('/collect', passport.authenticate('google', {scope: ['profile', 'email']}))
@@ -556,7 +556,7 @@ router.get('/collect', passport.authenticate('google', {scope: ['profile', 'emai
  *     tags:
  *       - Google Auth
  *     summary: Google OAuth callback
- *     description: Handles Google's callback after authentication. The backend checks if the user exists, creates a new mother account if needed, generates a JWT token, and redirects to the success or failure route.
+ *     description: Handles Google callback after authentication. The backend checks if the mother already exists by email, creates a new mother account if needed, creates a wallet for new users, generates a JWT token, and redirects to success or failure.
  *     responses:
  *       302:
  *         description: Redirects to /api/v1/mother/loginsuccess on success or /api/v1/mother/loginfailed on failure
@@ -581,7 +581,7 @@ router.get('/googleSignUp', passport.authenticate('google', {
  *     tags:
  *       - Google Auth
  *     summary: Google login success
- *     description: Returns the generated JWT token after successful Google authentication.
+ *     description: Returns the JWT token after successful Google authentication.
  *     responses:
  *       200:
  *         description: Login successful
@@ -595,6 +595,7 @@ router.get('/googleSignUp', passport.authenticate('google', {
  *                   example: Login successful
  *                 data:
  *                   type: string
+ *                   description: JWT token
  *                   example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
  */
 
@@ -610,7 +611,7 @@ router.get('/loginsuccess', (req, res) => {
  *     tags:
  *       - Google Auth
  *     summary: Google login failed
- *     description: Returns a failure message when Google authentication fails.
+ *     description: Returns a failure message when Google authentication does not succeed.
  *     responses:
  *       200:
  *         description: Login failed
