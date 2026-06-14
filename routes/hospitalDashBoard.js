@@ -1,5 +1,5 @@
 const express = require('express'); 
-const { getHospitalDashboard, searchPatients } = require('../controller/hospitalDashBoard');
+const { getHospitalDashboard, searchMothers } = require('../controller/hospitalDashBoard');
 const { Authentication } = require('../middlewares/auth');
 // const { verifyToken } = require("../middlewares/auth");
 
@@ -150,6 +150,6 @@ router.get(
  *                   type: string
  *                   example: Error searching for patient
  */
-router.get( "/search-patient", Authentication, searchPatients );
+router.get( "/search-mother", Authentication, searchMothers);
 
 module.exports = router;

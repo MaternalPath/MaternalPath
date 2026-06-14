@@ -30,17 +30,18 @@ module.exports = (sequelize, DataTypes) => {
     //   onDelete: 'CASCADE',
     //   onUpdate: 'CASCADE'
     // },
-    billId: {
-      type: DataTypes.STRING,
-      allowNull: false
-    },
+    // billId: {
+    //   type: DataTypes.STRING,
+    //   allowNull: false
+    // },
     fullName: DataTypes.STRING,
     maternalId: DataTypes.STRING,
     phoneNumber: DataTypes.STRING,
     expectedDeliveryDate: DataTypes.DATE,
     referenceNumber: DataTypes.STRING,
     category: DataTypes.STRING,
-    amount: DataTypes.INTEGER,
+    billAmount: DataTypes.INTEGER,
+    billNumber: DataTypes.STRING,
     billingDate: DataTypes.DATE,
     dueDate: DataTypes.DATE,
     verificationWorkFlow: {

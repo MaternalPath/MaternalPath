@@ -105,7 +105,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'verifyPatientFund',
-    tableName: 'verifyPatientFunds'
+    tableName: 'patientFundVerifications'
   });
   return verifyPatientFund;
 };

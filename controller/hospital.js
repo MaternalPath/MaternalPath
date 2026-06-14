@@ -12,6 +12,7 @@ const jwt = require('jsonwebtoken');
 const passport = require("passport");
 const redisClient = require('../config/redis')
 
+
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 
 passport.use(
@@ -272,9 +273,15 @@ exports.loginHospital = async (req, res) => {
     }
 };
 
-exports.forgotPassword = async (req, res,next) => {
+exports.forgotPassword = async (req, res, next) => {
     try {
         const { email } = req.body;
+
+        if (!email) {
+            const error = new Error('Email is required');
+            error.statusCode = 400;
+            return next(error);
+        }
 
         const hospital = await Hospital.findOne({ where: { email: email.toLowerCase()}});
 
@@ -546,3 +553,5 @@ exports.logout = async (req, res, next) => {
         })
     }
 }
+
+
