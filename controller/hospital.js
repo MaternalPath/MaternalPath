@@ -537,6 +537,49 @@ exports.getHospitalProfile = async (req, res) => {
     }
 };
 
+exports.updateHospitalProfile = async(req, res, next) => {
+    try {
+        const id = req.user?.id;
+        if (!id) {
+            return next({
+                message: "Unauthorized",
+                statusCode: 401
+            })
+        }
+
+        const hospital = await Hospital.findOne({ where: {id}});
+
+        if (!hospital) {
+            return next({
+                message: "Hospital not found",
+                statusCode: 404
+            })
+        }
+
+        const { hospitalName, email, phoneNumber, address,  deliveryFee} = req.body;
+
+        const data = { 
+            hospitalName: hospitalName ?? Hospital.hospitalName, 
+            email: email ?? Hospital.email, 
+            phoneNumber: phoneNumber ?? Hospital.phoneNumber, 
+            address: address ?? Hospital.address,  
+            deliveryFee: deliveryFee ?? Hospital.deliveryFee
+        }
+
+        await Hospital.update(data);
+
+        res.status(200).json({
+            message: 'Hospital Updated successfully',
+            data
+        })
+    } catch (error) {
+       next({
+        message: error.message,
+        statusCode: 500
+       }) 
+    }
+}
+
 exports.logout = async (req, res, next) => {
     try {
         const { id } = req.user;
