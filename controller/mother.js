@@ -615,7 +615,7 @@ exports.getMotherProfile = async (req, res, next) => {
     }
 
     const remainingAmountNeeded = mother.savingsGoalAmount - wallet.currentBalance;
-    const info = `${mother.firstName} ${mother.lastName}, ${mother.email}, ${mother.phoneNumber}`
+    const info = `['firstName:' ${mother.firstName}, 'lastName:' ${mother.lastName}, 'email:' ${mother.email},  'phoneNumber:'${mother.phoneNumber}]`
 
     if (mother.isUpdated === false) {
       return res.status(200).json({
