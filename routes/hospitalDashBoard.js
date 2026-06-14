@@ -150,6 +150,6 @@ router.get(
  *                   type: string
  *                   example: Error searching for patient
  */
-router.get( "/search-mother", Authentication, searchMothers);
+router.get( "/search-patient", Authentication, searchMothers);
 
 module.exports = router;

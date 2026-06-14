@@ -535,6 +535,7 @@ exports.updateMother = async (req, res, next) => {
       firstName: firstName ?? mother.firstName,
       lastName: lastName ?? mother.lastName,
       phoneNumber: phoneNumber ?? mother.phoneNumber,
+      hospitalId: selectedHospitalId,
       isUpdated: true,
     }
 
@@ -583,8 +584,8 @@ exports.updateMother = async (req, res, next) => {
 
     res.status(200).json({
       message: "Mother updated successfully",
-      data: details,
-      data
+      data,
+      details
     });
   } catch (error) {
     next({
