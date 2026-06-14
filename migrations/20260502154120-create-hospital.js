@@ -9,26 +9,64 @@ module.exports = {
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4
       },
-      hospitalName: {
-        type: Sequelize.STRING,
-        allowNull: false
-      },
-      email: {
-        type: Sequelize.STRING,
-        allowNull: false
-      },
-      phoneNumber: {
+    hospitalName:{
+      type: Sequelize.STRING,
+      allowNull: false
+    },
+
+    email: {
+      type: Sequelize.STRING,
+      allowNull: false
+    },
+    phoneNumber: {
+      type: Sequelize.STRING,
+      allowNull: false
+    },
+    password: {
+      type: Sequelize.STRING,
+      allowNull: false
+    },
+    address: {
+      type: Sequelize.STRING,
+      allowNull: false
+    },
+    hospitalLogo: {
+      type: Sequelize.STRING,
+      allowNull: true
+    },
+    verificationDocuments: {
+      type: Sequelize.STRING,
+      allowNull: true
+    },
+    deliveryFee: {
+      type: Sequelize.STRING,
+      allowNull: true
+    },
+    medicalLicenseNumber: {
+      type: Sequelize.STRING,
+      allowNull: true
+    },
+    otp: {
+      type: Sequelize.STRING
+    },
+    otpExpiresAt: {
+      type: Sequelize.DATE
+    },
+    isVerified: {
+      type: Sequelize.BOOLEAN,
+      defaultValue: false
+    },
+      isBlocked: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false
+    },
+    loginAttempts: {
         type: Sequelize.INTEGER,
-        allowNull: false
-      },
-      password: {
-        type: Sequelize.STRING,
-        allowNull: false
-      },
-      address: {
-        type: Sequelize.STRING,
-        allowNull: false
-      },
+        defaultValue: 0  
+    },
+    lockUntil: {
+        type: Sequelize.DATE
+    },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

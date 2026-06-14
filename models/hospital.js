@@ -71,6 +71,17 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.BOOLEAN,
       defaultValue: false
     },
+    isBlocked: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+    },
+    loginAttempts: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0  
+    },
+    lockUntil: {
+        type: DataTypes.DATE
+    },
     createdAt: {
         type: DataTypes.DATE,
         allowNull: false

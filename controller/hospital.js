@@ -228,10 +228,22 @@ exports.loginHospital = async (req, res) => {
                 message: 'Hospital not found'
             });
         }
+        if (hospital.lockUntil && hospital.lockUntil > Date.now()) {
+            return next({
+                message: `Account locked until ${hospital.lockUntil}`,
+                statusCode: 403
+            })
+        }
 
         const passwordMatch = await bcrypt.compare(password, hospital.password);
 
         if (!passwordMatch) {
+            hospital.loginAttempts += 1;
+            if (hospital.loginAttempts >= 5) {
+                hospital.lockUntil = new Date(Date.now() + 30 * 60 * 1000);
+                hospital.loginAttempts = 0;
+            }
+            await user.save();
             return res.status(400).json({
                 message: 'Invalid password'
             });
