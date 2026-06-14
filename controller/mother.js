@@ -286,7 +286,7 @@ exports.loginMother = async (req, res, next) => {
     await mother.save();
 
     const token = await jwt.sign(
-      { id: mother.id, email: mother.email },
+      { id: mother.id, email: mother.email, role: mother.role },
       process.env.JWT_SECRET,
       { expiresIn: "1day" },
     );
@@ -636,6 +636,30 @@ exports.getMotherProfile = async (req, res, next) => {
       statusCode: 500,
     });
   }
+};
+
+exports.getHospitals = async (req, res, next) => {
+     try {
+        const id = req.user.id;
+        console.log(req.user)
+        const user = await Mother.findOne({where: {id}});
+        if (user.role !== 'mother') {
+            return next({
+                message: 'Unauthorised',
+                statusCode: 403
+            })
+        }
+        const hospitals = await Hospital.findAll({ attributes: {exclude: ['password']}});
+        res.status(200).json({
+            message: 'All hospitals fetched successfully',
+            hospitals
+        })
+    } catch (error) {
+        next({
+            message: error.message,
+            statusCode: 500
+        })
+    }
 };
 
 exports.logout = async (req, res, next) => {

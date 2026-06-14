@@ -20,6 +20,8 @@ const Authentication = async (req, res, next)=>{
                     error: err.message
                 })
             }
+
+            console.log('Decoded token:', data)
             req.user = data
             next()
         })
