@@ -5,10 +5,29 @@ const WORKFLOW_STAGES = ['uploadedBill', 'customerReview', 'fundValidation', 'fi
 const SYSTEM_VALIDATIONS = ['patienceIdMatched', 'fileUploadedProgress', 'billingVerification', 'requiredFieldComplete'];
 const BILL_SUMMARY_FIELDS = ['patienceName', 'category', 'date', 'totalAmount'];
 
+const generateOrderNumber = () => {
+  const randomNumber = Math.floor(100000 + Math.random() * 900000);
+  return `BL-${randomNumber}`;
+};
 
 exports.uploadBill = async (req, res) => {
     try {
-        const { id } = req.user;
+       
+        const motherId = req.params.motherId;
+        const mother = await Mother.findOne({where: {id: motherId}});
+        if (!mother) {
+            return res.status(404).json({
+                message: 'Mother not found'
+            });
+        }
+
+        const hospitalId = req.user.id
+        const hospital = await Hospital.findByPk(hospitalId);
+        if (!hospital) {
+            return res.status(404).json({
+                message: 'Hospital not found'
+            });
+        }
         const {
             fullName,
             maternalId,
@@ -36,21 +55,21 @@ exports.uploadBill = async (req, res) => {
         }
 
         // Verify hospital exists
-        const hospital = await Hospital.findByPk(id);
-        if (!hospital) {
-            return res.status(404).json({
-                message: 'Hospital not found'
-            });
-        }
+        // const hospital = await Hospital.findByPk(id);
+        // if (!hospital) {
+        //     return res.status(404).json({
+        //         message: 'Hospital not found'
+        //     });
+        // }
 
-        // systemValidation: patienceIdMatched - verify the mother exists with this maternalId
-        const mother = await Mother.findOne({ where: { id: maternalId } });
-        if (!mother) {
-            return res.status(404).json({
-                message: 'Patient with the provided maternalId not found',
-                systemValidation: 'patienceIdMatched'
-            });
-        }
+        // // systemValidation: patienceIdMatched - verify the mother exists with this maternalId
+        // const mother = await Mother.findOne({ where: { id: maternalId } });
+        // if (!mother) {
+        //     return res.status(404).json({
+        //         message: 'Patient with the provided maternalId not found',
+        //         systemValidation: 'patienceIdMatched'
+        //     });
+        // }
 
         // Capture uploaded document (systemValidation: fileUploadedProgress)
         const documentUpload = req.file
@@ -86,7 +105,8 @@ exports.uploadBill = async (req, res) => {
             verificationWorkFlow: 'uploadedBill',
             systemValidation: 'fileUploadedProgress',
             billSummary: 'patienceName',
-            documentUpload
+            documentUpload,
+            billNumber: generateOrderNumber()
         });
 
         // console.log('Bill created:', bill);
@@ -447,8 +467,10 @@ exports.getDashboardData = async (req, res) => {
             order: [['createdAt', 'DESC']]
         });
 
-        const totalBills = bills.length;
-        const totalAmount = bills.reduce((sum, b) => sum + (Number(b.amount) || 0), 0);
+        const totalUploadedBills = bills.length;
+        const totalVerifiedBills = bills.filter((b) => b.verificationStatus === 'Verified').length;
+        const totalPendingBills =  bills.filter((b) => b.verificationStatus === 'Pending').length;
+        const totalDeliveryCost = bills.reduce((sum, b) => sum + (Number(b.amount) || 0), 0);
         const byStage = WORKFLOW_STAGES.reduce((acc, stage) => {
             acc[stage] = bills.filter((b) => b.verificationWorkFlow === stage).length;
             return acc;

@@ -43,6 +43,9 @@ module.exports = {
       amount: {
         type: Sequelize.INTEGER
       },
+      billNumber: {
+        type: Sequelize.STRING
+      },
       billingDate: {
         type: Sequelize.DATE
       },

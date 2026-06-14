@@ -86,6 +86,7 @@ const router = express.Router();
  *               - billingDate
  *               - dueDate
  *               - documentUpload
+ *               - billNumber
  *             properties:
  *               fullName:
  *                 type: string
@@ -122,6 +123,9 @@ const router = express.Router();
  *                 type: string
  *                 format: binary
  *                 description: JPG, JPEG, PNG, or PDF file. Maximum size is 5MB.
+ *               billNumber:
+ *                 type: string
+ *                 example: QI-123456
  *     responses:
  *       201:
  *         description: Bill uploaded successfully and entered customer review

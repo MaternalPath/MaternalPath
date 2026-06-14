@@ -1,27 +1,32 @@
-const { uploadedBill, Mother, Hospital } = require('../models');
+const { verifyPatientFund } = require('../models');
 
-exports.getverificationHistory = async (req, res, next) => {
+exports.getVerificationHistory = async (req, res, next) => {
     try {
-
         const hospitalId = req.user?.id;
 
-        const totalVerification = await verification.countDocuments({
-            hospital: hospitalId,
+        const totalVerification = await verifyPatientFund.count({
+            where: { hospitalId }
         });
 
-        const approvedRequest = await verification.countDocuments({
-            hospital: hospitalId,
-            status: 'approved',
+        const approvedRequest = await verifyPatientFund.count({
+            where: {
+                hospitalId,
+                status: 'Approved'
+            }
         });
 
-        const pendingReviews = await verification.countDocuments({
-            hospital: hospitalId,
-            status: 'pending',
+        const pendingReviews = await verifyPatientFund.count({
+            where: {
+                hospitalId,
+                status: 'Pending'
+            }
         });
 
-        const rejectedRequest = await verification.countDocuments({
-            hospital: hospitalId,
-            status: 'declined',
+        const rejectedRequest = await verifyPatientFund.count({
+            where: {
+                hospitalId,
+                status: 'Rejected'
+            }
         });
 
         res.status(200).json({
@@ -35,4 +40,4 @@ exports.getverificationHistory = async (req, res, next) => {
             message: error.message
         });
     }
-}
+};
