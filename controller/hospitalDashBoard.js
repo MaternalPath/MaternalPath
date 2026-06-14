@@ -64,7 +64,7 @@ exports.getHospitalDashboard = async (req, res) => {
 exports.searchMothers = async (req, res) => {
   try {
     const { search } = req.query;
-    const hospitalId = req.user.id;
+    const hospitalId = req.user?.id;
 
     if (!search) {
       return res.status(400).json({
@@ -75,10 +75,11 @@ exports.searchMothers = async (req, res) => {
     // Search for mother by mother ID (id) or phone number
     const mother = await Mother.findOne({
       where: {
-        [Op.or]: [
-          { id: search },
-          { phoneNumber: search }
-        ],
+    hospitalId,
+    [Op.or]: [
+      { id: search },
+      { phoneNumber: search }
+    ],
         hospitalId
       },
       attributes: {
