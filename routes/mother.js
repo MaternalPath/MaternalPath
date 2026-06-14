@@ -1,5 +1,5 @@
 const express = require('express');
-const { createMother, verifyEmail, resendOTP, verifyResetOTP, resetPassword, updateMother, getMotherProfile, logout, loginMother, forgotPassword } = require('../controller/mother');
+const { createMother, verifyEmail, resendOTP, verifyResetOTP, resetPassword, updateMother, getMotherProfile, logout, loginMother, forgotPassword, getHospitals } = require('../controller/mother');
 const { registerValidator, loginValidator } = require('../middlewares/validator');
 const passport = require('passport');
 const upload = require('../middlewares/multer');
@@ -500,6 +500,55 @@ router.put('/update-profile/:id', upload.single('image'), Authentication, update
  */
 
 router.get('/get-mother',Authentication, getMotherProfile);
+
+/**
+ * @swagger
+ * /api/v1/mother/getHospitals:
+ *   get:
+ *     summary: Get all hospitals
+ *     tags: [Mother]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: All hospitals fetched successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: All hospitals fetched successfully
+ *                 hospitals:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       hospitalName:
+ *                         type: string
+ *                         example: Lagos General Hospital
+ *                       email:
+ *                         type: string
+ *                         example: hospital@example.com
+ *                       phoneNumber:
+ *                         type: string
+ *                         example: "09099923323"
+ *                       address:
+ *                         type: string
+ *                         example: 45 Hospital Road, Lagos
+ *                       deliveryFee:
+ *                         type: number
+ *                         example: 150000
+ *       401:
+ *         description: Unauthorized - token not found or invalid
+ *       403:
+ *         description: Unauthorised - admin access only
+ *       500:
+ *         description: Internal server error
+ */
+
+router.get('/getHospitals', Authentication, getHospitals);
 
 
 /**
