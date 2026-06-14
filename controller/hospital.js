@@ -423,7 +423,7 @@ exports.changePassword = async(req, res)=>{
         hospital.password = hashedPassword;
 
         await hospital.save();
-        res.status(200).json({
+        res.status(200).json({ 
             message: "Password changed successfully"
         })
 
