@@ -650,8 +650,10 @@ exports.getHospitals = async (req, res, next) => {
             })
         }
         const hospitals = await Hospital.findAll({ attributes: {exclude: ['password']}});
+        const hospitalId = hospitals.id;
         res.status(200).json({
             message: 'All hospitals fetched successfully',
+            hospitalId,
             hospitals
         })
     } catch (error) {
