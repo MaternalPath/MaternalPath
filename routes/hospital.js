@@ -13,7 +13,8 @@ const {
   forgotPassword,
   getHospitalMothers,
   getHospitalMother,
-  getHospitalProfile
+  getHospitalProfile,
+  updateHospitalProfile
 } = require('../controller/hospital');
 const { hospitalRegisterValidator, hospitalLoginValidator, changePasswordValidator } = require('../middlewares/hospitalValidator');
 const { Authentication } = require('../middlewares/auth');
@@ -586,5 +587,74 @@ router.put('/change-password', Authentication, changePasswordValidator, changePa
  *         description: Internal server error
  */
 router.get('/profile', Authentication, getHospitalProfile);
+
+/**
+ * @swagger
+ * /api/v1/hospital/updateHospital:
+ *   put:
+ *     summary: Update hospital profile
+ *     tags: [Hospital]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               hospitalName:
+ *                 type: string
+ *                 example: Lagos General Hospital
+ *               email:
+ *                 type: string
+ *                 example: hospital@example.com
+ *               phoneNumber:
+ *                 type: string
+ *                 example: "09099923323"
+ *               address:
+ *                 type: string
+ *                 example: 45 Hospital Road, Lagos
+ *               deliveryFee:
+ *                 type: number
+ *                 example: 150000
+ *     responses:
+ *       200:
+ *         description: Hospital updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Hospital Updated successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     hospitalName:
+ *                       type: string
+ *                       example: Lagos General Hospital
+ *                     email:
+ *                       type: string
+ *                       example: hospital@example.com
+ *                     phoneNumber:
+ *                       type: string
+ *                       example: "09099923323"
+ *                     address:
+ *                       type: string
+ *                       example: 45 Hospital Road, Lagos
+ *                     deliveryFee:
+ *                       type: number
+ *                       example: 150000
+ *       401:
+ *         description: Unauthorized - token not found or invalid
+ *       404:
+ *         description: Hospital not found
+ *       500:
+ *         description: Internal server error
+ */
+
+router.put('/updateHospital', Authentication, updateHospitalProfile);
 
 module.exports = router;
