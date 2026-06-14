@@ -566,7 +566,9 @@ exports.updateHospitalProfile = async(req, res, next) => {
             deliveryFee: deliveryFee ?? Hospital.deliveryFee
         }
 
-        await Hospital.update(data);
+        await Hospital.update(data, {
+  where: { id }
+});
 
         res.status(200).json({
             message: 'Hospital Updated successfully',
