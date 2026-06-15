@@ -1,6 +1,6 @@
 const express = require('express');
 const { createMother, verifyEmail, resendOTP, verifyResetOTP, resetPassword, updateMother, getMotherProfile, logout, loginMother, forgotPassword, getHospitals } = require('../controller/mother');
-const { registerValidator, loginValidator } = require('../middlewares/validator');
+const { registerValidator, loginValidator, updateValidation } = require('../middlewares/validator');
 const passport = require('passport');
 const upload = require('../middlewares/multer');
 const { Authentication } = require('../middlewares/auth');
@@ -392,7 +392,7 @@ router.post('/reset-password', resetPassword);
  *               estimatedDueDate:
  *                 type: string
  *                 format: date
- *                 example: "2025-12-01"
+ *                 example: "2026-12-01"
  *               trimester:
  *                 type: integer
  *                 example: 2
@@ -408,7 +408,7 @@ router.post('/reset-password', resetPassword);
  *                 example: 20
  *               emergencyContact:
  *                 type: string
- *                 example: "+2348098765432"
+ *                 example: "john Doe-08098765432"
  *               allergies:
  *                 type: string
  *                 example: Penicillin
@@ -420,7 +420,7 @@ router.post('/reset-password', resetPassword);
  *                 example: 10000
  *               linkedPaymentMethod:
  *                 type: string
- *                 example: bank_transfer
+ *                 example: transfer
  *     responses:
  *       200:
  *         description: Mother updated successfully
@@ -469,7 +469,7 @@ router.post('/reset-password', resetPassword);
  *       404:
  *         description: Mother or hospital not found
  */
-router.put('/update-profile/:id', upload.single('image'), Authentication, updateMother);
+router.put('/update-profile/:id', upload.single('image'), updateValidation, Authentication, updateMother);
 
 
 /**
