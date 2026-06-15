@@ -534,7 +534,7 @@ exports.updateMother = async (req, res, next) => {
     const details = {
       firstName: firstName ?? mother.firstName,
       lastName: lastName ?? mother.lastName,
-      phoneNumber: phoneNumber ?? mother.phoneNumber,
+      phoneNumber: phoneNumber ?? `+234{mother.phoneNumber}`,
       hospitalId: selectedHospitalId,
       isUpdated: true,
     }
