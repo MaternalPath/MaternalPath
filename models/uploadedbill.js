@@ -39,8 +39,13 @@ module.exports = (sequelize, DataTypes) => {
     phoneNumber: DataTypes.STRING,
     expectedDeliveryDate: DataTypes.DATE,
     referenceNumber: DataTypes.STRING,
+<<<<<<< HEAD
+    category: DataTypes.STRING,
+    amount: DataTypes.INTEGER,
+=======
     category: DataTypes.ENUM ('Natural Delivery', 'C section'),
     billAmount: DataTypes.INTEGER,
+>>>>>>> 3d047561f11085cce2a8123a3ab5a37022997356
     billNumber: DataTypes.STRING,
     billingDate: DataTypes.DATE,
     dueDate: DataTypes.DATE,
