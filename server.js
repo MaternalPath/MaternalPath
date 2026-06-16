@@ -11,6 +11,8 @@ const paymentRouter = require('./routes/payment')
 const trimesterRouter = require('./routes/trimester')
 const hospitalDashBoardRouter = require('./routes/hospitalDashBoard');
 const verifyPatientFundRouter = require('./routes/verifyPatientFund');
+const patientRouter = require('./routes/patient');
+const notificationRouter = require('./routes/notification');
 const expressSession = require('express-session')
 const passport = require('passport');
 require('./controller/mother')
@@ -39,6 +41,8 @@ app.use('/api/v1/payment', paymentRouter);
 app.use('/api/v1', trimesterRouter);
 app.use('/api/v1/hospital', hospitalDashBoardRouter);
 app.use('/api/v1/hospital', verifyPatientFundRouter);
+app.use('/api/v1', patientRouter);
+app.use('/api/v1/notifications', notificationRouter);
 
 app.get('/', (req, res) => {
     res.send('Welcome to MaternalPath API');

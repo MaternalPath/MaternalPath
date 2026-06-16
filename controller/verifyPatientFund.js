@@ -97,7 +97,7 @@ exports.createVerificationRequest = async (req, res) => {
  */
 exports.getVerificationRequests = async (req, res) => {
   try {
-    const hospitalId = req.user.id;
+    const hospitalId = req.user.id; 
     const { status, page = 1, limit = 20 } = req.query;
 
     const where = { hospitalId };

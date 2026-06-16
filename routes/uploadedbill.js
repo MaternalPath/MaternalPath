@@ -11,7 +11,7 @@ const {
   getBillStatus,
   getBillSummary,
   runSystemValidation,
-  getDashboardData
+  getUploadedBillDashboard
 } = require('../controller/uploadedbill');
 const { Authentication } = require('../middlewares/auth');
 
@@ -157,7 +157,7 @@ const router = express.Router();
  *       500:
  *         description: Internal server error
  */
-router.post('/upload', Authentication, upload.single('documentUpload'), uploadBill);
+router.post('/upload/:motherId', Authentication, upload.single('documentUpload'), uploadBill);
 
 // // Add a diagnostic check to ensure getBill is a function
 // if (typeof getBill !== 'function') {
@@ -611,6 +611,6 @@ router.post('/:billId/system-validation', Authentication, runSystemValidation);
  *       500:
  *         description: Internal server error
  */
-router.get('/dashboard', Authentication, getDashboardData);
+router.get('/dashboard', Authentication, getUploadedBillDashboard);
 
 module.exports = router;

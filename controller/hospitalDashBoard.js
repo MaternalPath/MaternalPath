@@ -96,7 +96,7 @@ exports.searchMothers = async (req, res) => {
     // Get the patient's latest update record for pregnancy stage/trimester info
     const motherUpdate = await MotherUpdate.findOne({
       where: { motherId: mother.id },
-      order: [['createdAt', 'DESC']]
+      order: [['createdAt', 'DESC']] 
     });
 
     // Get the patient's verification fund record if it exists
