@@ -27,7 +27,16 @@ module.exports = (sequelize, DataTypes) => {
     nutritionGuidance:{
       type: DataTypes.JSON,
       allowNull: false
-    }
+    },
+    createdAt: {
+        type: DataTypes.DATE,
+        allowNull: false
+
+      },
+    updatedAt: {
+        type: DataTypes.DATE,
+        allowNull: false
+      }
   }, {
     sequelize,
     modelName: 'secondTrimester',

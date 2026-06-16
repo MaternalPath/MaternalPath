@@ -46,6 +46,15 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       defaultValue: 'pending'
     },
+    createdAt: {
+        type: DataTypes.DATE,
+        allowNull: false
+
+      },
+    updatedAt: {
+        type: DataTypes.DATE,
+        allowNull: false
+      }
   }, {
     sequelize,
     modelName: 'payment',

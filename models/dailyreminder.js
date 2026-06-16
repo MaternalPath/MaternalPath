@@ -24,10 +24,23 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: false
     },
-    message: {
+    title: {
       type: DataTypes.JSON,
       allowNull: false
     },
+    description: {
+      type: DataTypes.JSON,
+      allowNull: false
+    },
+    createdAt: {
+        type: DataTypes.DATE,
+        allowNull: false
+
+      },
+    updatedAt: {
+        type: DataTypes.DATE,
+        allowNull: false
+      }
   }, {
     sequelize,
     modelName: 'dailyReminder',

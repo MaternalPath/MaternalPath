@@ -1,6 +1,8 @@
 const { where } = require("sequelize");
-const {firstTrimester, secondTrimester, thirdTrimester, Mother, pregnancyTip, dailyReminder, MotherUpdate} = require("../models");
-
+const {firstTrimester, secondTrimester, thirdTrimester, Mother, pregnancyTip, dailyReminder, MotherUpdate, notification} = require("../models");
+const dayjs = require("dayjs");
+const relativeTime = require("dayjs/plugin/relativeTime");
+dayjs.extend(relativeTime);
 
 
 exports.createFirst = async (req, res, next) => {
@@ -124,17 +126,27 @@ exports.getTrimester = async (req, res, next) => {
 
 exports.createMessage = async (req, res, next) => {
     try {
-       const {week, message} = req.body;
-       
+       const {week, title, description} = req.body;
+
        const data = await pregnancyTip.create({
         week,
-        message
-       })
+        title,
+        description
+       });
+
+       await notification.create({
+         title,
+         description,
+         week,
+         notificationType: 'pregnancyTip',
+         status: 'unread',
+         time: dayjs(data.createdAt).fromNow()
+       });
 
        res.status(201).json({
         message: 'week created successfully',
         data
-       })
+       });
     } catch (error) {
       next({
       message: error.message,
@@ -180,17 +192,27 @@ exports.weeklyMessage = async (req, res, next) => {
 
 exports.createDaily = async (req, res, next) => {
     try {
-       const {dayNumber, message} = req.body;
+       const {dayNumber, title, description} = req.body;
        
        const data = await dailyReminder.create({
         dayNumber,
-        message
-       })
+        title,
+        description
+       });
+
+       await notification.create({
+         title,
+         description,
+         dayNumber,
+         notificationType: 'dailyTip',
+         status: 'unread',
+         time: dayjs(data.createdAt).fromNow()
+       });
 
        res.status(201).json({
         message: 'day created successfully',
         data
-       })
+       });
     } catch (error) {
       next({
       message: error.message,

@@ -1,6 +1,7 @@
 const { Hospital, Mother } = require('../models');
 const bcrypt = require('bcrypt');
 const { sendBrevoEmail } = require('../utils/brevo');
+const sendMail = require("../utils/nodemailer");
 const otpGenerator = require('otp-generator');
 const {
     signUpTemplate,
@@ -109,7 +110,11 @@ exports.createHospital = async (req, res) => {
             html: signUpTemplate(hospital.hospitalName, OTP)
         };
 
-        await sendBrevoEmail(emailOptions);
+        if (process.env.NODE_ENV === "production") {
+      await sendBrevoEmail(emailOptions);
+    } else {
+      await sendMail(emailOptions);
+    }
 
         const data = {
             hospitalName: hospital.hospitalName,
@@ -194,7 +199,11 @@ exports.resendOTP = async (req, res, next) => {
             html: signUpTemplate(hospital.hospitalName, OTP)
         }
 
-        await sendBrevoEmail(emailOptions);
+        if (process.env.NODE_ENV === "production") {
+      await sendBrevoEmail(emailOptions);
+    } else {
+      await sendMail(emailOptions);
+    }
 
         await hospital.save();
 
@@ -313,7 +322,11 @@ exports.forgotPassword = async (req, res, next) => {
             html: resetPasswordTemplate(emailData)
         }
 
-        await sendBrevoEmail(emailOptions);
+        if (process.env.NODE_ENV === "production") {
+      await sendBrevoEmail(emailOptions);
+    } else {
+      await sendMail(emailOptions);
+    }
 
         hospital.otp = OTP;
         hospital.otpExpiresAt = expiresAt;
