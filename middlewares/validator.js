@@ -198,13 +198,22 @@ exports.updateValidation = (req,res,next)=>{
     "number.max": "Current pregnancy week cannot be more than 42.",
     "any.required": "Current pregnancy week is required."
   }),
-    emergencyContact: joi.string().trim().pattern(/^[A-Za-z\s]{2,100}\s*[-,]\s*\+?[0-9]{10,15}$/).required().messages({
-    "string.base": "Emergency contact must be a string.",
-    "string.empty": "Emergency contact is required.",
-    "string.pattern.base":
-      "Emergency contact must include both a name and phone number (e.g. 'John Doe - 08012345678').",
-    "any.required": "Emergency contact is required."
-  }),
+    emergencyContactName: joi.string().trim().min(2).max(100).pattern(/^[A-Za-z\s]+$/).required().messages({
+      "string.base": "Emergency contact name must be a string.",
+      "string.empty": "Emergency contact name is required.",
+      "string.min": "Emergency contact name must be at least 2 characters.",
+      "string.max": "Emergency contact name cannot exceed 100 characters.",
+      "string.pattern.base": "Emergency contact name should contain only letters and spaces.",
+      "any.required": "Emergency contact name is required."
+    }),
+
+  emergencyContactNumber: joi.string().trim().pattern(/^\+?[0-9]{10,15}$/).required().messages({
+      "string.base": "Emergency contact phone number must be a string.",
+      "string.empty": "Emergency contact phone number is required.",
+      "string.pattern.base": "Emergency contact phone number must be between 10 and 15 digits and may start with '+'.",
+      "any.required": "Emergency contact phone number is required."
+    }),
+
     allergies: joi.string().trim().min(2).max(255).required().messages({
     "string.base": "Allergies must be a string.",
     "string.empty": "Allergies cannot be empty.",

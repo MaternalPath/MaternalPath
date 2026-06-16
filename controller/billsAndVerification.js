@@ -12,15 +12,15 @@ exports.checkBill = async(req, res, next) => {
             })
         }
 
-        const hospitals = await uploadedBill.findAll()
+        const hospitals = await uploadedBill.findAll();
 
-        const data = {
-            billREf: hospitals.billNumber,
-            patientName: hospitals.fullName,
-            hospital: hospitals.hospitalName,
-            amount: hospitals.amount,
-            uploadDate: hospitals.billingDate
-        }
+        const data = hospitals.map(bill => ({
+            billRef: bill.billNumber,
+            patientName: bill.fullName,
+            hospital: bill.hospitalName,
+            amount: bill.amount,
+            uploadDate: bill.billingDate
+        }));
 
         res.status(200).json({
             message: 'bills retrieved successfully',
