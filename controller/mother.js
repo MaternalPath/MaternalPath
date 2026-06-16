@@ -647,10 +647,10 @@ exports.getMotherProfile = async (req, res, next) => {
     } else {
       return res.status(200).json({
         message: "Mother profile retrieved successfully",
-        data: mother,
+        data: [mother,
         mom,
         img,
-        remainingAmountNeeded,
+        remainingAmountNeeded,]
       });
     }
   } catch (error) {
