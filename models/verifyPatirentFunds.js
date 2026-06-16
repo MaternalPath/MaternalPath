@@ -101,7 +101,16 @@ module.exports = (sequelize, DataTypes) => {
     verifiedAt: {
       type: DataTypes.DATE,
       allowNull: true
-    }
+    },
+    createdAt: {
+        type: DataTypes.DATE,
+        allowNull: false
+
+      },
+    updatedAt: {
+        type: DataTypes.DATE,
+        allowNull: false
+      }
   }, {
     sequelize,
     modelName: 'verifyPatientFund',

@@ -13,7 +13,11 @@ module.exports = {
       type: Sequelize.INTEGER,
       allowNull: false
     },
-    message:{
+    title:{
+      type: Sequelize.TEXT,
+      allowNull: false
+    },
+    description:{
       type: Sequelize.TEXT,
       allowNull: false
     },

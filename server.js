@@ -100,12 +100,26 @@ const swaggerSpec = swaggerJsdoc(options);
 app.use('/api/v1/documentation', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
 
 
-app.use((error, req, res, next) => {
-    const status = error.statusCode || error.status || 500;
+app.use((err, req, res, next) => {
+    const status = err.statusCode || error.status || 500;
     res.status(status).json({
-        message: error.message || 'Internal Server Error',
+        message: err.message || 'Internal Server Error',
         status
     });
+    if (err.name === 'MulterError'){
+        return res.status(400).json({
+            message: 'File upload failed'
+        })
+    }
+    if (err.name === 'JsonWebTokenError') {
+        return res.status(401).json({
+            message: 'Session expired, please login again'
+        })
+    }
+    res.status(500).json({
+        message: err.message,
+        status
+    })
 });
 
 const database = async () => {

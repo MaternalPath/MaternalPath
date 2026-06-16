@@ -1,6 +1,7 @@
-const { Mother, Hospital, wallet,MotherUpdate } = require("../models");
+const { Mother, Hospital, wallet, MotherUpdate } = require("../models");
 const bcrypt = require("bcrypt");
 const { sendBrevoEmail } = require("../utils/brevo");
+const sendMail = require("../utils/nodemailer");
 const otpGenerator = require("otp-generator");
 const {
   signUpTemplate,
@@ -11,7 +12,8 @@ const jwt = require("jsonwebtoken");
 const redisClient = require("../config/redis");
 const { Op } = require("sequelize");
 const passport = require("passport");
-const fs = require('fs')
+const fs = require("fs");
+const cloudinary = require('../config/cloudinary');
 
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 
@@ -132,7 +134,11 @@ exports.createMother = async (req, res, next) => {
       html: signUpTemplate(mother.firstName + mother.lastName, OTP),
     };
 
-    await sendBrevoEmail(emailOptions);
+    if (process.env.NODE_ENV === "production") {
+      await sendBrevoEmail(emailOptions);
+    } else {
+      await sendMail(emailOptions);
+    }
 
     const data = {
       firstName: mother.firstName,
@@ -222,7 +228,11 @@ exports.resendOTP = async (req, res, next) => {
       html: signUpTemplate(mother.firstName + mother.lastName, OTP),
     };
 
-    await sendBrevoEmail(emailOptions);
+    if (process.env.NODE_ENV === "production") {
+      await sendBrevoEmail(emailOptions);
+    } else {
+      await sendMail(emailOptions);
+    }
 
     await mother.save();
 
@@ -252,14 +262,14 @@ exports.loginMother = async (req, res, next) => {
     if (!mother) {
       return res.status(400).json({
         message: `Mother with email ${emailOrPhoneNumber} does not exist`,
-        statusCode: 404
+        statusCode: 404,
       });
     }
     if (mother.lockUntil && mother.lockUntil > Date.now()) {
       return next({
         message: `Account locked until ${mother.lockUntil}`,
-        statusCode: 403
-      })
+        statusCode: 403,
+      });
     }
 
     if (mother.isVerified == false) {
@@ -275,7 +285,7 @@ exports.loginMother = async (req, res, next) => {
       mother.loginAttempts += 1;
       if (mother.loginAttempts >= 5) {
         mother.lockUntil = new Date(Date.now() + 30 + 60 * 1000);
-        mother.loginAttempts = 0
+        mother.loginAttempts = 0;
       }
       await mother.save();
       return res.status(400).json({
@@ -354,7 +364,11 @@ exports.forgotPassword = async (req, res, next) => {
       html: resetPasswordTemplate(emailData),
     };
 
-    await sendBrevoEmail(emailOptions);
+    if (process.env.NODE_ENV === "production") {
+      await sendBrevoEmail(emailOptions);
+    } else {
+      await sendMail(emailOptions);
+    }
 
     mother.otp = OTP;
     mother.otpExpiresAt = expiresAt;
@@ -463,7 +477,7 @@ exports.updateMother = async (req, res, next) => {
     const id = req.user?.id;
     const hospitalId = req.params?.id;
 
-    console.log('hospitalid', hospitalId)
+    console.log("hospitalid", hospitalId);
 
     if (!id) {
       return next({
@@ -488,7 +502,6 @@ exports.updateMother = async (req, res, next) => {
     });
     console.log("selectedHospitalId:", hospital);
 
-
     if (!hospital) {
       return next({
         statusCode: 404,
@@ -501,7 +514,6 @@ exports.updateMother = async (req, res, next) => {
       lastName,
       phoneNumber,
       address,
-      image,
       estimatedDueDate,
       dateOfBirth,
       trimester,
@@ -512,15 +524,18 @@ exports.updateMother = async (req, res, next) => {
       allergies,
       savingsGoalAmount,
       weeklyContribution,
-      linkedPaymentMethod
+      linkedPaymentMethod,
     } = req.body;
+
+    const result = await cloudinary.uploader.upload(req.file.path);
+
+    fs.unlinkSync(req.file.path)
 
     if (trimester > 3) {
       return next({
-        message: 'invalid trimester'
-      })
+        message: "invalid trimester",
+      });
     }
-    
 
     const today = new Date();
     //today.setHours(0, 0, 0, 0);
@@ -529,7 +544,7 @@ exports.updateMother = async (req, res, next) => {
     const timeDiff = targetDate - today;
     const daysLeft = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
 
-    const progress = currentPregnancyWeek * 100 / 40
+    const progress = (currentPregnancyWeek * 100) / 40;
 
     const details = {
       firstName: firstName ?? mother.firstName,
@@ -537,11 +552,12 @@ exports.updateMother = async (req, res, next) => {
       phoneNumber: phoneNumber ?? `+234{mother.phoneNumber}`,
       hospitalId: selectedHospitalId,
       isUpdated: true,
-    }
+    };
 
     const data = {
       motherId: mother.id,
-      image: req.file?.path,
+      image: result.secure_url,
+      imagePublicId: result.public_id,
 
       estimatedDueDate: estimatedDueDate ?? MotherUpdate.estimatedDueDate,
       trimester: trimester ?? MotherUpdate.trimester,
@@ -550,12 +566,14 @@ exports.updateMother = async (req, res, next) => {
       address: address ?? MotherUpdate.address,
       existingHealthConditions:
         existingHealthConditions ?? MotherUpdate.existingHealthConditions,
-      currentPregnancyWeek: currentPregnancyWeek ?? MotherUpdate.currentPregnancyWeek,
+      currentPregnancyWeek:
+        currentPregnancyWeek ?? MotherUpdate.currentPregnancyWeek,
       emergencyContact: emergencyContact ?? MotherUpdate.emergencyContact,
       allergies: allergies ?? MotherUpdate.allergies,
       savingsGoalAmount: savingsGoalAmount ?? MotherUpdate.savingsGoalAmount,
       weeklyContribution: weeklyContribution ?? MotherUpdate.weeklyContribution,
-      linkedPaymentMethod: linkedPaymentMethod ?? MotherUpdate.linkedPaymentMethod,
+      linkedPaymentMethod:
+        linkedPaymentMethod ?? MotherUpdate.linkedPaymentMethod,
       hospitalId: selectedHospitalId,
 
       selectedHospital: hospital.hospitalName,
@@ -563,29 +581,29 @@ exports.updateMother = async (req, res, next) => {
       hospitalContact: hospital.phoneNumber,
       estimatedDeliveryCost: hospital.deliveryFee,
       pregnancyProgress: progress,
-      daysUntilDueDate: daysLeft
+      daysUntilDueDate: daysLeft,
     };
 
     if (mother.isUpdated === false) {
-  await MotherUpdate.create(data);
-  await mother.update(details);
-} else{
-  await MotherUpdate.update(data,{
-    where: {
-      motherId: mother.id
+      await MotherUpdate.create(data);
+      await mother.update(details);
+    } else {
+      await MotherUpdate.update(data, {
+        where: {
+          motherId: mother.id,
+        },
+      });
+      await mother.update(details, {
+        where: {
+          id: mother.id,
+        },
+      });
     }
-  });
-  await mother.update(details, {
-    where: {
-      id: mother.id
-    }
-  });
-}
 
     res.status(200).json({
       message: "Mother updated successfully",
       data,
-      details
+      details,
     });
   } catch (error) {
     next({
@@ -604,7 +622,7 @@ exports.getMotherProfile = async (req, res, next) => {
       attributes: { exclude: ["password", "otp", "otpExpiresAt"] },
     });
     const mom = await MotherUpdate.findOne({
-      where: { motherId: id }
+      where: { motherId: id },
     });
 
     if (!mother) {
@@ -614,24 +632,25 @@ exports.getMotherProfile = async (req, res, next) => {
       });
     }
 
-    const remainingAmountNeeded = mother.savingsGoalAmount - wallet.currentBalance;
+    const remainingAmountNeeded =
+      mother.savingsGoalAmount - wallet.currentBalance;
     const info = `['firstName:' ${mother.firstName}, 'lastName:' ${mother.lastName}, 'email:' ${mother.email},  'phoneNumber:'${mother.phoneNumber}]`;
-    const img = mom.image
+    const img = mom?.image;
 
     if (mother.isUpdated === false) {
       return res.status(200).json({
-        message: 'Please Update your profile',
-        data: info
-      })
-    }else{
+        message: "Please Update your profile",
+        data: info,
+      });
+    } else {
       return res.status(200).json({
-      message: "Mother profile retrieved successfully",
-      data: mother,
-      mom,
-      img,
-      remainingAmountNeeded
-    });
-  }
+        message: "Mother profile retrieved successfully",
+        data: mother,
+        mom,
+        img,
+        remainingAmountNeeded,
+      });
+    }
   } catch (error) {
     next({
       message: error.message,
@@ -641,29 +660,31 @@ exports.getMotherProfile = async (req, res, next) => {
 };
 
 exports.getHospitals = async (req, res, next) => {
-     try {
-        const id = req.user.id;
-        console.log(req.user)
-        const user = await Mother.findOne({where: {id}});
-        if (user.role !== 'mother') {
-            return next({
-                message: 'Unauthorised',
-                statusCode: 403
-            })
-        }
-        const hospitals = await Hospital.findAll({ attributes: {exclude: ['password']}});
-        const hospitalId = hospitals.id;
-        res.status(200).json({
-            message: 'All hospitals fetched successfully',
-            hospitalId,
-            hospitals
-        })
-    } catch (error) {
-        next({
-            message: error.message,
-            statusCode: 500
-        })
+  try {
+    const id = req.user.id;
+    console.log(req.user);
+    const user = await Mother.findOne({ where: { id } });
+    if (user.role !== "mother") {
+      return next({
+        message: "Unauthorised",
+        statusCode: 403,
+      });
     }
+    const hospitals = await Hospital.findAll({
+      attributes: { exclude: ["password"] },
+    });
+    const hospitalId = hospitals.id;
+    res.status(200).json({
+      message: "All hospitals fetched successfully",
+      hospitalId,
+      hospitals,
+    });
+  } catch (error) {
+    next({
+      message: error.message,
+      statusCode: 500,
+    });
+  }
 };
 
 exports.logout = async (req, res, next) => {
