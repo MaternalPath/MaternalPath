@@ -13,6 +13,7 @@ const redisClient = require("../config/redis");
 const { Op } = require("sequelize");
 const passport = require("passport");
 const fs = require("fs");
+const cloudinary = require('../config/cloudinary');
 
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 
@@ -513,7 +514,6 @@ exports.updateMother = async (req, res, next) => {
       lastName,
       phoneNumber,
       address,
-      image,
       estimatedDueDate,
       dateOfBirth,
       trimester,
@@ -526,6 +526,10 @@ exports.updateMother = async (req, res, next) => {
       weeklyContribution,
       linkedPaymentMethod,
     } = req.body;
+
+    const result = await cloudinary.uploader.upload(req.file.path);
+
+    fs.unlinkSync(req.file.path)
 
     if (trimester > 3) {
       return next({
@@ -552,7 +556,8 @@ exports.updateMother = async (req, res, next) => {
 
     const data = {
       motherId: mother.id,
-      image: req.file?.path,
+      image: result.secure_url,
+      imagePublicId: result.public_id,
 
       estimatedDueDate: estimatedDueDate ?? MotherUpdate.estimatedDueDate,
       trimester: trimester ?? MotherUpdate.trimester,
