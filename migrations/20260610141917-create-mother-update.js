@@ -59,8 +59,12 @@ module.exports = {
                 type: Sequelize.INTEGER,
                 allowNull: false
              },
-            emergencyContact: {
+            emergencyContactName: {
                 type: Sequelize.STRING,
+                allowNull: false
+             },
+            emergencyContactNumber: {
+                type: Sequelize.INTEGER,
                 allowNull: false
              },
             selectedHospital: {

@@ -9,6 +9,25 @@ module.exports = {
       type: Sequelize.UUID,
       defaultValue: Sequelize.UUIDV4
     },
+    hospitalId: {
+      type: Sequelize.UUID,
+      references: {
+        model: "Hospitals",
+        key: "id",
+      },
+      onDelete: "CASCADE",
+      onUpdate: "CASCADE",
+    },
+    motherId: {
+      type: Sequelize.UUID,
+      allowNull: false,
+      references: {
+        model: 'mothers',
+        key: 'id'
+      },
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE'
+    },
     billREf: {
       type: Sequelize.STRING,
       allowNull: false

@@ -406,9 +406,12 @@ router.post('/reset-password', resetPassword);
  *               currentPregnancyWeek:
  *                 type: integer
  *                 example: 20
- *               emergencyContact:
+ *               emergencyContactName:
  *                 type: string
- *                 example: "john Doe-08098765432"
+ *                 example: "john Doe"
+ *               emergencyContactNumber:
+ *                 type: string
+ *                 example: "08098765432"
  *               allergies:
  *                 type: string
  *                 example: Penicillin
