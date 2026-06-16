@@ -83,7 +83,7 @@ exports.uploadBill = async (req, res) => {
 
         // Create bill and kick off the workflow at stage 1
         const bill = await uploadedBill.create({
-            billId,
+            // billId,
             hospitalId: hospital.id,
             motherId: mother.id,
             fullName: `${mother.firstName} ${mother.lastName}`,
@@ -130,7 +130,7 @@ exports.customerReview = async (req, res) => {
         // const { billId } = req.params;
         const { approved } = req.body;
 
-        const bill = await uploadedBill.findByPk(billId);
+        const bill = await uploadedBill.findByPk(billNumber);
         if (!bill) {
             return res.status(404).json({
                 message: 'Bill not found'
@@ -177,9 +177,9 @@ exports.customerReview = async (req, res) => {
  */
 exports.validateFunds = async (req, res) => {
     try {
-        const { billId } = req.params;
+        const { billNumber } = req.params;
 
-        const bill = await uploadedBill.findByPk(billId);
+        const bill = await uploadedBill.findByPk(billNumber);
         if (!bill) {
             return res.status(404).json({
                 message: 'Bill not found'
@@ -245,7 +245,7 @@ exports.validateFunds = async (req, res) => {
  */
 exports.finalApproval = async (req, res) => {
     try {
-        const { billId } = req.params;
+        const { billNumber } = req.params;
         const { approved } = req.body;
 
         const bill = await uploadedBill.findByPk(billId);
@@ -293,7 +293,7 @@ exports.finalApproval = async (req, res) => {
  */
 exports.getBillStatus = async (req, res) => {
     try {
-        const { billId } = req.params;
+        const {  billNumber } = req.params;
 
         const bill = await uploadedBill.findByPk(billId);
         if (!bill) {
@@ -309,7 +309,7 @@ exports.getBillStatus = async (req, res) => {
         res.status(200).json({
             message: 'Bill status retrieved',
             data: {
-                id: bill.id,
+                billNumber: bill.billNumber,
                 fullName: bill.fullName,
                 maternalId: bill.maternalId,
                 referenceNumber: bill.referenceNumber,
@@ -334,10 +334,10 @@ exports.getBillStatus = async (req, res) => {
  */
 exports.getBillSummary = async (req, res) => {
     try {
-        const { billId } = req.params;
-        const { summaryType } = req.query;
+        const { billNumber} = req.params;
+        // const { summaryType } = req.query;
 
-        const bill = await uploadedBill.findByPk(billId);
+        const bill = await uploadedBill.findByPk(billNumber);
         if (!bill) {
             return res.status(404).json({
                 message: 'Bill not found'
@@ -384,10 +384,10 @@ exports.getBillSummary = async (req, res) => {
  */
 exports.runSystemValidation = async (req, res) => {
     try {
-        const { billId } = req.params;
+        const { billNumber } = req.params;
         const { validationType } = req.body;
 
-        const bill = await uploadedBill.findByPk(billId);
+        const bill = await uploadedBill.findByPk(billNumber);
         if (!bill) {
             return res.status(404).json({
                 message: 'Bill not found'
@@ -474,8 +474,6 @@ exports.getUploadedBillDashboard = async (req, res) => {
         res.status(200).json({
             message: 'Dashboard data retrieved',
             data: {
-                totalBills,
-                totalAmount,
                 totalBills: totalUploadedBills,
                 totalAmount: totalDeliveryCost,
                 byStage
