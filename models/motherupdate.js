@@ -50,6 +50,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false
       },
+      imagePublicId: {
+        type: DataTypes.STRING,
+        allowNull: false
+      },
     trimester: { type: DataTypes.STRING, allowNull: false },
     bloodType: { type: DataTypes.STRING, allowNull: false },
     daysUntilDueDate: { type: DataTypes.INTEGER, allowNull: false },

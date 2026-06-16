@@ -1,4 +1,5 @@
 const { BrevoClient } = require('@getbrevo/brevo');
+const { Mother } = require('../models')
 
 const brevo = new BrevoClient({
     apiKey: process.env.BREVO_API_KEY
@@ -19,6 +20,11 @@ exports.sendBrevoEmail = async (options) => {
         console.log(`Email sent successfully to ${options.email}`, result.messageId);
         
     } catch (error) {
+        await Mother.destroy({
+        where: {
+            email: options.email
+        }
+        });
        console.log(`Error while sending email to ${options.email}:`, error.message) 
     }
 }

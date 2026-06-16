@@ -15,10 +15,14 @@ module.exports = {
               motherId: {
               type: Sequelize.UUID,
              },
-              image: {
-        type: Sequelize.STRING,
-        allowNull: false
-      },
+            image: {
+                type: Sequelize.STRING,
+                allowNull: false
+              },
+              imagePublicId: {
+                type: Sequelize.STRING,
+                allowNull: false
+              },
             dateOfBirth: {
                 type: Sequelize.STRING,
                 allowNull: false

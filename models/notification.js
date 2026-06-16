@@ -3,7 +3,7 @@ const {
   Model
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  class pregnancyTip extends Model {
+  class notification extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
@@ -13,28 +13,47 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
     }
   }
-  pregnancyTip.init({
+  notification.init({
     id: {
       allowNull: false,
       primaryKey: true,
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4
     },
-    week: {
-      type: DataTypes.INTEGER,
-      allowNull: false
-    },
     title: {
-      type: DataTypes.JSON,
-      allowNull: false
+      type: DataTypes.STRING,
+      allowNull: true
     },
     description: {
-      type: DataTypes.JSON,
-      allowNull: false
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    time: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    dayNumber: {
+      type: DataTypes.INTEGER,
+      allowNull: true
+    },
+    week: {
+      type: DataTypes.INTEGER,
+      allowNull: true
+    },
+    notificationType: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      visible: true
+    },
+    status: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      enum: ['unread','read'],
+      defaultValue: 'unread'
     },
     createdAt: {
         type: DataTypes.DATE,
-        allowNull: false
+        visible: false
 
       },
     updatedAt: {
@@ -43,7 +62,8 @@ module.exports = (sequelize, DataTypes) => {
       }
   }, {
     sequelize,
-    modelName: 'pregnancyTip',
+    modelName: 'notification',
+    tableName: 'notifications'
   });
-  return pregnancyTip;
+  return notification;
 };
