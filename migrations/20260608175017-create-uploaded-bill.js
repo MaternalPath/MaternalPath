@@ -52,6 +52,9 @@ module.exports = {
       dueDate: {
         type: Sequelize.DATE
       },
+      category: {
+        type: Sequelize.ENUM('Natural Delivery', 'C section')
+      },
       verificationWorkFlow: {
         type: Sequelize.STRING,
         enum: [ 'uploadedBill', 'customerReview', 'fundValidation', 'finalApproval']

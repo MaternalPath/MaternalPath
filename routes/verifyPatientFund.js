@@ -7,7 +7,7 @@ const {
   approveVerificationRequest,
   rejectVerificationRequest
 } = require('../controller/verifyPatientFund');
-const { getVerificationHistory } = require('../controller/verificationHistory');
+const { getVerificationHistory, getVerificationRecords } = require('../controller/verificationHistory');
 
 const router = express.Router();
 
@@ -158,7 +158,7 @@ router.get('/verification-requests/:id', Authentication, getVerificationRequest)
  *       500:
  *         description: Error approving verification request
  */
-router.patch('/verification-requests/:id/approve', Authentication, approveVerificationRequest);
+router.get('/verification-requests/:id/approve', Authentication, approveVerificationRequest);
 
 /**
  * @swagger
@@ -233,5 +233,43 @@ router.patch('/verification-requests/:id/reject', Authentication, rejectVerifica
  *         description: Error fetching verification history
  */
 router.get('/verification-history', Authentication, getVerificationHistory);
+
+/**
+ * @swagger
+ * /api/v1/hospital/verification-records:
+ *   get:
+ *     summary: Get all verification records
+ *     tags: [Patient Fund Verification]
+ *     security:
+ *       - bearerAuth: []
+ *     description: Retrieves paginated verification records with patient name, pregnancy week, hospital name, wallet amount, status, date, and approved by
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 20
+ *         description: Items per page
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *           enum: [Pending, Approved, Rejected]
+ *         description: Filter by status
+ *     responses:
+ *       200:
+ *         description: Verification records retrieved successfully
+ *       401:
+ *         description: Missing or invalid authentication token
+ *       500:
+ *         description: Error fetching verification records
+ */
+router.get('/verification-records', Authentication, getVerificationRecords);
 
 module.exports = router;

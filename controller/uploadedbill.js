@@ -5,16 +5,16 @@ const WORKFLOW_STAGES = ['uploadedBill', 'customerReview', 'fundValidation', 'fi
 const SYSTEM_VALIDATIONS = ['patienceIdMatched', 'fileUploadedProgress', 'billingVerification', 'requiredFieldComplete'];
 const BILL_SUMMARY_FIELDS = ['patienceName', 'category', 'date', 'totalAmount'];
 
-const generateOrderNumber = () => {
+const generateBillNumber = () => {
   const randomNumber = Math.floor(100000 + Math.random() * 900000);
   return `BL-${randomNumber}`;
 };
 
 exports.uploadBill = async (req, res) => {
     try {
-       
-        const motherId = req.params.motherId;
-        const mother = await Mother.findOne({where: {id: motherId}});
+        const { motherId } = req.params;
+
+        const mother = await Mother.findByPk(motherId);
         if (!mother) {
             return res.status(404).json({
                 message: 'Mother not found'
@@ -29,10 +29,6 @@ exports.uploadBill = async (req, res) => {
             });
         }
         const {
-            fullName,
-            maternalId,
-            phoneNumber,
-            expectedDeliveryDate,
             referenceNumber,
             category,
             amount,
@@ -41,7 +37,7 @@ exports.uploadBill = async (req, res) => {
         } = req.body;
 
         // Required field validation (systemValidation: requiredFieldComplete)
-        const requiredFields = { fullName, maternalId, phoneNumber, amount, category, billingDate, dueDate };
+        const requiredFields = { referenceNumber, amount, category, billingDate, dueDate };
         const missingFields = Object.keys(requiredFields).filter(
             (field) => requiredFields[field] === undefined || requiredFields[field] === null || requiredFields[field] === ''
         );
@@ -54,22 +50,19 @@ exports.uploadBill = async (req, res) => {
             });
         }
 
-        // Verify hospital exists
-        // const hospital = await Hospital.findByPk(id);
-        // if (!hospital) {
-        //     return res.status(404).json({
-        //         message: 'Hospital not found'
-        //     });
-        // }
+        // Auto-fill mother details for the bill
+        const fullName = `${mother.firstName} ${mother.lastName}`;
+        const maternalId = mother.maternalId || null;
+        const phoneNumber = mother.phoneNumber || null;
 
-        // // systemValidation: patienceIdMatched - verify the mother exists with this maternalId
-        // const mother = await Mother.findOne({ where: { id: maternalId } });
-        // if (!mother) {
-        //     return res.status(404).json({
-        //         message: 'Patient with the provided maternalId not found',
-        //         systemValidation: 'patienceIdMatched'
-        //     });
-        // }
+        // Get expectedDeliveryDate from the latest MotherUpdate
+        const { MotherUpdate } = require('../models');
+        const latestUpdate = await MotherUpdate.findOne({
+            where: { motherId: mother.id },
+            attributes: ['estimatedDueDate'],
+            order: [['createdAt', 'DESC']]
+        });
+        const expectedDeliveryDate = latestUpdate?.estimatedDueDate || null;
 
         // Capture uploaded document (systemValidation: fileUploadedProgress)
         const documentUpload = req.file
@@ -91,14 +84,16 @@ exports.uploadBill = async (req, res) => {
         // Create bill and kick off the workflow at stage 1
         const bill = await uploadedBill.create({
             billId,
-            // hospitalId: id,
-            // motherId: mother.id,
-            fullName,
-            maternalId,
-            phoneNumber,
-            expectedDeliveryDate: expectedDeliveryDate || null,
-            referenceNumber: referenceNumber || `REF-${Date.now()}`,
-            category,
+            hospitalId: hospital.id,
+            motherId: mother.id,
+            fullName: `${mother.firstName} ${mother.lastName}`,
+            email: mother.email,
+            maternalId: mother.maternalId || null,
+            phoneNumber: mother.phoneNumber,
+            pregnancyWeek: latestUpdate?.currentPregnancyWeek || null,
+            expectedDeliveryDate: latestUpdate?.estimatedDueDate || null,
+            preferredHospital: mother.Hospital?.hospitalName || null,
+            category: ENUM('Natural Delivery', 'C section'),
             amount,
             billingDate,
             dueDate,
@@ -106,7 +101,7 @@ exports.uploadBill = async (req, res) => {
             systemValidation: 'fileUploadedProgress',
             billSummary: 'patienceName',
             documentUpload,
-            billNumber: generateOrderNumber()
+            billNumber: generateBillNumber()
         });
 
         // console.log('Bill created:', bill);
@@ -430,7 +425,7 @@ exports.runSystemValidation = async (req, res) => {
                 break;
             }
             case 'requiredFieldComplete': {
-                const required = ['fullName', 'maternalId', 'phoneNumber', 'category', 'amount', 'billingDate', 'dueDate'];
+                const required = ['referenceNumber', 'amount', 'category', 'billingDate', 'dueDate'];
                 const missing = required.filter((f) => !bill[f]);
                 passed = missing.length === 0;
                 detail = { missingFields: missing };
@@ -458,7 +453,7 @@ exports.runSystemValidation = async (req, res) => {
 };
 
 // Re-export the dashboard helper that was already stubbed in this file
-exports.getDashboardData = async (req, res) => {
+exports.getUploadedBillDashboard = async (req, res) => {
     try {
         const { id: hospitalId } = req.user;
 
@@ -481,6 +476,8 @@ exports.getDashboardData = async (req, res) => {
             data: {
                 totalBills,
                 totalAmount,
+                totalBills: totalUploadedBills,
+                totalAmount: totalDeliveryCost,
                 byStage
             }
         });

@@ -2,31 +2,14 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    /**
-     * This model uses Mongoose (MongoDB), not Sequelize (PostgreSQL).
-     * This migration ensures the MongoDB collection exists with proper indexes
-     * to match the notification schema defined in models/notification.js.
-     */
-    const mongoose = require('mongoose');
-    const db = mongoose.connection.db;
-
-    const collections = await db.listCollections({ name: 'notifications' }).toArray();
-    if (collections.length === 0) {
-      await db.createCollection('notifications');
-    }
-
-    const collection = db.collection('notifications');
-
-    // Create indexes to match schema fields that are commonly queried
-    await collection.createIndex({ hospital: 1 }, { background: true });
-    await collection.createIndex({ type: 1 }, { background: true });
-    await collection.createIndex({ isRead: 1 }, { background: true });
-    await collection.createIndex({ createdAt: -1 }, { background: true });
+    // This migration was originally written for MongoDB (Mongoose) but this
+    // project uses Sequelize with MySQL. The Notifications table is now
+    // properly created in migration: 20260615200000-create-notifications.js
+    // This migration is intentionally left as a no-op to avoid conflicts.
+    console.log('Skipping duplicate notifications migration (handled by 20260615200000).');
   },
 
   async down(queryInterface, Sequelize) {
-    const mongoose = require('mongoose');
-    const db = mongoose.connection.db;
-    await db.dropCollection('notifications');
+    // No-op: the table drop is handled by the corresponding down migration
   }
 };
