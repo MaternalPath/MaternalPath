@@ -40,7 +40,7 @@ module.exports = (sequelize, DataTypes) => {
     expectedDeliveryDate: DataTypes.DATE,
     referenceNumber: DataTypes.STRING,
     category: DataTypes.STRING,
-    billAmount: DataTypes.INTEGER,
+    amount: DataTypes.INTEGER,
     billNumber: DataTypes.STRING,
     billingDate: DataTypes.DATE,
     dueDate: DataTypes.DATE,

@@ -11,6 +11,7 @@ const paymentRouter = require('./routes/payment')
 const trimesterRouter = require('./routes/trimester')
 const hospitalDashBoardRouter = require('./routes/hospitalDashBoard');
 const verifyPatientFundRouter = require('./routes/verifyPatientFund');
+const billRouter = require('./routes/checkBill')
 const expressSession = require('express-session')
 const passport = require('passport');
 require('./controller/mother')
@@ -37,6 +38,7 @@ app.use('/api/v1/admin', adminRouter);
 app.use('/api/v1/bill', uploadedBillRouter);
 app.use('/api/v1/payment', paymentRouter);
 app.use('/api/v1', trimesterRouter);
+app.use('/api/v1', billRouter);
 app.use('/api/v1/hospital', hospitalDashBoardRouter);
 app.use('/api/v1/hospital', verifyPatientFundRouter);
 

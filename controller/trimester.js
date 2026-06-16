@@ -134,14 +134,16 @@ exports.createMessage = async (req, res, next) => {
         description
        });
 
-       await notification.create({
-         title,
-         description,
-         week,
-         notificationType: 'pregnancyTip',
-         status: 'unread',
-         time: dayjs(data.createdAt).fromNow()
-       });
+       const seconds = dayjs().diff(dayjs(data.createdAt), "second");
+
+        await notification.create({
+        title,
+        description,
+        week,
+        notificationType: "pregnancyUpdates",
+        status: "unread",
+        time: `${seconds} seconds ago`
+        });
 
        res.status(201).json({
         message: 'week created successfully',
@@ -204,7 +206,7 @@ exports.createDaily = async (req, res, next) => {
          title,
          description,
          dayNumber,
-         notificationType: 'dailyTip',
+         notificationType: 'healthReminders',
          status: 'unread',
          time: dayjs(data.createdAt).fromNow()
        });
@@ -255,5 +257,32 @@ exports.dailyMessage = async (req, res, next) => {
             message: error.message,
             statusCode: 500
         })
+    }
+}
+
+exports.getNotifications = async (req, res, next) => {
+    try {
+        const id = req.user?.id;
+        if (!id) {
+            return res.status(404).json({
+                message: 'Id not found'
+            })
+        }
+        dayjs.extend(relativeTime);
+const notifications = await notification.findAll();
+
+const result = notifications.map(item => ({
+  ...item.toJSON(),
+  time: dayjs(item.createdAt).fromNow(),
+}));
+    res.status(200).json({
+    message: 'All notifications',
+    data: result
+  })
+    } catch (error) {
+       next({
+        message: error.message,
+        statusCode: 500
+       }) 
     }
 }

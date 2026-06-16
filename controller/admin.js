@@ -12,7 +12,11 @@ const { Op } = require('sequelize');
 exports.createAdmin = async (req, res, next) => {
     try {
         const { firstName, lastName, email, phoneNumber, password, confirmPassword} = req.body;
-        const emailExists = await Admin.findOne({ where: {email: email.toLowerCase()}})
+        const normalizedEmail = email && typeof email === 'string' ? email.toLowerCase().trim() : null;
+        if (!normalizedEmail) {
+            return res.status(400).json({ message: 'email is required' });
+        }
+        const emailExists = await Admin.findOne({ where: { email: normalizedEmail } });
         console.log(emailExists)
         if (emailExists) {
             return res.status(400).json({
@@ -35,7 +39,7 @@ exports.createAdmin = async (req, res, next) => {
         const admin = await Admin.create({
             firstName,
             lastName,
-            email: email.toLowerCase(),
+            email: normalizedEmail,
             phoneNumber: `+234${phoneNumber}`,
             password: hashedPassword,
             otp: OTP,
@@ -43,7 +47,7 @@ exports.createAdmin = async (req, res, next) => {
         });
 
         const emailOptions = {
-            email: Admin.email,
+            email: admin.email,
             subject: 'Welcome to MaternalPath',
             html: signUpTemplate(admin.firstName + admin.lastName, OTP)
         }
@@ -72,8 +76,10 @@ exports.createAdmin = async (req, res, next) => {
 exports.verifyEmail = async (req, res, next) => {
     try {
         const { email, otp } = req.body;
+        const normalizedEmail = email && typeof email === 'string' ? email.toLowerCase().trim() : null;
+        if (!normalizedEmail) return res.status(400).json({ message: 'email is required' });
 
-        const admin = await Admin.findOne({ where: { email: email.toLowerCase() } });
+        const admin = await Admin.findOne({ where: { email: normalizedEmail } });
 
         if (!admin) {
             return res.status(404).json({
@@ -107,8 +113,10 @@ exports.verifyEmail = async (req, res, next) => {
 exports.resendOTP = async (req, res, next) => {
     try {
         const { email } = req.body;
+        const normalizedEmail = email && typeof email === 'string' ? email.toLowerCase().trim() : null;
+        if (!normalizedEmail) return res.status(400).json({ message: 'email is required' });
 
-        const admin = await Admin.findOne({ where: { email: email.toLowerCase() } });
+        const admin = await Admin.findOne({ where: { email: normalizedEmail } });
 
         if (!admin) {
             return res.status(404).json({
@@ -203,8 +211,10 @@ console.log('Input: ', input);
 exports.forgotPassword = async (req, res,next) => {
     try {
         const { email } = req.body;
+        const normalizedEmail = email && typeof email === 'string' ? email.toLowerCase().trim() : null;
+        if (!normalizedEmail) return res.status(400).json({ message: 'email is required' });
 
-        const admin = await Admin.findOne({ where: { email: email.toLowerCase()}});
+        const admin = await Admin.findOne({ where: { email: normalizedEmail }});
 
         if (!admin) {
             return res.status(404).json({
@@ -255,8 +265,10 @@ exports.forgotPassword = async (req, res,next) => {
 exports.verifyResetOTP = async (req, res, next) => {
     try {
         const { email, otp } = req.body;
+        const normalizedEmail = email && typeof email === 'string' ? email.toLowerCase().trim() : null;
+        if (!normalizedEmail) return res.status(400).json({ message: 'email is required' });
 
-        const admin = await Admin.findOne({ where: { email: email.toLowerCase() } });
+        const admin = await Admin.findOne({ where: { email: normalizedEmail } });
 
         if (!admin) {
             return next({
@@ -291,8 +303,10 @@ exports.verifyResetOTP = async (req, res, next) => {
 exports.resetPassword = async (req, res, next) => {
     try {
         const { email, newPassword, confirmNewPassword } = req.body;
+        const normalizedEmail = email && typeof email === 'string' ? email.toLowerCase().trim() : null;
+        if (!normalizedEmail) return res.status(400).json({ message: 'email is required' });
 
-        const admin = await Admin.findOne({ where: { email: email.toLowerCase() } });
+        const admin = await Admin.findOne({ where: { email: normalizedEmail } });
 
         if (!admin) {
             return next({
