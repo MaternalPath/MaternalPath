@@ -29,6 +29,15 @@ module.exports = (sequelize, DataTypes) => {
     otpExpiresAt: { type: DataTypes.DATE },
     isVerified: { type: DataTypes.BOOLEAN, defaultValue: false },
     role: { type: DataTypes.STRING, enum: ['mother','admin', 'hospital'],defaultValue: 'admin' },
+    createdAt: {
+        type: DataTypes.DATE,
+        allowNull: false
+
+      },
+    updatedAt: {
+        type: DataTypes.DATE,
+        allowNull: false
+      }
   }, {
     sequelize,
     modelName: 'Admin',

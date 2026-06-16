@@ -2,14 +2,43 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    // This migration was originally written for MongoDB (Mongoose) but this
-    // project uses Sequelize with MySQL. The Notifications table is now
-    // properly created in migration: 20260615200000-create-notifications.js
-    // This migration is intentionally left as a no-op to avoid conflicts.
-    console.log('Skipping duplicate notifications migration (handled by 20260615200000).');
+    // Create SQL table for notifications to match Sequelize model
+    await queryInterface.createTable('notifications', {
+      id: {
+        allowNull: false,
+        primaryKey: true,
+        type: Sequelize.UUID,
+        defaultValue: Sequelize.UUIDV4
+      },
+      title: {
+        type: Sequelize.STRING
+      },
+      description: {
+        type: Sequelize.STRING
+      },
+      time: {
+        type: Sequelize.STRING
+      },
+      notificationType: {
+        type: Sequelize.STRING
+      },
+      status: {
+        type: Sequelize.STRING
+      },
+      createdAt: {
+        allowNull: false,
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.NOW
+      },
+      updatedAt: {
+        allowNull: false,
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.NOW
+      }
+    });
   },
 
   async down(queryInterface, Sequelize) {
-    // No-op: the table drop is handled by the corresponding down migration
+    await queryInterface.dropTable('notifications');
   }
 };
