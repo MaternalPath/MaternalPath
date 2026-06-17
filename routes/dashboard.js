@@ -34,6 +34,9 @@ const router = express.Router();
  *                 info:
  *                   type: object
  *                   properties:
+ *                     trimester:
+ *                       type: integer
+ *                       example: 2
  *                     week:
  *                       type: integer
  *                       example: 20
@@ -47,6 +50,9 @@ const router = express.Router();
  *                     daysUntilDueDate:
  *                       type: integer
  *                       example: 167
+ *                     pregnancyProgress:
+ *                       type: integer
+ *                       example: 30%
  *       401:
  *         description: Unauthorized - token not found or invalid
  *       404:
