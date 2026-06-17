@@ -1,6 +1,6 @@
 const express = require('express');
 const { Authentication } = require('../middlewares/auth');
-const { dashboardWeek } = require('../controller/dashboard');
+const { dashboardWeek, emergencyWallet } = require('../controller/dashboard');
 const router = express.Router();
 
 /**
@@ -61,6 +61,72 @@ const router = express.Router();
  *         description: Internal server error
  */
 router.get('/pregnancyOverview', Authentication, dashboardWeek)
+
+/**
+ * @swagger
+ * /wallet:
+ *   get:
+ *     summary: Retrieve mother's emergency wallet details
+ *     description: Returns the authenticated mother's emergency savings wallet, including the current balance, savings goal, and savings progress.
+ *     tags:
+ *       - Wallet
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Wallet retrieved successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: wallet retrieved successfully
+ *                 info:
+ *                   type: object
+ *                   properties:
+ *                     currentBalance:
+ *                       type: number
+ *                       example: 120000
+ *                     savingsGoal:
+ *                       type: number
+ *                       example: 400000
+ *                     savingsProgress:
+ *                       type: number
+ *                       example: 30
+ *       401:
+ *         description: Unauthorized. Authentication token is missing or invalid.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Unauthorized
+ *       404:
+ *         description: Mother record not found.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Mother record not found
+ *       500:
+ *         description: Internal server error.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Internal server error
+ */
+router.get('/wallet', Authentication, emergencyWallet);
 
 
 module.exports = router
