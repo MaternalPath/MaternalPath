@@ -91,14 +91,10 @@ exports.getTrimester = async (req, res, next) => {
     });
 
 
-    // cron.schedule('0 9 * * 1', async () => {
-    //     console.log('Running weekly reminders...');
-    //     await reminderService.sendWeeklyReminders();
-    // });
         const currentweek = mother.currentPregnancyWeek
         const firsttrim = [['First Trimester','Current', 'weeks 1-12','Initial prenatal visit', 'pregnancy confirmation'],['Second Trimester', 'weeks 13-26','Anatomy scan','Feel baby movements', 'Glucose screning'],['Third Trimester','Weeks 27-40','Hospital tour','Birth plan discussion','Final preparations']];
-        const secondtrim = [['First Trimester','Completed', 'weeks 1-12','Initial prenatal visit', 'pregnancy confirmation'],['Second Trimester', 'Current','weeks 13-26','Anatomy san','Feel baby movements', 'Glucose screning'],['Third Trimester','Weeks 27-40','Hospital tour','Birth plan discussion','Final preparations']];
-        const thirdtrim = [['First Trimester','Completed', 'weeks 1-12','Initial prenatal visit', 'pregnancy confirmation'],['Second Trimester', 'Completed','weeks 13-26','Anatomy san','Feel baby movements', 'Glucose screning'],['Third Trimester','Current','Weeks 27-40','Hospital tour','Birth plan discussion','Final preparations']];
+        const secondtrim = [['First Trimester','Completed', 'weeks 1-12','Initial prenatal visit', 'pregnancy confirmation'],['Second Trimester', 'Current','weeks 13-26','Anatomy scan','Feel baby movements', 'Glucose screning'],['Third Trimester','Weeks 27-40','Hospital tour','Birth plan discussion','Final preparations']];
+        const thirdtrim = [['First Trimester','Completed', 'weeks 1-12','Initial prenatal visit', 'pregnancy confirmation'],['Second Trimester', 'Completed','weeks 13-26','Anatomy scan','Feel baby movements', 'Glucose screning'],['Third Trimester','Current','Weeks 27-40','Hospital tour','Birth plan discussion','Final preparations']];
         if (currentweek <= 12) {
             const perTrimester = await firstTrimester.findAll({ attributes: { exclude: ['id']}});
             res.status(200).json({
