@@ -162,7 +162,7 @@ router.get('/todaysReminder', Authentication,todaysReminder);
 
 /**
  * @swagger
- * /api/v1//notice:
+ * /api/v1/notice:
  *   get:
  *     tags:
  *       - Dashboard
