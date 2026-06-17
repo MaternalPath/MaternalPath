@@ -1,4 +1,4 @@
-const { motherUpdate, pregnancyTip, firstTrimester, secondTrimester, thirdTrimester, Mother} = require('../models')
+const { MotherUpdate, pregnancyTip, firstTrimester, secondTrimester, thirdTrimester, Mother} = require('../models')
 
 
 exports.getTrimester = async (req, res, next) => {
@@ -44,7 +44,10 @@ exports.getTrimester = async (req, res, next) => {
 exports.weeklyMessage = async (req, res, next) => {
     try {
         const id = req.user?.id;
-        const mother = await Mother.findOne({where: {id}})
+        const mother = await MotherUpdate.findOne({
+            where: { motherId: id },
+            });
+
         if (!mother) {
             return next({
                 message: 'mother does not exist',
