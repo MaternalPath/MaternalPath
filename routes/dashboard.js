@@ -1,6 +1,6 @@
 const express = require('express');
 const { Authentication } = require('../middlewares/auth');
-const { dashboardWeek, emergencyWallet } = require('../controller/dashboard');
+const { dashboardWeek, emergencyWallet, todaysReminder } = require('../controller/dashboard');
 const router = express.Router();
 
 /**
@@ -127,6 +127,38 @@ router.get('/pregnancyOverview', Authentication, dashboardWeek)
  *                   example: Internal server error
  */
 router.get('/wallet', Authentication, emergencyWallet);
+
+/**
+ * @swagger
+ * /api/v1/todaysReminder:
+ *   get:
+ *     tags:
+ *       - Dashboard
+ *     summary: Get daily reminder
+ *     description: Retrieves the daily reminder for the authenticated mother based on her current pregnancy day
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Daily reminder retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 pregnancyDay:
+ *                   type: integer
+ *                   example: 84
+ *                 reminder:
+ *                   type: string
+ *                   example: Remember to take your prenatal vitamins today
+ *       401:
+ *         description: Unauthorized - token not found or invalid
+ *       500:
+ *         description: Internal server error
+ */
+
+router.get('/todaysReminder', Authentication,todaysReminder)
 
 
 module.exports = router
