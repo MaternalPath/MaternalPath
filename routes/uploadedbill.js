@@ -566,9 +566,9 @@ router.post('/:billId/system-validation', Authentication, runSystemValidation);
  * @swagger
  * /api/v1/bill/dashboard:
  *   get:
- *     summary: Get hospital bill dashboard
+ *     summary: Get hospital uploaded bill dashboard
  *     tags: [UploadedBill]
- *     description: "Returns aggregated dashboard data: total bills, total amount, and counts per workflow stage."
+ *     description: "Returns aggregated dashboard data: total uploadedBills, total VerifiedBills, total PendingBills and total DeliveryCost."
  *     security:
  *       - bearerAuth: []
  *     responses:
@@ -585,27 +585,18 @@ router.post('/:billId/system-validation', Authentication, runSystemValidation);
  *                 data:
  *                   type: object
  *                   properties:
- *                     totalBills:
+ *                     total uploadedBills:
  *                       type: integer
  *                       example: 12
- *                     totalAmount:
+ *                     total VerifiedBills:
  *                       type: number
  *                       example: 850000
- *                     byStage:
- *                       type: object
- *                       properties:
- *                         uploadedBill:
- *                           type: integer
- *                           example: 3
- *                         customerReview:
- *                           type: integer
- *                           example: 4
- *                         fundValidation:
- *                           type: integer
- *                           example: 3
- *                         finalApproval:
- *                           type: integer
- *                           example: 2
+ *                     total PendingBills:
+ *                       type: integer
+ *                       example: 3
+ *                     total DeliveryCost:
+ *                       type: number
+ *                       example: 150000                    
  *       401:
  *         description: Unauthorized - token missing or invalid
  *       500:

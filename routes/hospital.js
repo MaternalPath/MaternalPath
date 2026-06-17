@@ -14,7 +14,8 @@ const {
   getHospitalMothers,
   getHospitalMother,
   getHospitalProfile,
-  updateHospitalProfile
+  updateHospitalProfile,
+  logout
 } = require('../controller/hospital');
 const { hospitalRegisterValidator, hospitalLoginValidator, changePasswordValidator } = require('../middlewares/hospitalValidator');
 const { Authentication } = require('../middlewares/auth');
@@ -656,5 +657,30 @@ router.get('/profile', Authentication, getHospitalProfile);
  */
 
 router.put('/updateHospital', Authentication, updateHospitalProfile);
+
+/**
+ * @swagger
+ * /api/v1/hospital/logout:
+ *   post:
+ *     tags:
+ *       - Hospital
+ *     summary: Logout hospital
+ *     description: Logs out the authenticated hospital and invalidates the session token in Redis
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Logout successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Logout successful
+ */
+
+router.post('/logout', logout)
 
 module.exports = router;
