@@ -14,7 +14,74 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   motherNotification.init({
-    type: DataTypes.STRING
+    id: {
+      allowNull: false,
+      primaryKey: true,
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4
+    },
+
+    hospitalId: {
+      type: DataTypes.UUID,
+      references: {
+        model: "Hospitals",
+        key: "id",
+      },
+      onDelete: "CASCADE",
+      onUpdate: "CASCADE",
+    },
+    motherId: {
+      type: DataTypes.UUID,
+      references: {
+        model: 'mothers',
+        key: 'id'
+      },
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE'
+    },
+    
+    dayNumber: {
+      type: DataTypes.INTEGER,
+      allowNull: true
+    },
+    week: {
+      type: DataTypes.INTEGER,
+      allowNull: true
+    },
+    title: {
+      type: DataTypes.JSON,
+      allowNull: false
+    },
+    description: {
+      type: DataTypes.JSON,
+      allowNull: false
+    },
+    type: {
+      type: DataTypes.JSON,
+      allowNull: false,
+      enum: ['allNotifications','pregnancyUpdates', 'healthReminders', 'walletAlerts', 'hospitalNotifications'],
+      defaultValue: 'allNotifications' 
+    },
+    status: {
+      type: DataTypes.JSON,
+      allowNull: false,
+      enum: ['read', 'unread'],
+      defaultValue: 'unread'
+    },
+    time: {
+        type: DataTypes.DATE,
+        allowNull: false
+
+      },
+    createdAt: {
+        type: DataTypes.DATE,
+        allowNull: false
+
+      },
+    updatedAt: {
+        type: DataTypes.DATE,
+        allowNull: false
+      }
   }, {
     sequelize,
     modelName: 'motherNotification',

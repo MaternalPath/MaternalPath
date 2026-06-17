@@ -545,7 +545,7 @@ exports.updateMother = async (req, res, next) => {
     const timeDiff = targetDate - today;
     const daysLeft = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
 
-    const progress = (currentPregnancyWeek * 100) / 40;
+    const progress = (currentBalance * 100) / 40;
 
     const details = {
       firstName: firstName ?? mother.firstName,
