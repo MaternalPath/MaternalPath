@@ -1,6 +1,6 @@
 const express = require('express');
 const { Authentication } = require('../middlewares/auth');
-const { dashboardWeek, emergencyWallet } = require('../controller/dashboard');
+const { dashboardWeek, emergencyWallet, todaysReminder, getNotifications } = require('../controller/dashboard');
 const router = express.Router();
 
 /**
@@ -12,7 +12,7 @@ const router = express.Router();
 
 /**
  * @swagger
- * /api/v1/mother/pregnancyOverview:
+ * /api/v1/pregnancyOverview:
  *   get:
  *     tags:
  *       - Dashboard
@@ -64,7 +64,7 @@ router.get('/pregnancyOverview', Authentication, dashboardWeek)
 
 /**
  * @swagger
- * /wallet:
+ * /api/v1/wallet:
  *   get:
  *     summary: Retrieve mother's emergency wallet details
  *     description: Returns the authenticated mother's emergency savings wallet, including the current balance, savings goal, and savings progress.
@@ -127,6 +127,86 @@ router.get('/pregnancyOverview', Authentication, dashboardWeek)
  *                   example: Internal server error
  */
 router.get('/wallet', Authentication, emergencyWallet);
+
+/**
+ * @swagger
+ * /api/v1/todaysReminder:
+ *   get:
+ *     tags:
+ *       - Dashboard
+ *     summary: Get daily reminder
+ *     description: Retrieves the daily reminder for the authenticated mother based on her current pregnancy day
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Daily reminder retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 pregnancyDay:
+ *                   type: integer
+ *                   example: 84
+ *                 reminder:
+ *                   type: string
+ *                   example: Remember to take your prenatal vitamins today
+ *       401:
+ *         description: Unauthorized - token not found or invalid
+ *       500:
+ *         description: Internal server error
+ */
+
+router.get('/todaysReminder', Authentication,todaysReminder);
+
+/**
+ * @swagger
+ * /api/v1//notice:
+ *   get:
+ *     tags:
+ *       - Dashboard
+ *     summary: Get pregnancy notifications
+ *     description: Retrieves notifications matching the authenticated mother's current pregnancy week or day, with relative timestamps
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: All notifications
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: All notifications
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       week:
+ *                         type: integer
+ *                         example: 20
+ *                       dayNumber:
+ *                         type: integer
+ *                         example: 140
+ *                       message:
+ *                         type: string
+ *                         example: Your baby is now the size of a banana
+ *                       time:
+ *                         type: string
+ *                         example: 2 hours ago
+ *       401:
+ *         description: Id not found
+ *       404:
+ *         description: Mother update not found
+ *       500:
+ *         description: Internal server error
+ */
+
+router.get('/notice', Authentication, getNotifications)
 
 
 module.exports = router
