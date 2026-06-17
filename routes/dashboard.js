@@ -12,7 +12,7 @@ const router = express.Router();
 
 /**
  * @swagger
- * /api/v1/mother/pregnancyOverview:
+ * /api/v1/pregnancyOverview:
  *   get:
  *     tags:
  *       - Dashboard
