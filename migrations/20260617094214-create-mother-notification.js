@@ -4,21 +4,70 @@ module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable('motherNotifications', {
       id: {
-        allowNull: false,
-        autoIncrement: true,
-        primaryKey: true,
-        type: Sequelize.INTEGER
+      allowNull: false,
+      primaryKey: true,
+      type: Sequelize.UUID,
+      defaultValue: Sequelize.UUIDV4
+    },
+    hospitalId: {
+      type: Sequelize.UUID,
+      references: {
+        model: "Hospitals",
+        key: "id",
       },
-      type: {
-        type: Sequelize.STRING
+      onDelete: "CASCADE",
+      onUpdate: "CASCADE",
+    },
+    motherId: {
+      type: Sequelize.UUID,
+      references: {
+        model: 'mothers',
+        key: 'id'
       },
-      createdAt: {
-        allowNull: false,
-        type: Sequelize.DATE
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE'
+    },
+    dayNumber: {
+      type: Sequelize.INTEGER,
+      allowNull: true
+    },
+    week: {
+      type: Sequelize.INTEGER,
+      allowNull: true
+    },
+    title: {
+      type: Sequelize.TEXT,
+      allowNull: false
+    },
+    description: {
+      type: Sequelize.TEXT,
+      allowNull: false
+    },
+    type: {
+      type: Sequelize.TEXT,
+      allowNull: false,
+      enum: ['allNotifications','pregnancyUpdates', 'healthReminders', 'walletAlerts', 'hospitalNotifications'],
+      defaultValue: 'allNotifications' 
+    },
+    status: {
+      type: Sequelize.TEXT,
+      allowNull: false,
+      enum: ['read', 'unread'],
+      defaultValue: 'unread'
+    },
+    time: {
+        type: Sequelize.DATE,
+        allowNull: false
+
       },
-      updatedAt: {
-        allowNull: false,
-        type: Sequelize.DATE
+    createdAt: {
+        type: Sequelize.DATE,
+        allowNull: false
+
+      },
+    updatedAt: {
+        type: Sequelize.DATE,
+        allowNull: false
       }
     });
   },

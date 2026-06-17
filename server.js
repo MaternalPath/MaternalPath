@@ -14,6 +14,7 @@ const verifyPatientFundRouter = require('./routes/verifyPatientFund');
 const billRouter = require('./routes/checkBill')
 const patientRouter = require('./routes/patient');
 const notificationRouter = require('./routes/notification');
+const dashRouter = require('./routes/dashboard');
 const expressSession = require('express-session')
 const passport = require('passport');
 require('./controller/mother')
@@ -44,6 +45,7 @@ app.use('/api/v1', billRouter);
 app.use('/api/v1/hospital', hospitalDashBoardRouter);
 app.use('/api/v1/hospital', verifyPatientFundRouter);
 app.use('/api/v1', patientRouter);
+app.use('/api/v1', dashRouter);
 app.use('/api/v1/notifications', notificationRouter);
 
 app.get('/', (req, res) => {
