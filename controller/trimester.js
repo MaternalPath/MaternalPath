@@ -275,6 +275,10 @@ const result = notifications.map(item => ({
   ...item.toJSON(),
   time: dayjs(item.createdAt).fromNow(),
 }));
+
+if (condition) {
+    
+}
     res.status(200).json({
     message: 'All notifications',
     data: result
