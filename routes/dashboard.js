@@ -69,7 +69,7 @@ router.get('/pregnancyOverview', Authentication, dashboardWeek)
  *     summary: Retrieve mother's emergency wallet details
  *     description: Returns the authenticated mother's emergency savings wallet, including the current balance, savings goal, and savings progress.
  *     tags:
- *       - Wallet
+ *       - Dashboard
  *     security:
  *       - bearerAuth: []
  *     responses:
