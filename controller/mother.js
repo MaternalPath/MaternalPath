@@ -475,9 +475,6 @@ exports.resetPassword = async (req, res, next) => {
 exports.updateMother = async (req, res, next) => {
   try {
     const id = req.user?.id;
-    const hospitalId = req.params?.id;
-
-    console.log("hospitalid", hospitalId);
 
     if (!id) {
       return next({
@@ -495,6 +492,26 @@ exports.updateMother = async (req, res, next) => {
       });
     }
 
+    const {
+      firstName,
+      lastName,
+      phoneNumber,
+      address,
+      estimatedDueDate,
+      dateOfBirth,
+      trimester,
+      hospitalId,
+      bloodType,
+      existingHealthConditions,
+      currentPregnancyWeek,
+      emergencyContactName,
+      emergencyContactNumber,
+      allergies,
+      savingsGoalAmount,
+      weeklyContribution,
+      linkedPaymentMethod,
+    } = req.body;
+
     const selectedHospitalId = hospitalId ?? mother.hospitalId;
     const hospital = await Hospital.findOne({
       where: { id: selectedHospitalId },
@@ -509,28 +526,11 @@ exports.updateMother = async (req, res, next) => {
       });
     }
 
-    const {
-      firstName,
-      lastName,
-      phoneNumber,
-      address,
-      estimatedDueDate,
-      dateOfBirth,
-      trimester,
-      bloodType,
-      existingHealthConditions,
-      currentPregnancyWeek,
-      emergencyContactName,
-      emergencyContactNumber,
-      allergies,
-      savingsGoalAmount,
-      weeklyContribution,
-      linkedPaymentMethod,
-    } = req.body;
-
-    const result = await cloudinary.uploader.upload(req.file.path);
-
-    fs.unlinkSync(req.file.path)
+    let result;
+    if (req.file) {
+      result = await cloudinary.uploader.upload(req.file.path);
+      fs.unlinkSync(req.file.path);
+    }
 
     if (trimester > 3) {
       return next({
@@ -557,8 +557,7 @@ exports.updateMother = async (req, res, next) => {
 
     const data = {
       motherId: mother.id,
-      image: result.secure_url,
-      imagePublicId: result.public_id,
+      ...(result ? { image: result.secure_url, imagePublicId: result.public_id } : {}),
 
       estimatedDueDate: estimatedDueDate ?? MotherUpdate.estimatedDueDate,
       trimester: trimester ?? MotherUpdate.trimester,

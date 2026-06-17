@@ -233,6 +233,13 @@ weeklyContribution: joi.number().positive().required().messages({
     "any.required": "Weekly contribution is required."
   }),
 
+  hospitalId: joi.string().guid({version: ['uuidv4', 'uuidv5']}).required().messages({
+    "string.base": "Hospital ID must be a string.",
+    "string.empty": "Hospital ID is required.",
+    "string.guid": "Hospital ID must be a valid UUID.",
+    "any.required": "Hospital ID is required."
+  }),
+
 linkedPaymentMethod: joi.string().valid("card", "bank", "wallet", "ussd", "transfer").required().messages({
     "string.base": "Linked payment method must be a string.",
     "any.only": "Payment method must be card, bank, wallet, transfer, or ussd.",
