@@ -64,7 +64,7 @@ router.get('/pregnancyOverview', Authentication, dashboardWeek)
 
 /**
  * @swagger
- * /wallet:
+ * /api/v1/wallet:
  *   get:
  *     summary: Retrieve mother's emergency wallet details
  *     description: Returns the authenticated mother's emergency savings wallet, including the current balance, savings goal, and savings progress.
