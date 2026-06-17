@@ -33,3 +33,11 @@ exports.checkBill = async(req, res, next) => {
         })
     }
 }
+
+exports.filterBill = async (req, res, next) => {
+    try {
+        
+    } catch (error) {
+        
+    }
+}
