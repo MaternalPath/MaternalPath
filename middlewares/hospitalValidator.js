@@ -105,6 +105,32 @@ exports.changePasswordValidator = (req, res, next) => {
     next() 
 }
 
+// const { body, query, validationResult } = require('express-validator');
+
+exports.validateSearchMother = async (req, res, next) => {
+    const schema = joi.object({
+        search: joi.string().trim().required().messages({
+            'any.required': 'Search query parameter is required',
+            'string.empty': 'Search query parameter cannot be empty'
+        }),
+          emailOrPhoneNumber: joi.string().trim().required().messages({
+            'any.required': 'Email or phone number is required',
+            'string.empty': 'Email or phone number cannot be empty'
+        })
+
+    });
+
+    const { error } = schema.validate(req.query);
+    if (error) {
+        return res.status(400).json({
+            message: error.details[0].message
+        });
+    }
+
+    next();
+};
+
+
 // exports.updateHospitalProfileValidator = (req, res, next) => {
 //     const schema = joi.object({
 //         hospitalName: joi.string().trim().min(2).messages({

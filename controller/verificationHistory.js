@@ -82,11 +82,11 @@ exports.getVerificationRecords = async (req, res, next) => {
                 totalPages: Math.ceil(count / limit),
                 records: rows
             }
-        });
+        }); 
 
     } catch (error) {
         res.status(500).json({
             message: error.message
-        });
+        }); 
     }
 }
