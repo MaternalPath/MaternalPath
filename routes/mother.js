@@ -346,22 +346,14 @@ router.post('/reset-password', resetPassword);
 
 /**
  * @swagger
- * /api/v1/mother/update-profile/{id}:
+ * /api/v1/mother/update-profile:
  *   put:
  *     tags:
  *       - Mother
  *     summary: Update mother profile
- *     description: Updates the authenticated mother's profile including an optional image upload. The id parameter is the hospital's ID.
+ *     description: Updates the authenticated mother's profile including an optional image upload.
  *     security:
  *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *         description: The hospital's ID
- *         example: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
  *     requestBody:
  *       required: true
  *       content:
@@ -397,6 +389,9 @@ router.post('/reset-password', resetPassword);
  *                 type: integer
  *                 example: 2
  *                 description: Must be 1, 2 or 3
+ *               hospitalId:
+ *                 type: string
+ *                 example: "3f4d73a0-b228-4691-b848-3e2dcab195a3"
  *               bloodType:
  *                 type: string
  *                 example: O+
@@ -406,9 +401,12 @@ router.post('/reset-password', resetPassword);
  *               currentPregnancyWeek:
  *                 type: integer
  *                 example: 20
- *               emergencyContact:
+ *               emergencyContactName:
  *                 type: string
- *                 example: "john Doe-08098765432"
+ *                 example: "John Doe"
+ *               emergencyContactNumber:
+ *                 type: string
+ *                 example: "08098765432"
  *               allergies:
  *                 type: string
  *                 example: Penicillin
@@ -469,8 +467,7 @@ router.post('/reset-password', resetPassword);
  *       404:
  *         description: Mother or hospital not found
  */
-router.put('/update-profile/:id', upload.single('image'), updateValidation, Authentication, updateMother);
-
+router.put('/update-profile', Authentication, upload.single('image'), updateValidation, updateMother);
 
 /**
  * @swagger

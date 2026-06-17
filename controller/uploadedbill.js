@@ -93,7 +93,7 @@ exports.uploadBill = async (req, res) => {
             pregnancyWeek: latestUpdate?.currentPregnancyWeek || null,
             expectedDeliveryDate: latestUpdate?.estimatedDueDate || null,
             preferredHospital: mother.Hospital?.hospitalName || null,
-            category: ENUM('Natural Delivery', 'C section'),
+            category,
             amount,
             billingDate,
             dueDate,

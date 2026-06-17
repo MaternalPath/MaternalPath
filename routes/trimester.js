@@ -1,5 +1,5 @@
 const express = require('express');
-const { createFirst, createSecond, createThird, getTrimester, createMessage, weeklyMessage, createDaily, dailyMessage } = require('../controller/trimester');
+const { createFirst, createSecond, createThird, getTrimester, createMessage, weeklyMessage, createDaily, dailyMessage, getNotifications } = require('../controller/trimester');
 const { Authentication } = require('../middlewares/auth');
 const router = express.Router();
 
@@ -130,5 +130,7 @@ router.post('/dailyMessage', createDaily);
  */
 
 router.get('/getDailyMessage', dailyMessage)
+
+router.get('/notifications', Authentication ,getNotifications)
 
 module.exports = router

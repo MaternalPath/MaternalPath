@@ -475,9 +475,6 @@ exports.resetPassword = async (req, res, next) => {
 exports.updateMother = async (req, res, next) => {
   try {
     const id = req.user?.id;
-    const hospitalId = req.params?.id;
-
-    console.log("hospitalid", hospitalId);
 
     if (!id) {
       return next({
@@ -495,6 +492,26 @@ exports.updateMother = async (req, res, next) => {
       });
     }
 
+    const {
+      firstName,
+      lastName,
+      phoneNumber,
+      address,
+      estimatedDueDate,
+      dateOfBirth,
+      trimester,
+      hospitalId,
+      bloodType,
+      existingHealthConditions,
+      currentPregnancyWeek,
+      emergencyContactName,
+      emergencyContactNumber,
+      allergies,
+      savingsGoalAmount,
+      weeklyContribution,
+      linkedPaymentMethod,
+    } = req.body;
+
     const selectedHospitalId = hospitalId ?? mother.hospitalId;
     const hospital = await Hospital.findOne({
       where: { id: selectedHospitalId },
@@ -509,27 +526,11 @@ exports.updateMother = async (req, res, next) => {
       });
     }
 
-    const {
-      firstName,
-      lastName,
-      phoneNumber,
-      address,
-      estimatedDueDate,
-      dateOfBirth,
-      trimester,
-      bloodType,
-      existingHealthConditions,
-      currentPregnancyWeek,
-      emergencyContact,
-      allergies,
-      savingsGoalAmount,
-      weeklyContribution,
-      linkedPaymentMethod,
-    } = req.body;
-
-    const result = await cloudinary.uploader.upload(req.file.path);
-
-    fs.unlinkSync(req.file.path)
+    let result;
+    if (req.file) {
+      result = await cloudinary.uploader.upload(req.file.path);
+      fs.unlinkSync(req.file.path);
+    }
 
     if (trimester > 3) {
       return next({
@@ -544,7 +545,7 @@ exports.updateMother = async (req, res, next) => {
     const timeDiff = targetDate - today;
     const daysLeft = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
 
-    const progress = (currentPregnancyWeek * 100) / 40;
+    const progress = (currentBalance * 100) / 40;
 
     const details = {
       firstName: firstName ?? mother.firstName,
@@ -556,8 +557,7 @@ exports.updateMother = async (req, res, next) => {
 
     const data = {
       motherId: mother.id,
-      image: result.secure_url,
-      imagePublicId: result.public_id,
+      ...(result ? { image: result.secure_url, imagePublicId: result.public_id } : {}),
 
       estimatedDueDate: estimatedDueDate ?? MotherUpdate.estimatedDueDate,
       trimester: trimester ?? MotherUpdate.trimester,
@@ -568,7 +568,8 @@ exports.updateMother = async (req, res, next) => {
         existingHealthConditions ?? MotherUpdate.existingHealthConditions,
       currentPregnancyWeek:
         currentPregnancyWeek ?? MotherUpdate.currentPregnancyWeek,
-      emergencyContact: emergencyContact ?? MotherUpdate.emergencyContact,
+      emergencyContactName: emergencyContactName ?? MotherUpdate.emergencyContactName,
+      emergencyContactNumber: emergencyContactNumber ?? MotherUpdate.emergencyContactNumber,
       allergies: allergies ?? MotherUpdate.allergies,
       savingsGoalAmount: savingsGoalAmount ?? MotherUpdate.savingsGoalAmount,
       weeklyContribution: weeklyContribution ?? MotherUpdate.weeklyContribution,
@@ -634,21 +635,21 @@ exports.getMotherProfile = async (req, res, next) => {
 
     const remainingAmountNeeded =
       mother.savingsGoalAmount - wallet.currentBalance;
-    const info = `['firstName:' ${mother.firstName}, 'lastName:' ${mother.lastName}, 'email:' ${mother.email},  'phoneNumber:'${mother.phoneNumber}]`;
+    const info = {"firstName": mother.firstName, "lastName": mother.lastName, "email": mother.email,  "phoneNumber": mother.phoneNumber};
     const img = mom?.image;
 
     if (mother.isUpdated === false) {
       return res.status(200).json({
         message: "Please Update your profile",
-        data: info,
+         data: info,
       });
     } else {
       return res.status(200).json({
         message: "Mother profile retrieved successfully",
-        data: mother,
+        data: [mother,
         mom,
         img,
-        remainingAmountNeeded,
+        remainingAmountNeeded,]
       });
     }
   } catch (error) {

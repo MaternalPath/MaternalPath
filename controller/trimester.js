@@ -1,7 +1,9 @@
 const { where } = require("sequelize");
-const {firstTrimester, secondTrimester, thirdTrimester, Mother, pregnancyTip, dailyReminder, MotherUpdate, notification} = require("../models");
+const {firstTrimester, secondTrimester, thirdTrimester, Mother, pregnancyTip, dailyReminder, MotherUpdate, motherNotification} = require("../models");
 const dayjs = require("dayjs");
 const relativeTime = require("dayjs/plugin/relativeTime");
+const { Op } = require("sequelize");
+const cron = require("node-cron");
 dayjs.extend(relativeTime);
 
 
@@ -134,14 +136,16 @@ exports.createMessage = async (req, res, next) => {
         description
        });
 
-       await notification.create({
-         title,
-         description,
-         week,
-         notificationType: 'pregnancyTip',
-         status: 'unread',
-         time: dayjs(data.createdAt).fromNow()
-       });
+       const seconds = dayjs().diff(dayjs(data.createdAt), "second");
+
+        await motherNotification.create({
+        title,
+        description,
+        week,
+        type: "pregnancyUpdates",
+        status: "unread",
+        time: `${seconds} seconds ago`
+        });
 
        res.status(201).json({
         message: 'week created successfully',
@@ -200,11 +204,11 @@ exports.createDaily = async (req, res, next) => {
         description
        });
 
-       await notification.create({
+       await motherNotification.create({
          title,
          description,
          dayNumber,
-         notificationType: 'dailyTip',
+         type: 'healthReminders',
          status: 'unread',
          time: dayjs(data.createdAt).fromNow()
        });
@@ -250,6 +254,67 @@ exports.dailyMessage = async (req, res, next) => {
         pregnancyDay: day,
         reminder: reminder?.message || "No reminder available."
         });
+    } catch (error) {
+        next({
+            message: error.message,
+            statusCode: 500
+        })
+    }
+}
+
+exports.getNotifications = async (req, res, next) => {
+    try {
+        const id = req.user?.id;
+        if (!id) {
+            return res.status(404).json({
+                message: 'Id not found'
+            })
+        }
+        dayjs.extend(relativeTime);
+
+        const motherUpdate = await MotherUpdate.findOne({
+            where: {
+                motherId: id
+            }
+            });
+
+            if (!motherUpdate) {
+            return next({
+                message: "Mother update not found",
+                statusCode: 404
+            });
+            }
+        const currentWeek = await motherUpdate.currentPregnancyWeek;
+        const currentDay = await motherUpdate.currentPregnancyWeek * 7;
+        console.log(currentDay)
+        const notifications = await motherNotification.findAll({
+        where: {
+                [Op.or]: [{ week: currentWeek }, { dayNumber: currentDay }],
+              }});
+
+        const result = notifications.map(item => ({
+        ...item.toJSON(),
+        time: dayjs(item.createdAt).fromNow(),
+        }));
+
+        cron.schedule("0 8 * * *", async () => {  
+         res.status(200).json({
+            message: 'All notifications',
+            data: result
+          })
+        });
+        
+    } catch (error) {
+       next({
+        message: error.message,
+        statusCode: 500
+       }) 
+    }
+}
+
+exports.notificationByType = async (req, res, next) => {
+    try {
+        
     } catch (error) {
         next({
             message: error.message,

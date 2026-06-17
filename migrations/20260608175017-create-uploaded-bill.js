@@ -9,20 +9,35 @@ module.exports = {
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4
       },
-      // hospitalId: {
-      //         type: Sequelize.UUID,
-      //         references: {
-      //           model: "Hospitals",
-      //           key: "id",
-      //         },
-      //         onDelete: "CASCADE",
-      //         onUpdate: "CASCADE",
-      //        },
-      // billId: {
-      //   type: Sequelize.STRING,
-      //   allowNull: false
-      // },
+      hospitalId: {
+        type: Sequelize.UUID,
+        allowNull: false,
+        references: {
+          model: 'Hospitals',
+          key: 'id'
+        },
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
+      },
+      motherId: {
+        type: Sequelize.UUID,
+        allowNull: false,
+        references: {
+          model: 'mothers',
+          key: 'id'
+        },
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
+      },
+      billId: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        unique: true
+      },
       fullName: {
+        type: Sequelize.STRING
+      },
+      email: {
         type: Sequelize.STRING
       },
       maternalId: {
@@ -31,14 +46,20 @@ module.exports = {
       phoneNumber: {
         type: Sequelize.STRING
       },
+      pregnancyWeek: {
+        type: Sequelize.STRING
+      },
       expectedDeliveryDate: {
         type: Sequelize.DATE
+      },
+      preferredHospital: {
+        type: Sequelize.STRING
       },
       referenceNumber: {
         type: Sequelize.STRING
       },
       category: {
-        type: Sequelize.STRING
+        type: Sequelize.ENUM('Natural Delivery', 'C section')
       },
       amount: {
         type: Sequelize.INTEGER
@@ -52,20 +73,17 @@ module.exports = {
       dueDate: {
         type: Sequelize.DATE
       },
-      category: {
-        type: Sequelize.ENUM('Natural Delivery', 'C section')
-      },
       verificationWorkFlow: {
-        type: Sequelize.STRING,
-        enum: [ 'uploadedBill', 'customerReview', 'fundValidation', 'finalApproval']
+        type: Sequelize.ENUM('uploadedBill', 'customerReview', 'fundValidation', 'finalApproval'),
+        defaultValue: 'uploadedBill'
       },
       systemValidation: {
-        type: Sequelize.STRING,
-        enum: ['patienceIdMatched', 'fileUploadedProgress', 'billingVerification', 'requiredFieldComplete']
+        type: Sequelize.ENUM('patienceIdMatched', 'fileUploadedProgress', 'billingVerification', 'requiredFieldComplete'),
+        defaultValue: 'fileUploadedProgress'
       },
       billSummary: {
-        type: Sequelize.STRING,
-        enum: ['patienceName', 'category', 'date', 'totalAmount']
+        type: Sequelize.ENUM('patienceName', 'category', 'date', 'totalAmount'),
+        defaultValue: 'patienceName'
       },
       documentUpload: {
         type: Sequelize.STRING
