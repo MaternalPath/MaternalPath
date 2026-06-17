@@ -1,4 +1,4 @@
-const { MotherUpdate, wallet, Mother, dailyReminder } = require("../models");
+const { MotherUpdate, wallet, Mother, dailyReminder, motherNotification } = require("../models");
 const dayjs = require("dayjs");
 const relativeTime = require("dayjs/plugin/relativeTime");
 const { Op } = require("sequelize");
@@ -210,12 +210,10 @@ exports.getNotifications = async (req, res, next) => {
         time: dayjs(item.createdAt).fromNow(),
         }));
 
-        cron.schedule("0 8 * * *", async () => {  
          res.status(200).json({
             message: 'All notifications',
             data: result
           })
-        });
         
     } catch (error) {
        next({
