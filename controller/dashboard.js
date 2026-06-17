@@ -33,11 +33,15 @@ const daysUntilDueDate = Math.ceil(
     (estimatedDueDate - today) / (1000 * 60 * 60 * 24)
 );
 
+const progress = (mother.currentPregnancyWeek * 100) / 40;
+
 const info = {
+    trimester: mother.trimester,
     week: mother.currentPregnancyWeek,
     estimatedDueDate: mother.estimatedDueDate,
     preferredHospital: mother.selectedHospital,
-    daysUntilDueDate
+    daysUntilDueDate,
+    pregnancyProgress: progress+'%'
 };
 
 res.status(200).json({
@@ -48,6 +52,17 @@ res.status(200).json({
         next({
             message: error.message,
             statusCode: 500
+        })
+    }
+}
+
+exports.emergencyWallet = async (req, res, next) => {
+    try {
+        
+    } catch (error) {
+        next({
+            message: error.message,
+
         })
     }
 }
