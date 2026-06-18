@@ -491,6 +491,16 @@ exports.updateMother = async (req, res, next) => {
         message: "Mother not found",
       });
     }
+    const walletRecord = await wallet.findOne({
+            where: { motherId: id }
+        });
+
+        if (!walletRecord) {
+            return next({
+                statusCode: 404,
+                message: "Wallet record not found"
+            });
+        }
 
     const {
       firstName,
@@ -545,7 +555,7 @@ exports.updateMother = async (req, res, next) => {
     const timeDiff = targetDate - today;
     const daysLeft = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
 
-    const progress = (currentBalance * 100) / 40;
+    const progress = (walletRecord.currentBalance * 100) / 40;
 
     const details = {
       firstName: firstName ?? mother.firstName,
