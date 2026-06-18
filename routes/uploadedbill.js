@@ -659,7 +659,7 @@ router.get('/dashboard', Authentication, getUploadedBillDashboard);
 
 /**
  * @swagger
- * /api/uploaded-bills:
+ * /api/v1/bill/uploaded-bills:
  *   get:
  *     summary: Get all uploaded bill records
  *     tags:
