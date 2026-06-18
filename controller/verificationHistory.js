@@ -49,8 +49,6 @@ exports.getVerificationHistory = async (req, res, next) => {
 
 exports.getVerificationRecords = async (req, res, next) => {
     try {
-        const { page = 1, limit = 20, status } = req.query;
-        const offset = (page - 1) * limit;
 
         const whereClause = {};
         if (status && ['Pending', 'Approved', 'Rejected'].includes(status)) {
@@ -65,7 +63,6 @@ exports.getVerificationRecords = async (req, res, next) => {
         const { count, rows } = await verifyPatientFund.findAndCountAll({
             where: whereClause,
             attributes: [
-                'verificationNumber',
                 'patientName',
                 'pregnancyWeek',
                 'hospitalName',
@@ -81,13 +78,16 @@ exports.getVerificationRecords = async (req, res, next) => {
         res.status(200).json({
             message: 'Verification records fetched successfully',
             data: {
-                total: count,
-                currentPage: Number(page),
-                totalPages: Math.ceil(count / limit),
-                records: rows
+                patientName,
+                pregnancyWeek,
+                hospitalName,
+                walletAmount,
+                verificationStatus, 
+                verificationDate
             }
-        }); 
-
+        });
+        const { page = 1, limit = 20, status } = req.query;
+        const offset = (page - 1) * limit;
     } catch (error) {
         res.status(500).json({
             message: error.message

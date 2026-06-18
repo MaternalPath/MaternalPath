@@ -453,19 +453,65 @@ exports.runSystemValidation = async (req, res) => {
 };
 
 // Re-export the dashboard helper that was already stubbed in this file
+// exports.getUploadedBillDashboard = async (req, res) => {
+//     try {
+//         const { id: hospitalId } = req.user;
+
+//         const bills = await uploadedBill.findAll({
+//             where: {},
+//             order: [['createdAt', 'DESC']]
+//         });
+
+//         const totalUploadedBills = bills.length;
+//         const totalVerifiedBills = bills.filter((b) => b.verificationStatus === 'Verified').length;
+//         const totalPendingBills =  bills.filter((b) => b.verificationStatus === 'Pending').length;
+//         const totalDeliveryCost = bills.reduce((sum, b) => sum + (Number(b.amount) || 0), 0);
+//         const byStage = WORKFLOW_STAGES.reduce((acc, stage) => {
+//             acc[stage] = bills.filter((b) => b.verificationWorkFlow === stage).length;
+//             return acc;
+//         }, {});
+
+//         res.status(200).json({
+//             message: 'Dashboard data retrieved',
+//             data: {
+//                 totalBills: totalUploadedBills,
+//                 totalAmount: totalDeliveryCost,
+//                 byStage
+//             }
+//         });
+//     } catch (error) {
+//         console.log(error);
+//         res.status(500).json({
+//             message: error.message
+//         });
+//     }
+// };
+
 exports.getUploadedBillDashboard = async (req, res) => {
     try {
         const { id: hospitalId } = req.user;
 
         const bills = await uploadedBill.findAll({
-            where: {},
+            where: {
+                hospitalId: hospitalId 
+            },
             order: [['createdAt', 'DESC']]
         });
 
         const totalUploadedBills = bills.length;
         const totalVerifiedBills = bills.filter((b) => b.verificationStatus === 'Verified').length;
-        const totalPendingBills =  bills.filter((b) => b.verificationStatus === 'Pending').length;
+        const totalPendingBills = bills.filter((b) => b.verificationStatus === 'Pending').length;
         const totalDeliveryCost = bills.reduce((sum, b) => sum + (Number(b.amount) || 0), 0);
+
+        // Calculate percentages - avoid divide by zero
+        const verifiedPercentage = totalUploadedBills > 0 
+           ? Math.round((totalVerifiedBills / totalUploadedBills) * 100 * 10) / 10 
+            : 0;
+
+        const pendingPercentage = totalUploadedBills > 0 
+           ? Math.round((totalPendingBills / totalUploadedBills) * 100 * 10) / 10 
+            : 0;
+
         const byStage = WORKFLOW_STAGES.reduce((acc, stage) => {
             acc[stage] = bills.filter((b) => b.verificationWorkFlow === stage).length;
             return acc;
@@ -475,10 +521,73 @@ exports.getUploadedBillDashboard = async (req, res) => {
             message: 'Dashboard data retrieved',
             data: {
                 totalBills: totalUploadedBills,
+                verifiedBills: totalVerifiedBills,
+                pendingBills: totalPendingBills,
                 totalAmount: totalDeliveryCost,
+                verifiedPercentage: verifiedPercentage, // 75.0
+                pendingPercentage: pendingPercentage, // 16.9
                 byStage
             }
         });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            message: error.message
+        });
+    }
+};
+
+
+
+
+exports.getUploadedBillRecords = async (req, res) => {
+    try {
+        const { id: hospitalId } = req.user;
+        const { page = 1, limit = 10, status, search } = req.query;
+        
+        const offset = (page - 1) * limit;
+        const whereClause = { hospitalId };
+
+        // Optional filters
+        if (status) {
+            whereClause.verificationStatus = status; // 'Verified', 'Pending', etc
+        }
+
+        if (search) {
+            whereClause[Op.or] = [
+                { billId: { [Op.iLike]: `%${search}%` } },
+                { patientName: { [Op.iLike]: `%${search}%` } }
+            ];
+        }
+
+        const { count, rows } = await uploadedBill.findAndCountAll({
+            where: whereClause,
+            order: [['createdAt', 'DESC']],
+            limit: parseInt(limit),
+            offset: parseInt(offset),
+
+            attributes: [
+                'billId',
+                'billNumber',
+                'patientName', 
+                'deliveryType',
+                'billAmount',
+                'uploadedDate',
+                'verificationStatus',
+                'paymentStatus'
+            ]
+        });
+
+        res.status(200).json({
+            message: 'Bill records retrieved successfully',
+            data: {
+                totalRecords: count,
+                currentPage: parseInt(page),
+                totalPages: Math.ceil(count / limit),
+                records: rows
+            }
+        });
+
     } catch (error) {
         console.log(error);
         res.status(500).json({

@@ -144,6 +144,7 @@ exports.createMother = async (req, res, next) => {
       firstName: mother.firstName,
       lastName: mother.lastName,
       email: mother.email,
+      otp: mother.otp,
       phoneNumber: mother.phoneNumber,
       hospitalId: mother.hospitalId,
     };
