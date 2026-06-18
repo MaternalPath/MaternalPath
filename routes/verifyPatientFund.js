@@ -238,37 +238,93 @@ router.get('/verification-history', Authentication, getVerificationHistory);
  * @swagger
  * /api/v1/hospital/verification-records:
  *   get:
- *     summary: Get all verification records
- *     tags: [Patient Fund Verification]
+ *     summary: Get paginated verification records
+ *     tags: [Hospital Dashboard]
  *     security:
  *       - bearerAuth: []
- *     description: Retrieves paginated verification records with patient name, pregnancy week, hospital name, wallet amount, status, date, and approved by
+ *     description: Fetch paginated list of patient fund verification records. Hospitals only see their own records. Can filter by status.
  *     parameters:
  *       - in: query
  *         name: page
  *         schema:
  *           type: integer
  *           default: 1
- *         description: Page number
+ *         description: Page number for pagination
+ *         example: 1
  *       - in: query
  *         name: limit
  *         schema:
  *           type: integer
  *           default: 20
- *         description: Items per page
+ *         description: Number of records per page
+ *         example: 20
  *       - in: query
  *         name: status
  *         schema:
  *           type: string
  *           enum: [Pending, Approved, Rejected]
- *         description: Filter by status
+ *         description: Filter records by verification status
+ *         example: Pending
  *     responses:
  *       200:
- *         description: Verification records retrieved successfully
+ *         description: Verification records fetched successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Verification records fetched successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     total:
+ *                       type: integer
+ *                       description: Total number of records matching filter
+ *                       example: 152
+ *                     currentPage:
+ *                       type: integer
+ *                       description: Current page number
+ *                       example: 1
+ *                     totalPages:
+ *                       type: integer
+ *                       description: Total number of pages
+ *                       example: 8
+ *                     records:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           verificationNumber:
+ *                             type: string
+ *                             example: VER-482913
+ *                           patientName:
+ *                             type: string
+ *                             example: Ada Okafor
+ *                           pregnancyWeek:
+ *                             type: integer
+ *                             example: 28
+ *                           hospitalName:
+ *                             type: string
+ *                             example: Maternal Path Hospital
+ *                           walletAmount:
+ *                             type: number
+ *                             example: 35000
+ *                           verificationStatus:
+ *                             type: string
+ *                             enum: [Pending, Approved, Rejected]
+ *                             example: Pending
+ *                           verificationDate:
+ *                             type: string
+ *                             format: date-time
+ *                             example: 2026-06-15T10:30:00.000Z
  *       401:
  *         description: Missing or invalid authentication token
+ *       403:
+ *         description: Not authorized to view records
  *       500:
- *         description: Error fetching verification records
+ *         description: Server error
  */
 router.get('/verification-records', Authentication, getVerificationRecords);
 

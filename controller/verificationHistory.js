@@ -1,5 +1,10 @@
 const { verifyPatientFund } = require('../models');
 
+const generateverificationNumber = () => {
+  const randomNumber = Math.floor(100000 + Math.random() * 900000);
+  return `VER-${randomNumber}`;
+};
+
 exports.getVerificationHistory = async (req, res, next) => {
     try {
         const hospitalId = req.user?.id;
@@ -60,14 +65,13 @@ exports.getVerificationRecords = async (req, res, next) => {
         const { count, rows } = await verifyPatientFund.findAndCountAll({
             where: whereClause,
             attributes: [
-                'id',
+                'verificationNumber',
                 'patientName',
                 'pregnancyWeek',
                 'hospitalName',
-                'walletBalance',
-                'status',
-                'verifiedAt',
-                'createdAt'
+                'walletAmount',
+                'verificationStatus', 
+                'verificationDate'
             ],
             order: [['createdAt', 'DESC']],
             limit: Number(limit),

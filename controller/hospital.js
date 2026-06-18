@@ -271,10 +271,11 @@ exports.loginHospital = async (req, res) => {
             token,
             data: {
                 hospitalName: hospital.hospitalName,
+                id: hospital.id,
                 email: hospital.email,
                 phoneNumber: hospital.phoneNumber
             }
-        });
+        }); 
     } catch (error) {
         res.status(500).json({
             message: error.message
@@ -491,37 +492,43 @@ exports.getHospitalMothers = async (req, res) => {
     }
 };
 
+
+
 exports.getHospitalMother = async (req, res) => {
-    try {
-        const { id: hospitalId } = req.user;
-        const { motherId } = req.params;
+  try {
+    const hospitalId = req.user?.id;
+    const { motherId } = req.params;
 
-        const mother = await Mother.findOne({
-            where: {
-                id: motherId,
-                hospitalId
-            },
-            attributes: {
-                exclude: ['password', 'otp', 'otpExpiresAt']
-            }
-        });
-
-        if (!mother) {
-            return res.status(404).json({
-                message: 'Mother not found for this hospital'
-            });
-        }
-
-        res.status(200).json({
-            message: 'Mother retrieved successfully',
-            data: mother
-        });
-    } catch (error) {
-        res.status(500).json({
-            message: error.message
-        });
+    if (!motherId) {
+      return res.status(400).json({ message: 'Mother ID is required' });
     }
+
+    const mother = await Mother.findOne({
+      where: { id: motherId, id:hospitalId }
+    });
+
+    // ,
+    //   attributes: { exclude: ['password', 'otp', 'otpExpiresAt'] },
+    //   include: [
+    //     { model: Hospital, attributes: ['hospitalName'], required: false }
+    //   ]
+
+    // console.log("mother: ", mother);
+
+    if (!mother) {
+      return res.status(404).json({ message: 'Mother not found for this hospital' });
+    }
+
+    res.status(200).json({
+      message: 'Mother retrieved successfully',
+      data: mother
+    });
+  } catch (error) {
+    console.error('getHospitalMother error:', error);
+    res.status(500).json({ message: 'Error retrieving mother' }); // don't leak error.message
+  }
 };
+
 
 exports.getHospitalProfile = async (req, res) => {
     try {
