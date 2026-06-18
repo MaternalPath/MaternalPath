@@ -1,4 +1,5 @@
 const { uploadedBill, Mother, Hospital } = require('../models');
+const { Op } = require('sequelize');
 
 // Valid enum values from the model
 const WORKFLOW_STAGES = ['uploadedBill', 'customerReview', 'fundValidation', 'finalApproval'];
@@ -540,52 +541,97 @@ exports.getUploadedBillDashboard = async (req, res) => {
 
 
 
+// exports.getUploadedBillRecords = async (req, res) => {
+//     try {
+//         // const { id: hospitalId } = req.user;
+//         // const { page = 1, limit = 10, status, search } = req.query;
+        
+//         // const offset = (page - 1) * limit;
+//         // const whereClause = { hospitalId };
+
+//         // Optional filters
+//         if (status) {
+//             whereClause.verificationStatus = status; // 'Verified', 'Pending', etc
+//         }
+
+//         if (search) {
+//             whereClause[Op.or] = [
+//                 { billId: { [Op.iLike]: `%${search}%` } },
+//                 { patientName: { [Op.iLike]: `%${search}%` } }
+//             ];
+//         }
+
+//         const { count, rows } = await uploadedBill.findAndCountAll({
+//             where: whereClause,
+//             order: [['createdAt', 'DESC']],
+//             limit: parseInt(limit),
+//             offset: parseInt(offset),
+
+//             attributes: [
+//                 'billId',
+//                 'billNumber',
+//                 'patientName', 
+//                 'deliveryType',
+//                 'billAmount',
+//                 'uploadedDate',
+//                 'verificationStatus',
+//                 'paymentStatus'
+//             ]
+//         });
+
+//         res.status(200).json({
+//             message: 'Bill records retrieved successfully',
+//             data: {
+//                 totalRecords: count,
+//                 currentPage: parseInt(page),
+//                 totalPages: Math.ceil(count / limit),
+//                 records: rows
+//             }
+//         });
+
+//     } catch (error) {
+//         console.log(error);
+//         res.status(500).json({
+//             message: error.message
+//         });
+//     }
+// };
+
+
+
 exports.getUploadedBillRecords = async (req, res) => {
     try {
         const { id: hospitalId } = req.user;
-        const { page = 1, limit = 10, status, search } = req.query;
-        
-        const offset = (page - 1) * limit;
+        const { status } = req.query;
         const whereClause = { hospitalId };
 
-        // Optional filters
         if (status) {
-            whereClause.verificationStatus = status; // 'Verified', 'Pending', etc
+            whereClause.verificationStatus = status;
         }
 
-        if (search) {
-            whereClause[Op.or] = [
-                { billId: { [Op.iLike]: `%${search}%` } },
-                { patientName: { [Op.iLike]: `%${search}%` } }
-            ];
-        }
-
-        const { count, rows } = await uploadedBill.findAndCountAll({
+        const records = await uploadedBill.findAll({
             where: whereClause,
             order: [['createdAt', 'DESC']],
-            limit: parseInt(limit),
-            offset: parseInt(offset),
-
             attributes: [
-                'billId',
-                'billNumber',
+                'billId', 
                 'patientName', 
-                'deliveryType',
-                'billAmount',
-                'uploadedDate',
-                'verificationStatus',
+                'deliveryType', 
+                'billAmount', 
+                'uploadedDate', 
+                'verificationStatus', 
                 'paymentStatus'
-            ]
+            ],
+            raw: true 
         });
+
+        const formattedRecords = records.map(bill => ({
+           ...bill,
+            uploadedDate: new Date(bill.uploadedDate).toISOString().split('T')[0] 
+        }));
 
         res.status(200).json({
             message: 'Bill records retrieved successfully',
-            data: {
-                totalRecords: count,
-                currentPage: parseInt(page),
-                totalPages: Math.ceil(count / limit),
-                records: rows
-            }
+            data: formattedRecords
         });
 
     } catch (error) {
@@ -595,3 +641,4 @@ exports.getUploadedBillRecords = async (req, res) => {
         });
     }
 };
+
