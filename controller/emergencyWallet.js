@@ -164,6 +164,9 @@ exports.savingsInsights = async (req, res, next) => {
         const mother = await MotherUpdate.findOne({
             where: { motherId: id }
         });
+        const walletRecord = await wallet.findOne({
+            where: { motherId: id }
+        });
 
         if (!mother) {
             return next({
@@ -173,10 +176,26 @@ exports.savingsInsights = async (req, res, next) => {
         }
 
         const remainingWeek = 40 - mother.currentPregnancyWeek
+        const contribution = walletRecord.amount;
 
         const savings = mother.savingsGoalAmount / remainingWeek
 
-        const info = {"WeeklyContributionRecommendation": `Saving ${savings} weekly can help you reach your goal before delivery`, "lastName": mother.lastName, "email": mother.email,  "phoneNumber": mother.phoneNumber};
+        let response = ""
+
+        if (contribution > savings) {
+            response = "At your current pace, you'll exceed your goal"
+        } else if (contribution === savings) {
+            response = "At your current pace, you'll reach 100% of your goal"
+        } else {
+            response = "At your current pace, you'll not reach your goal"
+        }
+
+        const info = {"WeeklyContributionRecommendation": `Saving ${savings} weekly can help you reach your goal before delivery`, "Current weekly contribution": `${contribution} per week`, "Weeks Remaining until Due Date": `${remainingWeek} weeks`,  "On Track": response};
+
+        res.status(200).json({
+            message: 'Savings Insight',
+            info
+        })
     } catch (error) {
         next({
             message: error.message,
