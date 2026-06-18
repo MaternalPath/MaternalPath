@@ -40,13 +40,11 @@ exports.getNotifications = async (req, res, next) => {
         ...item.toJSON(),
         time: dayjs(item.createdAt).fromNow(),
         }));
-
-        cron.schedule("0 8 * * *", async () => {  
+ 
          res.status(200).json({
             message: 'All notifications',
             data: result
           })
-        });
         
     } catch (error) {
        next({
