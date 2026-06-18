@@ -1,4 +1,4 @@
-const { MotherUpdate, wallet, payment} = require('../models')
+const { MotherUpdate, wallet, payment, transactionHistory} = require('../models')
 const dayjs = require("dayjs");
 const relativeTime = require("dayjs/plugin/relativeTime");
 dayjs.extend(relativeTime);
@@ -57,18 +57,15 @@ const walletRecord = await wallet.findOne({
                 ? (walletRecord.currentBalance * 100) / mother.savingsGoalAmount
                 : 0;
 
-        let preparedness 
+        let preparedness = ""
     
-        if (savingsProgress <= 25) {
+        if (savingsProgress <= 0) {
             preparedness = 'low Preparedness'
-        }
-        if (savingsProgress <= 60) {
+        }else if (savingsProgress <= 60) {
             preparedness = 'average Preparedness'
-        }
-        if (savingsProgress <= 95) {
+        }else if (savingsProgress <= 95) {
             preparedness = 'moderate Preparedness'
-        }
-        if (savingsProgress === 100) {
+        }else {
             preparedness = 'fully Prepared'
         }
 
@@ -200,6 +197,40 @@ exports.savingsInsights = async (req, res, next) => {
         next({
             message: error.message,
             statusCode:500
+        })
+    }
+}
+
+exports.transactionHistory = async (req, res, next) => {
+    try {
+       const id = req.user?.id;
+
+        if (!id) {
+            return next({
+                statusCode: 401,
+                message: "Invalid or missing user ID",
+            });
+        }
+
+        const history = await transactionHistory.findOne({
+            where: { motherId: id }
+        });
+
+        if (!history) {
+            return next({
+                statusCode: 404,
+                message: "Mother record not found"
+            });
+        } 
+
+        res.status(200).json({
+            message: 'Transaction History',
+            history
+        })
+    } catch (error) {
+        next({
+            message: error.message,
+            statusCode: 500
         })
     }
 }
