@@ -3,7 +3,7 @@ const dayjs = require("dayjs");
 const relativeTime = require("dayjs/plugin/relativeTime");
 dayjs.extend(relativeTime);
 
-exports.emergencyWallet = async (req, res, next) => {
+exports.emergency = async (req, res, next) => {
     try {
         const id = req.user?.id;
 
@@ -14,22 +14,7 @@ exports.emergencyWallet = async (req, res, next) => {
             });
         }
 
-        const history = await transactionHistory.findOne({
-            where: { motherId: id }
-        });
-
-        // if (!history) {
-        //     return next({
-        //         statusCode: 404,
-        //         message: "Mother record not found"
-        //     });
-        // } 
-
         const mother = await MotherUpdate.findOne({
-            where: { motherId: id }
-        });
-
-    const walletRecord = await wallet.findOne({
             where: { motherId: id }
         });
 
@@ -39,15 +24,6 @@ if (!mother) {
         message: "Mother record not found"
     });
 }
-
-console.log("mother:", mother);
-
-const payments = await payment.findAll({
-  where: {
-    motherId: req.user.id,
-    status: "successful"
-  }
-});
 
 const today = new Date();
 today.setHours(0, 0, 0, 0);
@@ -61,6 +37,9 @@ const daysUntilDueDate = Math.ceil(
 
 const progress = (mother.currentPregnancyWeek * 100) / 40;
 
+const walletRecord = await wallet.findOne({
+            where: { motherId: id }
+        });
 
         if (!walletRecord) {
             return next({
@@ -91,41 +70,6 @@ const progress = (mother.currentPregnancyWeek * 100) / 40;
         }
 
         const remainingAmount =  mother.savingsGoalAmount - walletRecord.currentBalance;
-
-        const monthlySavings = {};
-        
-        for (let i = 0; i < 12; i++) {
-          const month = dayjs().month(i).format("MMMM");
-          monthlySavings[month] = 0;
-        }
-        
-        payments.forEach((payment) => {
-          const month = dayjs(payment.createdAt).format("MMMM");
-          monthlySavings[month] += Number(payment.amount)
-        
-          if (!monthlySavings[month]) {
-            monthlySavings[month] = 0;
-          }
-        
-          monthlySavings[month] += Number(payment.amount);
-        });
-
-        const remainingWeek = 40 - mother.currentPregnancyWeek
-        const contribution = walletRecord.amount;
-
-        const savings = mother.savingsGoalAmount / remainingWeek
-
-        let response = ""
-
-        if (contribution > savings) {
-            response = "At your current pace, you'll exceed your goal"
-        } else if (contribution === savings) {
-            response = "At your current pace, you'll reach 100% of your goal"
-        } else {
-            response = "At your current pace, you'll not reach your goal"
-        }
-
-        const data = {"WeeklyContributionRecommendation": `Saving ${savings} weekly can help you reach your goal before delivery`, "Current weekly contribution": `${contribution} per week`, "Weeks Remaining until Due Date": `${remainingWeek} weeks`,  "On Track": response};
         
 
 const info = {
@@ -143,11 +87,8 @@ const info = {
 };
 
 res.status(200).json({
-    message: "Emergency Wallet",
-    info,
-    monthlySavings,
-    data,
-    history
+    message: "Pregnancy journey overview",
+    info
 });
     } catch (error) {
         next({
@@ -156,6 +97,143 @@ res.status(200).json({
         })
     }
 };
+
+exports.savingsProgress = async (req, res, next) => {
+  try {
+    const id = req.user?.id;
+
+        if (!id) {
+            return next({
+                statusCode: 401,
+                message: "Invalid or missing user ID",
+            });
+        }
+const payments = await payment.findAll({
+  where: {
+    motherId: req.user.id,
+    status: "successful"
+  }
+});
+
+const monthlySavings = {};
+
+for (let i = 0; i < 12; i++) {
+  const month = dayjs().month(i).format("MMMM");
+  monthlySavings[month] = 0;
+}
+
+payments.forEach((payment) => {
+  const month = dayjs(payment.createdAt).format("MMMM");
+  monthlySavings[month] += Number(payment.amount)
+
+  if (!monthlySavings[month]) {
+    monthlySavings[month] = 0;
+  }
+
+  monthlySavings[month] += Number(payment.amount);
+});
+
+console.log(monthlySavings);
+
+res.status(200).json({
+  message: "monthly payment retrieved successfully",
+  monthlySavings
+})
+  } catch (error) {
+    next({
+      message: error.message,
+      statusCode: 500
+    })
+  }
+};
+
+exports.savingsInsights = async (req, res, next) => {
+    try {
+        const id = req.user?.id;
+
+        if (!id) {
+            return next({
+                statusCode: 401,
+                message: "Invalid or missing user ID",
+            });
+        }
+
+        const mother = await MotherUpdate.findOne({
+            where: { motherId: id }
+        });
+        const walletRecord = await wallet.findOne({
+            where: { motherId: id }
+        });
+
+        if (!mother) {
+            return next({
+                statusCode: 404,
+                message: "Mother record not found"
+            });
+        }
+
+        const remainingWeek = 40 - mother.currentPregnancyWeek
+        const contribution = walletRecord.amount;
+
+        const savings = mother.savingsGoalAmount / remainingWeek
+
+        let response = ""
+
+        if (contribution > savings) {
+            response = "At your current pace, you'll exceed your goal"
+        } else if (contribution === savings) {
+            response = "At your current pace, you'll reach 100% of your goal"
+        } else {
+            response = "At your current pace, you'll not reach your goal"
+        }
+
+        const info = {"WeeklyContributionRecommendation": `Saving ${savings} weekly can help you reach your goal before delivery`, "Current weekly contribution": `${contribution} per week`, "Weeks Remaining until Due Date": `${remainingWeek} weeks`,  "On Track": response};
+
+        res.status(200).json({
+            message: 'Savings Insight',
+            info
+        })
+    } catch (error) {
+        next({
+            message: error.message,
+            statusCode:500
+        })
+    }
+}
+
+exports.transactionHistory = async (req, res, next) => {
+    try {
+       const id = req.user?.id;
+
+        if (!id) {
+            return next({
+                statusCode: 401,
+                message: "Invalid or missing user ID",
+            });
+        }
+
+        const history = await transactionHistory.findOne({
+            where: { motherId: id }
+        });
+
+        if (!history) {
+            return next({
+                statusCode: 404,
+                message: "Mother record not found"
+            });
+        } 
+
+        res.status(200).json({
+            message: 'Transaction History',
+            history
+        })
+    } catch (error) {
+        next({
+            message: error.message,
+            statusCode: 500
+        })
+    }
+}
 
 exports.verifyOTP = async (req, res, next) => {
   try {
