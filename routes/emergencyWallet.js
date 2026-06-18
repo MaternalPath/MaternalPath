@@ -6,7 +6,7 @@ const router = express.Router()
 /**
  * @swagger
  * tags:
- *   name: Wallet
+ *   name: Emergency Wallet
  *   description: Pregnancy savings and wallet tracking
  */
 
@@ -344,7 +344,7 @@ const router = express.Router()
  * /api/v1/verify:
  *   post:
  *     tags:
- *       - Wallet
+ *       - Emergency Wallet
  *     summary: Verify OTP for bill verification
  *     description: Verifies the OTP sent to the authenticated mother to approve and unlock bill viewing access
  *     security:
@@ -411,7 +411,7 @@ router.post('/verify', Authentication,  verifyOTP);
  * /api/v1/emergencyWallet:
  *   get:
  *     tags:
- *       - Wallet
+ *       - Emergency Wallet
  *     summary: Get emergency wallet overview
  *     description: Retrieves the authenticated mother's full wallet overview including pregnancy info, savings progress, monthly savings breakdown, transaction history, preparedness level, and weekly savings insights
  *     security:
