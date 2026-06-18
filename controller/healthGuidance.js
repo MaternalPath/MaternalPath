@@ -1,3 +1,4 @@
+const { Mother, pregnancyTip} = require("../models");
 
 
 exports.healthGuidance = async (req, res, next) => {
@@ -10,7 +11,7 @@ exports.healthGuidance = async (req, res, next) => {
         }
 
         const id = req.user?.id;
-                const mother = await Mother.findOne({where: {id}})
+                const mother = await mother.findOne({where: {id}})
                 if (!mother) {
                     return next({
                         message: 'mother does not exist',
