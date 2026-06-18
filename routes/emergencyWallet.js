@@ -1,6 +1,6 @@
 const express = require('express');
 const { Authentication } = require('../middlewares/auth');
-const { emergency, savingsProgress, savingsInsights, transactionHistory } = require('../controller/emergencyWallet');
+const { emergency, savingsProgress, savingsInsights, transactionHistory, verifyOTP } = require('../controller/emergencyWallet');
 const router = express.Router()
 
 /**
@@ -256,6 +256,154 @@ router.get('/monthlysavings', Authentication, savingsProgress)
 
 router.get('/savingsInsight', Authentication, savingsInsights)
 
+/**
+ * @swagger
+ * /api/v1/transactionHistory:
+ *   get:
+ *     tags:
+ *       - Wallet
+ *     summary: Get transaction history
+ *     description: Retrieves all transaction history for the authenticated mother
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Transaction history retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Transaction History
+ *                 history:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: integer
+ *                         example: 1
+ *                       amount:
+ *                         type: number
+ *                         example: 5000
+ *                       transactionType:
+ *                         type: string
+ *                         example: deposit
+ *                       description:
+ *                         type: string
+ *                         example: Savings deposit
+ *                       date:
+ *                         type: string
+ *                         format: date-time
+ *                         example: 2024-01-15T08:00:00.000Z
+ *                       motherId:
+ *                         type: integer
+ *                         example: 12
+ *                       createdAt:
+ *                         type: string
+ *                         format: date-time
+ *                         example: 2024-01-15T08:00:00.000Z
+ *       401:
+ *         description: Unauthorized - Invalid or missing user ID
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Invalid or missing user ID
+ *       404:
+ *         description: Not found - Mother record not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Mother record not found
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Internal server error
+ */
+
 router.get('/transactionHistory', Authentication, transactionHistory)
+
+/**
+ * @swagger
+ * /api/v1/verify:
+ *   post:
+ *     tags:
+ *       - Wallet
+ *     summary: Verify OTP for bill verification
+ *     description: Verifies the OTP sent to the authenticated mother to approve and unlock bill viewing access
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - otp
+ *             properties:
+ *               otp:
+ *                 type: string
+ *                 example: 123456
+ *     responses:
+ *       200:
+ *         description: Bill verified successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Bill verified successfully
+ *       401:
+ *         description: Unauthorized - Invalid or missing user ID
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Invalid or missing user ID
+ *       404:
+ *         description: Not found or invalid OTP
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Invalid OTP
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Internal server error
+ */
+
+router.post('/verify', Authentication,  verifyOTP);
 
 module.exports = router;

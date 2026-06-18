@@ -4,21 +4,31 @@ module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable('adminBillVerifies', {
       id: {
-        allowNull: false,
-        autoIncrement: true,
-        primaryKey: true,
-        type: Sequelize.INTEGER
+      allowNull: false,
+      primaryKey: true,
+      type: Sequelize.UUID,
+      defaultValue: Sequelize.UUIDV4
+    },
+    motherId: {
+      type: Sequelize.UUID,
+      references: {
+        model: 'mothers',
+        key: 'id'
       },
-      name: {
-        type: Sequelize.STRING
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE'
+    },
+    otp: { type: Sequelize.STRING },    
+    otpExpiresAt: { type: Sequelize.DATE },
+    isVerified: { type: Sequelize.BOOLEAN, defaultValue: false },
+    createdAt: {
+        type: Sequelize.DATE,
+        allowNull: false
+
       },
-      createdAt: {
-        allowNull: false,
-        type: Sequelize.DATE
-      },
-      updatedAt: {
-        allowNull: false,
-        type: Sequelize.DATE
+    updatedAt: {
+        type: Sequelize.DATE,
+        allowNull: false
       }
     });
   },

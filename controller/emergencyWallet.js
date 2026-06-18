@@ -1,4 +1,4 @@
-const { MotherUpdate, wallet, payment, transactionHistory, Mother} = require('../models')
+const { MotherUpdate, wallet, payment, transactionHistory, Mother, billsAndVerification} = require('../models')
 const dayjs = require("dayjs");
 const relativeTime = require("dayjs/plugin/relativeTime");
 dayjs.extend(relativeTime);
@@ -248,6 +248,10 @@ exports.verifyOTP = async (req, res, next) => {
       where: { id },
     });
 
+    const bills = await billsandverification.findOne({
+      where: { motherId: id },
+    });
+
     if (!mother) {
       return res.status(404).json({
         message: "Mother not found",
@@ -268,8 +272,10 @@ exports.verifyOTP = async (req, res, next) => {
     admin.isVerified = true;
     admin.otp = null;
     admin.otpExpiresAt = null;
+    bills.billsandverification = "view"
 
     await admin.save();
+    await bills.save();
 
     res.status(200).json({
       message: "Bill verified successfully",

@@ -29,15 +29,9 @@ module.exports = (sequelize, DataTypes) => {
       onDelete: 'CASCADE',
       onUpdate: 'CASCADE'
     },
-    firstName: { type: DataTypes.STRING, allowNull: false },
-    lastName: { type: DataTypes.STRING, allowNull: false },
-    email: { type: DataTypes.STRING, allowNull: false },
-    phoneNumber: { type: DataTypes.STRING, allowNull: false },
-    password: { type: DataTypes.STRING, allowNull: false },
     otp: { type: DataTypes.STRING },    
     otpExpiresAt: { type: DataTypes.DATE },
     isVerified: { type: DataTypes.BOOLEAN, defaultValue: false },
-    role: { type: DataTypes.STRING, enum: ['mother','admin', 'hospital'],defaultValue: 'admin' },
     createdAt: {
         type: DataTypes.DATE,
         allowNull: false
