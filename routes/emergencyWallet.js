@@ -1,6 +1,6 @@
 const express = require('express');
 const { Authentication } = require('../middlewares/auth');
-const { emergency, savingsProgress, savingsInsights } = require('../controller/emergencyWallet');
+const { emergency, savingsProgress, savingsInsights, transactionHistory } = require('../controller/emergencyWallet');
 const router = express.Router()
 
 /**
@@ -255,5 +255,7 @@ router.get('/monthlysavings', Authentication, savingsProgress)
  */
 
 router.get('/savingsInsight', Authentication, savingsInsights)
+
+router.get('/transactionHistory', Authentication, transactionHistory)
 
 module.exports = router;

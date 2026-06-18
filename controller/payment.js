@@ -1,4 +1,4 @@
-const { Mother, wallet, payment, MotherUpdate } = require("../models");
+const { Mother, wallet, payment, MotherUpdate, transactionHistory } = require("../models");
 const otpGenerator = require("otp-generator");
 const dayjs = require("dayjs");
 const reference = otpGenerator.generate(10, {
@@ -56,6 +56,13 @@ exports.makePayment = async (req, res, next) => {
     const motherBalance = await payment.create({
       amount: amount,
       reference: data.data.reference,
+      motherId: id,
+    });
+    const transactions = await transactionHistory.create({
+      amount: amount,
+      transactionType,
+      date: new Date(),
+      description,
       motherId: id,
     });
 
@@ -129,6 +136,10 @@ exports.verifyPayment = async (req, res, next) => {
         goals,
         remainingAmount: remainingAmountNeeded
       });
+    }
+    
+    if (data.status === true && data.data.status === "success") {
+      transactionHistory.status = "Completed";
     }
   } catch (error) {
     console.log(error);
