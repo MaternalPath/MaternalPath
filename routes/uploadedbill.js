@@ -390,22 +390,24 @@ router.post('/:billId/final-approval', Authentication, finalApproval);
  * @swagger
  * /api/v1/bill/{billId}/status:
  *   get:
- *     summary: Get current bill status
+ *     summary: Get uploaded bill records for the authenticated hospital
  *     tags: [UploadedBill]
- *     description: Returns the current workflow stage, system validation, and progress for a bill.
+ *     description: |
+ *       Returns all uploaded bill records. Hospitals are scoped to their own records.
+ *       Supports optional filtering by `status` (payment status: Paid or Unpaid).
  *     security:
  *       - bearerAuth: []
  *     parameters:
- *       - in: path
- *         name: billId
- *         required: true
+ *       - in: query
+ *         name: status
+ *         required: false
  *         schema:
  *           type: string
- *           format: uuid
- *         description: The bill's ID
+ *           enum: [Paid, Unpaid]
+ *         description: Filter by payment status
  *     responses:
  *       200:
- *         description: Bill status retrieved
+ *         description: Uploaded Bills records fetched successfully
  *         content:
  *           application/json:
  *             schema:
@@ -413,39 +415,34 @@ router.post('/:billId/final-approval', Authentication, finalApproval);
  *               properties:
  *                 message:
  *                   type: string
- *                   example: Bill status retrieved
+ *                   example: Uploaded Bills records fetched successfully
  *                 data:
  *                   type: object
  *                   properties:
- *                     id:
+ *                     billId:
  *                       type: string
- *                       format: uuid
- *                     fullName:
+ *                       example: "BILL-1718200000000-A1B2C3"
+ *                     patientName:
  *                       type: string
- *                     maternalId:
+ *                       example: "Ada Okafor"
+ *                     deliveryType:
  *                       type: string
- *                     referenceNumber:
- *                       type: string
- *                     amount:
+ *                       example: "Natural Birth"
+ *                     billAmount:
  *                       type: number
- *                     verificationWorkFlow:
+ *                       example: 75000
+ *                     uploadedDate:
  *                       type: string
- *                       enum: [uploadedBill, customerReview, fundValidation, finalApproval]
- *                     systemValidation:
+ *                       format: date-time
+ *                       example: "2026-06-10T10:30:00.000Z"
+ *                     verificationStatus:
  *                       type: string
- *                       enum: [patienceIdMatched, fileUploadedProgress, billingVerification, requiredFieldComplete]
- *                     completedStages:
- *                       type: array
- *                       items:
- *                         type: string
- *                     remainingStages:
- *                       type: array
- *                       items:
- *                         type: string
- *                     isComplete:
- *                       type: boolean
- *       404:
- *         description: Bill not found
+ *                       example: "Verified"
+ *                     paymentStatus:
+ *                       type: string
+ *                       example: "Unpaid"
+ *       401:
+ *         description: Unauthorized - token missing or invalid
  *       500:
  *         description: Internal server error
  */
@@ -618,16 +615,6 @@ router.get('/dashboard', Authentication, getUploadedBillDashboard);
  *       Supports optional filtering by `status` (verification status).
  *     security:
  *       - bearerAuth: []
- *     parameters:
- *       - in: query
- *         name: status
- *         required: false
- *         schema:
- *           type: string
- *           enum: [Verified, Pending]
- *         description: Filter by verification status
- *     responses:
- *       200:
  *         description: Bill records retrieved successfully
  *         content:
  *           application/json:

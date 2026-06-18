@@ -599,19 +599,64 @@ exports.getUploadedBillDashboard = async (req, res) => {
 
 
 
+// exports.getUploadedBillRecords = async (req, res) => {
+//     try {
+//         const { id: hospitalId } = req.user;
+//         const { status } = req.query;
+//         const whereClause = { hospitalId };
+
+//         if (status) {
+//             whereClause.verificationStatus = status;
+//         }
+
+//         const records = await uploadedBill.findAll({
+//             where: whereClause,
+//             order: [['createdAt', 'DESC']],
+//             attributes: [
+//                 'billId', 
+//                 'patientName', 
+//                 'deliveryType', 
+//                 'billAmount', 
+//                 'uploadedDate', 
+//                 'verificationStatus', 
+//                 'paymentStatus'
+//             ],
+//             raw: true 
+//         });
+
+//         const formattedRecords = records.map(bill => ({
+//            ...bill,
+//             uploadedDate: new Date(bill.uploadedDate).toISOString().split('T')[0] 
+//         }));
+
+//         res.status(200).json({
+//             message: 'Bill records retrieved successfully',
+//             data: formattedRecords
+//         }); 
+
+//     } catch (error) {
+//         console.log(error);
+//         res.status(500).json({
+//             message: error.message
+//         });
+//     }
+// };
+
 exports.getUploadedBillRecords = async (req, res) => {
     try {
-        const { id: hospitalId } = req.user;
-        const { status } = req.query;
-        const whereClause = { hospitalId };
 
-        if (status) {
-            whereClause.verificationStatus = status;
+        const whereClause = {};
+        if (status && ['Paid', 'Unpaid'].includes(status)) {
+            whereClause.status = status;
         }
 
-        const records = await uploadedBill.findAll({
+        // If the request comes from a hospital user, scope to their records
+        if (req.user?.role === 'hospital') {
+            whereClause.hospitalId = req.user.id;
+        }
+
+        const { count, rows } = await UploadedBillRecords.findAndCountAll({
             where: whereClause,
-            order: [['createdAt', 'DESC']],
             attributes: [
                 'billId', 
                 'patientName', 
@@ -621,24 +666,28 @@ exports.getUploadedBillRecords = async (req, res) => {
                 'verificationStatus', 
                 'paymentStatus'
             ],
-            raw: true 
+            order: [['createdAt', 'DESC']],
+            limit: Number(limit),
+            offset: Number(offset)
         });
-
-        const formattedRecords = records.map(bill => ({
-           ...bill,
-            uploadedDate: new Date(bill.uploadedDate).toISOString().split('T')[0] 
-        }));
 
         res.status(200).json({
-            message: 'Bill records retrieved successfully',
-            data: formattedRecords
+            message: 'Uploaded Bills records fetched successfully',
+            data: {
+                billId, 
+                patientName, 
+                deliveryType, 
+                billAmount, 
+                uploadedDate, 
+                verificationStatus, 
+                paymentStatus
+            }
         });
-
+        const { page = 1, limit = 20, status } = req.query;
+        const offset = (page - 1) * limit;
     } catch (error) {
-        console.log(error);
         res.status(500).json({
             message: error.message
-        });
+        }); 
     }
-};
-
+}
