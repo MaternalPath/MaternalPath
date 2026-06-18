@@ -611,29 +611,14 @@ router.get('/dashboard', Authentication, getUploadedBillDashboard);
  * @swagger
  * /api/v1/bill/billRecords:
  *   get:
- *     summary: Get paginated uploaded bill records for the authenticated hospital
+ *     summary: Get uploaded bill records for the authenticated hospital
  *     tags: [UploadedBill]
  *     description: |
- *       Returns a paginated list of bill records for the authenticated hospital.
- *       Supports optional filtering by `status` (verification status) and `search`
- *       (by billId or patientName).
+ *       Returns all bill records for the authenticated hospital.
+ *       Supports optional filtering by `status` (verification status).
  *     security:
  *       - bearerAuth: []
  *     parameters:
- *       - in: query
- *         name: page
- *         required: false
- *         schema:
- *           type: integer
- *           default: 1
- *         description: Page number for pagination
- *       - in: query
- *         name: limit
- *         required: false
- *         schema:
- *           type: integer
- *           default: 10
- *         description: Number of records per page
  *       - in: query
  *         name: status
  *         required: false
@@ -641,12 +626,6 @@ router.get('/dashboard', Authentication, getUploadedBillDashboard);
  *           type: string
  *           enum: [Verified, Pending]
  *         description: Filter by verification status
- *       - in: query
- *         name: search
- *         required: false
- *         schema:
- *           type: string
- *         description: Search term to filter by billId or patientName (case-insensitive)
  *     responses:
  *       200:
  *         description: Bill records retrieved successfully
@@ -659,49 +638,33 @@ router.get('/dashboard', Authentication, getUploadedBillDashboard);
  *                   type: string
  *                   example: Bill records retrieved successfully
  *                 data:
- *                   type: object
- *                   properties:
- *                     totalRecords:
- *                       type: integer
- *                       example: 25
- *                     currentPage:
- *                       type: integer
- *                       example: 1
- *                     totalPages:
- *                       type: integer
- *                       example: 3
- *                     records:
- *                       type: array
- *                       items:
- *                         type: object
- *                         properties:
- *                           billId:
- *                             type: string
- *                             format: uuid
- *                             example: "550e8400-e29b-41d4-a716-446655440000"
- *                           billNumber:
- *                             type: string
- *                             example: "BL-123456"
- *                           patientName:
- *                             type: string
- *                             example: "Ada Okafor"
- *                           deliveryType:
- *                             type: string
- *                             example: "Natural Birth"
- *                           billAmount:
- *                             type: number
- *                             example: 75000
- *                           uploadedDate:
- *                             type: string
- *                             format: date-time
- *                             example: "2026-06-10T10:30:00.000Z"
- *                           verificationStatus:
- *                             type: string
- *                             enum: [Verified, Pending]
- *                             example: "Pending"
- *                           paymentStatus:
- *                             type: string
- *                             example: "Unpaid"
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       billId:
+ *                         type: string
+ *                         example: "550e8400-e29b-41d4-a716-446655440000"
+ *                       patientName:
+ *                         type: string
+ *                         example: "Ada Okafor"
+ *                       deliveryType:
+ *                         type: string
+ *                         example: "Natural Birth"
+ *                       billAmount:
+ *                         type: number
+ *                         example: 75000
+ *                       uploadedDate:
+ *                         type: string
+ *                         format: date
+ *                         example: "2026-06-10"
+ *                       verificationStatus:
+ *                         type: string
+ *                         enum: [Verified, Pending]
+ *                         example: "Pending"
+ *                       paymentStatus:
+ *                         type: string
+ *                         example: "Unpaid"
  *       401:
  *         description: Unauthorized - token missing or invalid
  *       500:
