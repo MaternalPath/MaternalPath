@@ -1,6 +1,6 @@
 const express = require('express');
 const { Authentication } = require('../middlewares/auth');
-const { getTrimester, weeklyMessage } = require('../controller/pregnancyTracker');
+const { pregnancyTracker } = require('../controller/pregnancyTracker');
 const router = express.Router();
 
 /**
@@ -12,17 +12,17 @@ const router = express.Router();
 
 /**
  * @swagger
- * /api/v1/tracker/getTrimester:
+ * /api/v1/pregnancyTracker:
  *   get:
  *     tags:
  *       - PregnancyTracker
- *     summary: Get trimester information
- *     description: Retrieves trimester information based on the authenticated mother's current pregnancy week
+ *     summary: Get pregnancy tracker overview
+ *     description: Retrieves trimester-specific information, milestone timeline, and weekly pregnancy tip based on the authenticated mother's current pregnancy week
  *     security:
  *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: Trimester information retrieved successfully
+ *         description: Pregnancy tracker retrieved successfully
  *         content:
  *           application/json:
  *             schema:
@@ -39,18 +39,68 @@ const router = express.Router();
  *                       nutritionGuidance:
  *                         type: string
  *                         example: Take folic acid and eat iron-rich foods
- *                 trimesterTimeline:
+ *                 firsttrim:
  *                   type: array
+ *                   description: Returned when mother is in the first trimester (weeks 1-12)
  *                   items:
  *                     type: array
- *                     example: ["First Trimester", "Current", "weeks 1-12"]
+ *                     example: ["First Trimester", "Current", "weeks 1-12", "Initial prenatal visit", "pregnancy confirmation"]
+ *                 secondtrim:
+ *                   type: array
+ *                   description: Returned when mother is in the second trimester (weeks 13-26)
+ *                   items:
+ *                     type: array
+ *                     example: ["Second Trimester", "Current", "weeks 13-26", "Anatomy scan", "Feel baby movements", "Glucose screening"]
+ *                 thirdtrim:
+ *                   type: array
+ *                   description: Returned when mother is in the third trimester (weeks 27-40)
+ *                   items:
+ *                     type: array
+ *                     example: ["Third Trimester", "Current", "Weeks 27-40", "Hospital tour", "Birth plan discussion", "Final preparations"]
+ *                 tip:
+ *                   type: object
+ *                   description: Returned only in the third trimester
+ *                   nullable: true
+ *                   properties:
+ *                     week:
+ *                       type: integer
+ *                       example: 30
+ *                     tip:
+ *                       type: string
+ *                       example: Start practicing breathing exercises to prepare for labor
+ *       400:
+ *         description: Bad request - Mother does not exist
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: mother does not exist
  *       401:
- *         description: Unauthorized - token not found or invalid
+ *         description: Unauthorized - Invalid or missing user ID
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Invalid or missing user ID
  *       500:
  *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Internal server error
  */
 
-router.get('/getTrimester',Authentication , getTrimester);
+router.get('/pregnancyTracker',Authentication , pregnancyTracker);
 
 /**
  * @swagger
@@ -87,7 +137,7 @@ router.get('/getTrimester',Authentication , getTrimester);
  *         description: Internal server error
  */
 
-router.get('/weeklyMessage', Authentication,weeklyMessage);
+// router.get('/weeklyMessage', Authentication,weeklyMessage);
 
 
 module.exports = router;
