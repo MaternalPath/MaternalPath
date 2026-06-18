@@ -16,20 +16,20 @@ exports.getNotifications = async (req, res, next) => {
         }
         dayjs.extend(relativeTime);
 
-        const motherUpdate = await MotherUpdate.findOne({
+        const mother = await MotherUpdate.findOne({
             where: {
                 motherId: id
             }
             });
 
-            if (!motherUpdate) {
+            if (!mother) {
             return next({
                 message: "Mother update not found",
                 statusCode: 404
             });
             }
-        const currentWeek = await motherUpdate.currentPregnancyWeek;
-        const currentDay = await motherUpdate.currentPregnancyWeek * 7;
+        const currentWeek = await mother.currentPregnancyWeek;
+        const currentDay = await mother.currentPregnancyWeek * 7;
         console.log(currentDay)
         const notifications = await motherNotification.findAll({
         where: {

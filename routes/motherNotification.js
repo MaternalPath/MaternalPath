@@ -16,7 +16,7 @@ const router = express.Router();
  * /api/v1/mothers/notifications:
  *   get:
  *     tags:
- *       - Notifications
+ *       - Mothers  Notifications
  *     summary: Gat mother notifications
  *     description: Retrieves all notifications for the authenticated mother based on her current pregnancy week and day, scheduled for delivery at 8:00 AM daily
  *     security:
