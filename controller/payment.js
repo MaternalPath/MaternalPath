@@ -52,6 +52,7 @@ exports.makePayment = async (req, res, next) => {
       },
     );
     console.log(data);
+    console.log(process.env.KORA_SK)
 
     const motherBalance = await payment.create({
       amount: amount,
@@ -60,9 +61,7 @@ exports.makePayment = async (req, res, next) => {
     });
     const transactions = await transactionHistory.create({
       amount: amount,
-      transactionType,
       date: new Date(),
-      description,
       motherId: id,
     });
 

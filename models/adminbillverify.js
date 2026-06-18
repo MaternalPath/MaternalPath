@@ -3,7 +3,7 @@ const {
   Model
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  class transactionHistory extends Model {
+  class adminBillVerify extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
@@ -13,7 +13,7 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
     }
   }
-  transactionHistory.init({
+  adminBillVerify.init({
     id: {
       allowNull: false,
       primaryKey: true,
@@ -24,35 +24,20 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.UUID,
       references: {
         model: 'mothers',
-        key: 'id',
+        key: 'id'
       },
       onDelete: 'CASCADE',
-      onUpdate: 'CASCADE',
+      onUpdate: 'CASCADE'
     },
-    transactionType: {
-      type: DataTypes.STRING,
-      allowNull: true,
-      defaultValue: "Contribution"
-    },
-    date: {
-      type: DataTypes.DATE,
-      allowNull: false,
-    },
-    amount: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
-    description: {
-      type: DataTypes.STRING,
-      allowNull: true,
-      defaultValue: "monthly savings deposit"
-    },
-    status: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      enum: ['Pending','Completed', 'Failed'],
-      defaultValue: 'Pending'
-    },
+    firstName: { type: DataTypes.STRING, allowNull: false },
+    lastName: { type: DataTypes.STRING, allowNull: false },
+    email: { type: DataTypes.STRING, allowNull: false },
+    phoneNumber: { type: DataTypes.STRING, allowNull: false },
+    password: { type: DataTypes.STRING, allowNull: false },
+    otp: { type: DataTypes.STRING },    
+    otpExpiresAt: { type: DataTypes.DATE },
+    isVerified: { type: DataTypes.BOOLEAN, defaultValue: false },
+    role: { type: DataTypes.STRING, enum: ['mother','admin', 'hospital'],defaultValue: 'admin' },
     createdAt: {
         type: DataTypes.DATE,
         allowNull: false
@@ -64,7 +49,7 @@ module.exports = (sequelize, DataTypes) => {
       }
   }, {
     sequelize,
-    modelName: 'transactionHistory',
+    modelName: 'adminBillVerify',
   });
-  return transactionHistory;
+  return adminBillVerify;
 };
