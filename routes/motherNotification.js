@@ -7,7 +7,7 @@ const router = express.Router();
 /**
  * @swagger
  * tags:
- *   name: MotherNotifications
+ *   name: Mother Notifications
  *   description: Trimester information and pregnancy tracking
  */
 
@@ -16,7 +16,7 @@ const router = express.Router();
  * /api/v1/notifications:
  *   get:
  *     tags:
- *       - Notifications
+ *       - Mother Notifications
  *     summary: Get mother notifications
  *     description: Retrieves all notifications for the authenticated mother based on her current pregnancy week and day, scheduled for delivery at 8:00 AM daily
  *     security:
