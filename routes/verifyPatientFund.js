@@ -239,10 +239,13 @@ router.get('/verification-history', Authentication, getVerificationHistory);
  * /api/v1/hospital/verification-records:
  *   get:
  *     summary: Get paginated verification records
- *     tags: [Hospital Dashboard]
+ *     tags: [Patient Fund Verification]
  *     security:
  *       - bearerAuth: []
- *     description: Fetch paginated list of patient fund verification records. Hospitals only see their own records. Can filter by status.
+ *     description: |
+ *       Fetch paginated list of patient fund verification records.
+ *       Hospitals automatically see only their own records. Can filter by status.
+ *       Returns total count along with paginated results.
  *     parameters:
  *       - in: query
  *         name: page
@@ -279,46 +282,26 @@ router.get('/verification-history', Authentication, getVerificationHistory);
  *                 data:
  *                   type: object
  *                   properties:
- *                     total:
+ *                     patientName:
+ *                       type: string
+ *                       example: Ada Okafor
+ *                     pregnancyWeek:
  *                       type: integer
- *                       description: Total number of records matching filter
- *                       example: 152
- *                     currentPage:
- *                       type: integer
- *                       description: Current page number
- *                       example: 1
- *                     totalPages:
- *                       type: integer
- *                       description: Total number of pages
- *                       example: 8
- *                     records:
- *                       type: array
- *                       items:
- *                         type: object
- *                         properties:
- *                           verificationNumber:
- *                             type: string
- *                             example: VER-482913
- *                           patientName:
- *                             type: string
- *                             example: Ada Okafor
- *                           pregnancyWeek:
- *                             type: integer
- *                             example: 28
- *                           hospitalName:
- *                             type: string
- *                             example: Maternal Path Hospital
- *                           walletAmount:
- *                             type: number
- *                             example: 35000
- *                           verificationStatus:
- *                             type: string
- *                             enum: [Pending, Approved, Rejected]
- *                             example: Pending
- *                           verificationDate:
- *                             type: string
- *                             format: date-time
- *                             example: 2026-06-15T10:30:00.000Z
+ *                       example: 28
+ *                     hospitalName:
+ *                       type: string
+ *                       example: Maternal Path Hospital
+ *                     walletAmount:
+ *                       type: number
+ *                       example: 35000
+ *                     verificationStatus:
+ *                       type: string
+ *                       enum: [Pending, Approved, Rejected]
+ *                       example: Pending
+ *                     verificationDate:
+ *                       type: string
+ *                       format: date-time
+ *                       example: 2026-06-15T10:30:00.000Z
  *       401:
  *         description: Missing or invalid authentication token
  *       403:
