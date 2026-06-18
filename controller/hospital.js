@@ -620,3 +620,4 @@ exports.logout = async (req, res, next) => {
 }
 
 
+exports.updateHospitalProfile

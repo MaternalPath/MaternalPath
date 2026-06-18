@@ -642,50 +642,27 @@ exports.getUploadedBillDashboard = async (req, res) => {
 //     }
 // };
 
+
 exports.getUploadedBillRecords = async (req, res) => {
     try {
+        const hello = await uploadedBill.findAll()
 
-        const whereClause = {};
-        if (status && ['Paid', 'Unpaid'].includes(status)) {
-            whereClause.status = status;
-        }
+        // console.log(allBills)
 
-        // If the request comes from a hospital user, scope to their records
-        if (req.user?.role === 'hospital') {
-            whereClause.hospitalId = req.user.id;
-        }
+        // const bills = allBIlls.map(bill => ({
+        //     ...bill.toJSON(),
+        //     uploadedDate: new Date(bill.uploadedDate).toISOString().split('T')[0] 
+        // }));
 
-        const { count, rows } = await UploadedBillRecords.findAndCountAll({
-            where: whereClause,
-            attributes: [
-                'billId', 
-                'patientName', 
-                'deliveryType', 
-                'billAmount', 
-                'uploadedDate', 
-                'verificationStatus', 
-                'paymentStatus'
-            ],
-            order: [['createdAt', 'DESC']],
-            limit: Number(limit),
-            offset: Number(offset)
-        });
+
 
         res.status(200).json({
             message: 'Uploaded Bills records fetched successfully',
-            data: {
-                billId, 
-                patientName, 
-                deliveryType, 
-                billAmount, 
-                uploadedDate, 
-                verificationStatus, 
-                paymentStatus
-            }
+            data: hello
         });
-        const { page = 1, limit = 20, status } = req.query;
-        const offset = (page - 1) * limit;
+
     } catch (error) {
+        console.log(error);
         res.status(500).json({
             message: error.message
         }); 

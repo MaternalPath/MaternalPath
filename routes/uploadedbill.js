@@ -602,20 +602,73 @@ router.post('/:billId/system-validation', Authentication, runSystemValidation);
  */
 router.get('/dashboard', Authentication, getUploadedBillDashboard);
 
+//  * @swagger
+//  * /api/v1/bill/billRecords:
+//  *   get:
+//  *     summary: Get uploaded bill records for the authenticated hospital
+//  *     tags: [UploadedBill]
+//  *     description: |
+//  *       Returns all bill records for the authenticated hospital.
+//  *       Supports optional filtering by `status` (verification status).
+//  *     security:
+//  *       - bearerAuth: []
+//  *         description: Bill records retrieved successfully
+//  *         content:
+//  *           application/json:
+//  *             schema:
+//  *               type: object
+//  *               properties:
+//  *                 message:
+//  *                   type: string
+//  *                   example: Bill records retrieved successfully
+//  *                 data:
+//  *                   type: array
+//  *                   items:
+//  *                     type: object
+//  *                     properties:
+//  *                       billId:
+//  *                         type: string
+//  *                         example: "550e8400-e29b-41d4-a716-446655440000"
+//  *                       patientName:
+//  *                         type: string
+//  *                         example: "Ada Okafor"
+//  *                       deliveryType:
+//  *                         type: string
+//  *                         example: "Natural Birth"
+//  *                       billAmount:
+//  *                         type: number
+//  *                         example: 75000
+//  *                       uploadedDate:
+//  *                         type: string
+//  *                         format: date
+//  *                         example: "2026-06-10"
+//  *                       verificationStatus:
+//  *                         type: string
+//  *                         enum: [Verified, Pending]
+//  *                         example: "Pending"
+//  *                       paymentStatus:
+//  *                         type: string
+//  *                         example: "Unpaid"
+//  *       401:
+//  *         description: Unauthorized - token missing or invalid
+//  *       500:
+//  *         description: Internal server error
+//  */
+// router.get('/billRecords', Authentication, getUploadedBillRecords);
 
 
 /**
  * @swagger
- * /api/v1/bill/billRecords:
+ * /api/uploaded-bills:
  *   get:
- *     summary: Get uploaded bill records for the authenticated hospital
- *     tags: [UploadedBill]
- *     description: |
- *       Returns all bill records for the authenticated hospital.
- *       Supports optional filtering by `status` (verification status).
+ *     summary: Get all uploaded bill records
+ *     tags:
+ *       - Uploaded Bills
  *     security:
  *       - bearerAuth: []
- *         description: Bill records retrieved successfully
+ *     responses:
+ *       200:
+ *         description: Uploaded bill records retrieved successfully.
  *         content:
  *           application/json:
  *             schema:
@@ -623,41 +676,19 @@ router.get('/dashboard', Authentication, getUploadedBillDashboard);
  *               properties:
  *                 message:
  *                   type: string
- *                   example: Bill records retrieved successfully
+ *                   example: Uploaded Bills records fetched successfully
  *                 data:
  *                   type: array
  *                   items:
  *                     type: object
- *                     properties:
- *                       billId:
- *                         type: string
- *                         example: "550e8400-e29b-41d4-a716-446655440000"
- *                       patientName:
- *                         type: string
- *                         example: "Ada Okafor"
- *                       deliveryType:
- *                         type: string
- *                         example: "Natural Birth"
- *                       billAmount:
- *                         type: number
- *                         example: 75000
- *                       uploadedDate:
- *                         type: string
- *                         format: date
- *                         example: "2026-06-10"
- *                       verificationStatus:
- *                         type: string
- *                         enum: [Verified, Pending]
- *                         example: "Pending"
- *                       paymentStatus:
- *                         type: string
- *                         example: "Unpaid"
  *       401:
- *         description: Unauthorized - token missing or invalid
+ *         description: Unauthorized. Invalid or missing token.
  *       500:
- *         description: Internal server error
+ *         description: Internal server error.
  */
-router.get('/billRecords', Authentication, getUploadedBillRecords);
+
+router.get('/uploaded-bills', getUploadedBillRecords);
+
 
 
 
