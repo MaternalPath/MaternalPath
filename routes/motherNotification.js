@@ -1,6 +1,6 @@
 const express = require('express');
 const { Authentication } = require('../middlewares/auth');
-const { getNotifications } = require('../controller/trimester');
+const { getNotifications } = require('../controller/motherNotification');
 const router = express.Router();
 
 
