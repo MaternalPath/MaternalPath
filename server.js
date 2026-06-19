@@ -32,7 +32,7 @@ const morgan = require('morgan');
 
  
 const app = express();
-app.use(cors({origin: '*'}))
+app.use(cors())
 app.use(express.json());
 app.use(expressSession({secret: 'olachi', saveUninitialized: false, resave: false}))
 app.use(passport.initialize());
