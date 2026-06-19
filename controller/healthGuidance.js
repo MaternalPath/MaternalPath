@@ -13,7 +13,7 @@ exports.healthGuidance = async (req, res, next) => {
                 const mother = await MotherUpdate.findOne({where: {motherId:id}})
                 if (!mother) {
                     return next({
-                        message: 'mother does not exist',
+                        message: 'Mother does not exist',
                         statusCode: 400
                     })
                 }
