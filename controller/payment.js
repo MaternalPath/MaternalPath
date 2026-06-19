@@ -9,6 +9,13 @@ const otpGenerator = require("otp-generator");
 const dayjs = require("dayjs");
 const axios = require("axios");
 
+const reference = otpGenerator.generate(10, {
+      digits: true,
+      upperCaseAlphabets: false,
+      lowerCaseAlphabets: false,
+      specialChars: false,
+    });
+
 exports.initiatePayment = async (req, res, next) => {
   try {
     const id = req.user?.id;
