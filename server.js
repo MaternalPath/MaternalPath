@@ -44,7 +44,7 @@ app.use('/api/v1/mother', motherRouter);
 app.use('/api/v1/hospital', hospitalRouter);
 app.use('/api/v1/admin', adminRouter);
 app.use('/api/v1/bill', uploadedBillRouter);
-app.use('/api/v1/payment', paymentRouter);
+app.use('/api/v1', paymentRouter);
 app.use('/api/v1', trimesterRouter);
 app.use('/api/v1', billRouter);
 app.use('/api/v1/hospital', hospitalDashBoardRouter);
