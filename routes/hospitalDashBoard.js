@@ -1,7 +1,7 @@
 const express = require('express'); 
 const { getHospitalDashboard, searchMothers } = require('../controller/hospitalDashBoard');
 const { Authentication } = require('../middlewares/auth');
-const { validateSearchMother } = require('../middlewares/hospitalValidator');
+// const { validateSearchMother } = require('../middlewares/hospitalValidator');
 // const { verifyToken } = require("../middlewares/auth");
 
 const router = express.Router();
@@ -149,27 +149,26 @@ router.get( "/dashboard", Authentication,getHospitalDashboard );
 //  */
 // router.get( "/search-patient", Authentication, validateSearchMother, searchMothers);
 
-
 /**
  * @swagger
  * /api/v1/hospital/search-patient:
  *   get:
- *     summary: Search for a patient by email or phone number
- *     tags: [Hospital Dashboard]
+ *     summary: Search and verify patient delivery fund status
+ *     description: Search patient by ID or Phone Number to get fund status
+ *     tags: [Patient Verification]
  *     security:
  *       - bearerAuth: []
- *     description: Searches for a mother/patient using their email or phone number. Returns patient summary including pregnancy info and wallet readiness.
  *     parameters:
  *       - in: query
  *         name: search
  *         required: true
  *         schema:
  *           type: string
- *         description: The patient’s email address or phone number
- *         example: "adaokafor@example.com or 08012345678"
+ *         description: Patient ID or Phone Number
+ *         example: "08012345678 or `1234567890"
  *     responses:
  *       200:
- *         description: Patient found successfully
+ *         description: Patient found
  *         content:
  *           application/json:
  *             schema:
@@ -177,77 +176,126 @@ router.get( "/dashboard", Authentication,getHospitalDashboard );
  *               properties:
  *                 patientName:
  *                   type: string
- *                   description: Full name of the patient
- *                   example: Ada Okafor
  *                 patientId:
  *                   type: string
- *                   description: Unique patient identifier
- *                   example: d799a447-9cd0-4b6b-b0c4-f2f9e7b0d7aa
  *                 pregnancyStage:
  *                   type: string
- *                   description: Current pregnancy stage/trimester
- *                   example: second
  *                 pregnancyWeek:
  *                   type: integer
- *                   description: Current pregnancy week
- *                   example: 22
  *                 walletBalance:
  *                   type: number
- *                   description: Current wallet balance
- *                   example: 35000
  *                 deliverySavingsGoal:
  *                   type: number
- *                   description: Target delivery savings goal amount
- *                   example: 100000
  *                 preferredHospital:
  *                   type: string
- *                   description: Name of the patient's preferred hospital
- *                   example: Maternal Path Hospital
  *                 readinessPercentage:
  *                   type: integer
- *                   description: Percentage of delivery savings goal achieved capped at 100
- *                   example: 35
  *                 status:
  *                   type: string
- *                   enum: [Not eligible, Partially eligible, Fully eligible]
- *                   description: Eligibility status for admission
- *                   example: Not eligible
- *       400:
- *         description: Missing or invalid search query parameter
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Please enter a valid email or phone number
- *       401:
- *         description: Missing or invalid authentication token
- *       403:
- *         description: Not authorized as a hospital
  *       404:
- *         description: Patient not found
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Mother not found with that email or phone number
- *       500:
- *         description: Error searching for patient
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Error searching for patient
+ *         description: Mother not found
  */
-router.get( "/search-patient", Authentication, validateSearchMother, searchMothers);
+router.get('/mothers/search', Authentication, searchMothers);
+
+
+// /**
+//  * @swagger
+//  * /api/v1/hospital/search-patient:
+//  *   get:
+//  *     summary: Search for a patient by email or phone number
+//  *     tags: [Hospital Dashboard]
+//  *     security:
+//  *       - bearerAuth: []
+//  *     description: Searches for a mother/patient using their email or phone number. Returns patient summary including pregnancy info and wallet readiness.
+//  *     parameters:
+//  *       - in: query
+//  *         name: search
+//  *         required: true
+//  *         schema:
+//  *           type: string
+//  *         description: The patient’s email address or phone number
+//  *         example: "adaokafor@example.com or 08012345678"
+//  *     responses:
+//  *       200:
+//  *         description: Patient found successfully
+//  *         content:
+//  *           application/json:
+//  *             schema:
+//  *               type: object
+//  *               properties:
+//  *                 patientName:
+//  *                   type: string
+//  *                   description: Full name of the patient
+//  *                   example: Ada Okafor
+//  *                 patientId:
+//  *                   type: string
+//  *                   description: Unique patient identifier
+//  *                   example: d799a447-9cd0-4b6b-b0c4-f2f9e7b0d7aa
+//  *                 pregnancyStage:
+//  *                   type: string
+//  *                   description: Current pregnancy stage/trimester
+//  *                   example: second
+//  *                 pregnancyWeek:
+//  *                   type: integer
+//  *                   description: Current pregnancy week
+//  *                   example: 22
+//  *                 walletBalance:
+//  *                   type: number
+//  *                   description: Current wallet balance
+//  *                   example: 35000
+//  *                 deliverySavingsGoal:
+//  *                   type: number
+//  *                   description: Target delivery savings goal amount
+//  *                   example: 100000
+//  *                 preferredHospital:
+//  *                   type: string
+//  *                   description: Name of the patient's preferred hospital
+//  *                   example: Maternal Path Hospital
+//  *                 readinessPercentage:
+//  *                   type: integer
+//  *                   description: Percentage of delivery savings goal achieved capped at 100
+//  *                   example: 35
+//  *                 status:
+//  *                   type: string
+//  *                   enum: [Not eligible, Partially eligible, Fully eligible]
+//  *                   description: Eligibility status for admission
+//  *                   example: Not eligible
+//  *       400:
+//  *         description: Missing or invalid search query parameter
+//  *         content:
+//  *           application/json:
+//  *             schema:
+//  *               type: object
+//  *               properties:
+//  *                 message:
+//  *                   type: string
+//  *                   example: Please enter a valid email or phone number
+//  *       401:
+//  *         description: Missing or invalid authentication token
+//  *       403:
+//  *         description: Not authorized as a hospital
+//  *       404:
+//  *         description: Patient not found
+//  *         content:
+//  *           application/json:
+//  *             schema:
+//  *               type: object
+//  *               properties:
+//  *                 message:
+//  *                   type: string
+//  *                   example: Mother not found with that email or phone number
+//  *       500:
+//  *         description: Error searching for patient
+//  *         content:
+//  *           application/json:
+//  *             schema:
+//  *               type: object
+//  *               properties:
+//  *                 message:
+//  *                   type: string
+//  *                   example: Error searching for patient
+//  */
+// router.get( "/search-patient", Authentication, validateSearchMother, searchMothers);
 
 
 module.exports = router;
