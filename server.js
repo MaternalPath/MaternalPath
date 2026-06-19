@@ -79,7 +79,7 @@ const swaggerDefinition = {
   },
   servers: [
     {
-      url: 'https://maternalpath.onrender.com',
+      url: 'https://maternalpath-h56a.onrender.com',
       description: 'Development server',
     },
     {
