@@ -151,7 +151,7 @@ router.get( "/dashboard", Authentication,getHospitalDashboard );
 
 /**
  * @swagger
- * /api/v1/hospital/search-patient:
+ * /api/v1/hospital/search:
  *   get:
  *     summary: Search and verify patient delivery fund status
  *     description: Search patient by ID or Phone Number to get fund status
@@ -195,7 +195,7 @@ router.get( "/dashboard", Authentication,getHospitalDashboard );
  *       404:
  *         description: Mother not found
  */
-router.get('/mothers/search', Authentication, searchMothers);
+router.get('/search', Authentication, searchMothers);
 
 
 // /**
