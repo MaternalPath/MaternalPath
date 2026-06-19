@@ -1,4 +1,4 @@
-const { Mother, MotherUpdate, Hospital, wallet, uploadedBill, verifyPatientFund } = require('../models');
+const { Mother, MotherUpdate, Hospital, wallet, uploadedBill, verifyPatientFund, PatientUpdate } = require('../models');
 
 exports.getPatientDetails = async (req, res, next) => {
     try {
@@ -57,51 +57,50 @@ exports.getPatientDetails = async (req, res, next) => {
     }
 };
 
+
 exports.getPatientDashboard = async (req, res, next) => {
     try {
         const motherId = req.user?.id;
 
         if (!motherId) {
-            return next({
-                statusCode: 401,
+            return res.status(401).json({
                 message: "Invalid or missing user ID",
             });
         }
 
-        // Get pregnancy info from MotherUpdate
-        const patientUpdate = await PatientUpdate.findOne({
-            where: { patientId },
+        // 1. Fixed: Use motherId, not patientId. Use consistent variable name
+        const motherUpdate = await PatientUpdate.findOne({
+            where: { motherId }, // was patientId - undefined
             order: [['createdAt', 'DESC']]
         });
 
-        if (!patientUpdate) {
-            return next({
-                statusCode: 404,
-                message: "patient record not found"
+        if (!motherUpdate) {
+            return res.status(404).json({
+                message: "Patient record not found"
             });
         }
 
-        // Get wallet record
+        // 2. Get wallet record
         const walletRecord = await wallet.findOne({
             where: { motherId }
         });
 
-        // Wallet summary calculations
-        const savingsGoal = Number(patientUpdate.savingsGoalAmount) || 0;
-        const currentSavings = walletRecord?.currentBalance || 0;
+        // 3. Wallet calculations - use motherUpdate consistently
+        const savingsGoal = Number(motherUpdate.savingsGoalAmount) || 0;
+        const currentSavings = Number(walletRecord?.currentBalance) || 0;
         const remainingAmount = savingsGoal - currentSavings;
         const savingsProgress = savingsGoal > 0 
-            ? Math.round((currentSavings / savingsGoal) * 100 * 10) / 10 
+            ? Math.round((currentSavings / savingsGoal) * 1000) / 10 
             : 0;
 
-        // Get last verification record for this mother
+        // 4. Get last verification record
         const lastVerification = await verifyPatientFund.findOne({
             where: { maternalId: motherId },
             attributes: ['status', 'verifiedAt', 'notes', 'readiness'],
             order: [['createdAt', 'DESC']]
         });
 
-        // Get recent bills - what the money from her balance was used for
+        // 5. Get recent bills
         const recentBills = await uploadedBill.findAll({
             where: { motherId },
             attributes: [
@@ -116,7 +115,7 @@ exports.getPatientDashboard = async (req, res, next) => {
             limit: 10
         });
 
-        // Construct response
+        // 6. Construct response - all use motherUpdate now
         const walletSummary = {
             savingsGoal,
             currentSavings,
@@ -125,9 +124,9 @@ exports.getPatientDashboard = async (req, res, next) => {
         };
 
         const pregnancySummary = {
-            currentWeek: motherUpdate.currentPregnancyWeek,
-            expectedDelivery: motherUpdate.estimatedDueDate,
-            preferredHospital: motherUpdate.selectedHospital,
+            currentWeek: motherUpdate.currentPregnancyWeek, // fixed
+            expectedDelivery: motherUpdate.estimatedDueDate, // fixed
+            preferredHospital: motherUpdate.selectedHospital, // fixed
             lastVerification: lastVerification ? {
                 status: lastVerification.status,
                 verifiedAt: lastVerification.verifiedAt,
@@ -145,14 +144,15 @@ exports.getPatientDashboard = async (req, res, next) => {
         }));
 
         res.status(200).json({
-            message: 'Patient details retrieved successfully',
+            message: 'Patient dashboard retrieved successfully',
             wallet: walletSummary,
             pregnancy: pregnancySummary,
             recentBills: recentBillsSummary
         });
 
     } catch (error) {
-        next({
+        console.log('Dashboard Error:', error); // Add this to see actual error
+        res.status(500).json({
             message: error.message,
             statusCode: 500
         });
