@@ -90,7 +90,9 @@ exports.makePayment = async (req, res, next) => {
     console.log("STATUS:", error.response?.status);
     console.log("DATA:", error.response?.data);
     console.log("HEADERS:", error.response?.headers);
-    next(error);
+    res.status(500).json({
+      message: error.message
+    });
   }
 };
 
