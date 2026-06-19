@@ -51,15 +51,13 @@ exports.makePayment = async (req, res, next) => {
     console.log("before kora response", payload);
     console.log("key:", process.env.KORA_SK);
 
-    const { data } = await axios.post(
-      "https://api.korapay.com/merchant/api/v1/charges/initialize",
-      payload,
-      {
-        headers: {
-          Authorization: `Bearer ${process.env.KORA_SK}`,
-        },
+    const { data } = await axios.post("https://korapay.com", payload, {
+      headers: {
+        Authorization: `Bearer ${process.env.KORA_SK.trim()}`, // .trim() strips hidden hosting whitespace
+        "Content-Type": "application/json",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)", // Mimics a trusted browser agent
       },
-    );
+    });
 
     // console.log('after kora response', data)
 
@@ -91,7 +89,7 @@ exports.makePayment = async (req, res, next) => {
     // console.log("DATA:", error.response?.data);
     // console.log("HEADERS:", error.response?.headers);
     res.status(500).json({
-      message: error.message
+      message: error.message,
     });
   }
 };
