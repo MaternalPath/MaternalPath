@@ -12,7 +12,7 @@ const router = express.Router();
 
 /**
  * @swagger
- * /api/v1/weekly:
+ * /api/v1/guide/weekly:
  *   get:
  *     tags:
  *       - Health Guidance
