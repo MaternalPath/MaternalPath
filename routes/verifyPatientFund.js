@@ -5,9 +5,10 @@ const {
   getVerificationRequests,
   getVerificationRequest,
   approveVerificationRequest,
-  rejectVerificationRequest
+  rejectVerificationRequest,
+  
 } = require('../controller/verifyPatientFund');
-const { getVerificationHistory, getVerificationRecords } = require('../controller/verificationHistory');
+const { getVerificationHistory, getVerificationRecords, getVerificationHistories } = require('../controller/verificationHistory');
 
 const router = express.Router();
 
@@ -310,5 +311,56 @@ router.get('/verification-history', Authentication, getVerificationHistory);
  *         description: Server error
  */
 router.get('/verification-records', Authentication, getVerificationRecords);
+
+
+/**
+ * @swagger
+ * /api/v1/hospital/verification-histories:
+ *   get:
+ *     summary: Get all verification histories
+ *     description: Retrieve all verification history records.
+ *     tags:
+ *       - Verification Histories
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Verification histories retrieved successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Verification histories fetched successfully
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       patientName:
+ *                         type: string
+ *                         example: Chidinma Adeyemi
+ *                       date:
+ *                         type: string
+ *                         format: date
+ *                         example: "2026-05-10"
+ *                       amountRequested:
+ *                         type: number
+ *                         example: 385000
+ *                       authorizationStatus:
+ *                         type: string
+ *                         example: Approved
+ *                       hospitalStatus:
+ *                         type: string
+ *                         example: Lagos General Hospital
+ *       401:
+ *         description: Unauthorized. Invalid or missing authentication token.
+ *       500:
+ *         description: Internal server error
+ */
+router.get('/verification-histories', Authentication, getVerificationHistories);
+
 
 module.exports = router;
