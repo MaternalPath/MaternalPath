@@ -115,7 +115,7 @@ app.use('/api/v1/documentation', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
 
 
 app.use((err, req, res, next) => {
-    const status = err.statusCode || error.status || 500;
+    const status = err.statusCode || err.status || 500;
     res.status(status).json({
         message: err.message || 'Internal Server Error',
         status
