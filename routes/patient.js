@@ -1,6 +1,6 @@
 const express = require('express');
 const { Authentication } = require('../middlewares/auth');
-const { getPatientDetails, getMotherDashboard } = require('../controller/patientDetails');
+const { getPatientDetails, getPatientDashboard } = require('../controller/patientDetails');
 
 const router = express.Router();
 
@@ -72,20 +72,20 @@ router.get('/patients/:motherId', Authentication, getPatientDetails);
 
 /**
  * @swagger
- * /api/v1/mother/dashboard:
+ * /api/v1/patient/dashboard:
  *   get:
- *     summary: Get mother's dashboard with wallet summary, pregnancy info, and recent bills
+ *     summary: Get patient's dashboard with wallet summary, pregnancy info, and recent bills
  *     tags: [Patients]
  *     security:
  *       - bearerAuth: []
  *     description: |
- *       Returns the authenticated mother's dashboard containing:
+ *       Returns the authenticated patient's dashboard containing:
  *       - **wallet**: savings goal, current savings, remaining amount, savings progress percentage
  *       - **pregnancy**: current week, expected delivery date, preferred hospital, last verification status
  *       - **recentBills**: recent bill records showing what the money from her balance was used for
  *     responses:
  *       200:
- *         description: Mother dashboard retrieved successfully
+ *         description: Patient dashboard retrieved successfully
  *         content:
  *           application/json:
  *             schema:
@@ -93,7 +93,7 @@ router.get('/patients/:motherId', Authentication, getPatientDetails);
  *               properties:
  *                 message:
  *                   type: string
- *                   example: Mother dashboard retrieved successfully
+ *                   example: Patient dashboard retrieved successfully
  *                 wallet:
  *                   type: object
  *                   properties:
@@ -167,6 +167,6 @@ router.get('/patients/:motherId', Authentication, getPatientDetails);
  *       500:
  *         description: Internal server error
  */
-router.get('/mother/dashboard', Authentication, getMotherDashboard);
+router.get('/patient/dashboard', Authentication, getPatientDashboard);
 
 module.exports = router;
