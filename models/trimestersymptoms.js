@@ -24,10 +24,6 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.JSON,
       allowNull: false
     },
-    foodsToAvoid:{
-      type: DataTypes.JSON,
-      allowNull: false
-    },
     createdAt: {
         type: DataTypes.DATE,
         allowNull: false
@@ -39,7 +35,7 @@ module.exports = (sequelize, DataTypes) => {
       }
   }, {
     sequelize,
-    modelName: 'trimestaerSymptoms',
+    modelName: 'trimesterSymptoms',
   });
   return trimesterSymptoms;
 };

@@ -26,34 +26,35 @@ exports.healthGuidance = async (req, res, next) => {
             );
         
             const currentWeek = 40 - Math.floor(daysLeft / 7);
+            const trimester = currentWeek <= 13
+                ? 'First Trimester'
+                : currentWeek <= 27
+                    ? 'Second Trimester'
+                    : 'Third Trimester';
         
             const tip = await pregnancyTip.findOne({
-           where: { week: currentWeek }
+                where: { week: currentWeek }
             });
 
-            // const nutrition = await healthGuide.findOne({
-            //     where: {
-            //         dayNumber: currentWeek
-            //     }
-            // })
+            const nutrition = await healthGuide.findOne({
+                where: {
+                    dayNumber: currentWeek
+                }
+            });
 
             const trimesterGuide = await trimesterSymptoms.findOne({
-                where: {
-                    trimester: trimester
-                }
-            })
+                order: [['createdAt', 'DESC']]
+            });
 
             const wellness = await wellnessAndSelfCare.findOne({
                 where: {
                     week: currentWeek
                 }
-            })
+            });
 
-            const status = "You and your baby are doing well. Continue following your personalized care plan."
-
-            const focus = tip.title
-
-            const health = "Healthy Progress"
+            const status = "You and your baby are doing well. Continue following your personalized care plan.";
+            const focus = tip?.title || 'Weekly health tip unavailable.';
+            const health = "Healthy Progress";
         
             res.status(200).json({
                 wellnessStatus: status,
@@ -63,7 +64,7 @@ exports.healthGuidance = async (req, res, next) => {
                 trimesterGuide,
                 wellness,
                 status
-            })
+            });
     } catch (error) {
         next({
             message: error.message,
