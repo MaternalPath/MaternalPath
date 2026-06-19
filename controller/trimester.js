@@ -31,6 +31,28 @@ exports.createFirst = async (req, res, next) => {
     });
     }
 };
+exports.trimesterSymptoms = async (req, res, next) => {
+    try {
+        const {
+            whatToExpect
+        } = req.body;
+        const trimester = await trimesterSymptoms.create({
+            whatToExpect
+        });
+
+        console.log(trimester)
+
+        res.status(201).json({
+      message: "Symptoms created successfully",
+      trimester
+    });
+    } catch (error) {
+        next({
+      message: error.message,
+      statusCode: 500,
+    });
+    }
+};
 
 exports.createSecond = async (req, res, next) => {
     try {
@@ -145,6 +167,65 @@ exports.createMessage = async (req, res, next) => {
 
        res.status(201).json({
         message: 'week created successfully',
+        data
+       });
+    } catch (error) {
+      next({
+      message: error.message,
+      statusCode: 500,
+    });  
+    }
+}
+exports.nutritionGuide = async (req, res, next) => {
+    try {
+       const {week, title, description} = req.body;
+
+       const data = await healthGuide.create({
+        week,
+        title,
+        description
+       });
+
+       const seconds = dayjs().diff(dayjs(data.createdAt), "second");
+
+        await motherNotification.create({
+        title,
+        description,
+        week
+        });
+
+       res.status(201).json({
+        message: 'Guidance created successfully',
+        data
+       });
+    } catch (error) {
+      next({
+      message: error.message,
+      statusCode: 500,
+    });  
+    }
+}
+exports.wellnessAndSelfCare = async (req, res, next) => {
+    try {
+       const {week, title, description} = req.body;
+
+       const data = await wellnessAndSelfCare.create({
+        week,
+        title,
+        description,
+        foodsToAvoid
+       });
+
+       const seconds = dayjs().diff(dayjs(data.createdAt), "second");
+
+        await motherNotification.create({
+        title,
+        description,
+        week
+        });
+
+       res.status(201).json({
+        message: 'Guidance created successfully',
         data
        });
     } catch (error) {
