@@ -12,7 +12,7 @@ const axios = require("axios");
 exports.initiatePayment = async (req, res, next) => {
   try {
     const id = req.user?.id;
-    const mother = await Mother.findOne(id);
+    const mother = await Mother.findByPk(id);
 
     if (!mother) {
       return next({
