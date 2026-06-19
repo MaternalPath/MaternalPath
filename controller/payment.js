@@ -44,6 +44,7 @@ exports.makePayment = async (req, res, next) => {
     };
 
     console.log('before kora response', payload)
+    console.log('key:', process.env.KORA_SK)
     
     const { data } = await axios.post(
       "https://api.korapay.com/merchant/api/v1/charges/initialize",
@@ -55,7 +56,7 @@ exports.makePayment = async (req, res, next) => {
       },
     );
 
-    console.log('after kora response', data)
+    // console.log('after kora response', data)
 
     const motherBalance = new payment({
       amount: amount,
