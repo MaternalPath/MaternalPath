@@ -83,6 +83,7 @@ const currentDay = mother.currentPregnancyWeek * 7;
         const notifications = await motherNotification.findAll({
         where: {
                 [Op.or]: [{ week: currentWeek }, { dayNumber: currentDay }],
+                attributes: { exclude: ['id', 'hospitalId', 'motherId'] }
               }});
 
         const result = notifications.map(item => ({
@@ -95,7 +96,7 @@ res.status(200).json({
     info,
     data,
     reminder: reminder || "No reminder available.",
-    result
+    theWeeksFocus: result
 });
     } catch (error) {
         next({

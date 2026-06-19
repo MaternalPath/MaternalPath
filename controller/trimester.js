@@ -178,10 +178,10 @@ exports.createMessage = async (req, res, next) => {
 }
 exports.nutritionGuide = async (req, res, next) => {
     try {
-       const {week, title, description} = req.body;
+       const {dayNumber, title, description} = req.body;
 
        const data = await healthGuide.create({
-        week,
+        dayNumber,
         title,
         description
        });
@@ -207,7 +207,7 @@ exports.nutritionGuide = async (req, res, next) => {
 }
 exports.wellnessAndSelfCare = async (req, res, next) => {
     try {
-       const {week, title, description} = req.body;
+       const {week, title, description, foodsToAvoid} = req.body;
 
        const data = await wellnessAndSelfCare.create({
         week,
