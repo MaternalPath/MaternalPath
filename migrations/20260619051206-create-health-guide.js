@@ -6,28 +6,28 @@ module.exports = {
       id: {
       allowNull: false,
       primaryKey: true,
-      type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV4
+      type: Sequelize.UUID,
+      defaultValue: Sequelize.UUIDV4
     },
     dayNumber: {
-      type: DataTypes.INTEGER,
+      type: Sequelize.INTEGER,
       allowNull: false
     },
     title: {
-      type: DataTypes.JSON,
+      type: Sequelize.JSON,
       allowNull: false
     },
     description: {
-      type: DataTypes.JSON,
+      type: Sequelize.JSON,
       allowNull: false
     },
     createdAt: {
-        type: DataTypes.DATE,
+        type: Sequelize.DATE,
         allowNull: false
 
       },
     updatedAt: {
-        type: DataTypes.DATE,
+        type: Sequelize.DATE,
         allowNull: false
       }
     });

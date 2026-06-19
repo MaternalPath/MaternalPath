@@ -1,5 +1,5 @@
 const express = require('express');
-const { Authentication } = require('./auth');
+const { Authentication } = require('../middlewares/auth');
 const { healthGuidance } = require('../controller/healthGuidance');
 const router = express.Router();
 
@@ -44,7 +44,7 @@ const router = express.Router();
  *         description: Internal server error
  */
 
-router.get('/week', Authentication, healthGuidance);
+router.get('/weekly', Authentication, healthGuidance);
 
 
 module.exports = router

@@ -1,4 +1,4 @@
-const { Mother, pregnancyTip} = require("../models");
+const { MotherUpdate, pregnancyTip} = require("../models");
 
 
 exports.healthGuidance = async (req, res, next) => {
@@ -9,9 +9,7 @@ exports.healthGuidance = async (req, res, next) => {
                 message: 'Mother not found'
             })
         }
-
-        const id = req.user?.id;
-                const mother = await mother.findOne({where: {id}})
+                const mother = await MotherUpdate.findOne({where: {motherId:id}})
                 if (!mother) {
                     return next({
                         message: 'mother does not exist',
@@ -31,9 +29,14 @@ exports.healthGuidance = async (req, res, next) => {
             const tip = await pregnancyTip.findOne({
            where: { week: currentWeek }
             });
+
+            const status = "You and your baby are doing well. Continue following your personalized care plan."
+
+            const focus = tip.title
         
             res.status(200).json({
-                tip
+                wellnessStatus: status,
+                focus
             })
     } catch (error) {
         next({

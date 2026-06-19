@@ -14,7 +14,37 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   wellnessAndSelfCare.init({
-    name: DataTypes.STRING
+    id: {
+      allowNull: false,
+      primaryKey: true,
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4
+    },
+    week: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+    },
+    title: {
+      type: DataTypes.JSON,
+      allowNull: false
+    },
+    description: {
+      type: DataTypes.JSON,
+      allowNull: false
+    },
+    foodsToAvoid: {
+      type: DataTypes.JSON,
+      allowNull: false
+    },
+    createdAt: {
+        type: DataTypes.DATE,
+        allowNull: false
+
+      },
+    updatedAt: {
+        type: DataTypes.DATE,
+        allowNull: false
+      }
   }, {
     sequelize,
     modelName: 'wellnessAndSelfCare',
