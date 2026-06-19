@@ -1,19 +1,13 @@
 const { Mother, wallet, payment, MotherUpdate, transactionHistory } = require("../models");
 const otpGenerator = require("otp-generator");
 const dayjs = require("dayjs");
-const reference = otpGenerator.generate(10, {
-  digits: true,
-  upperCaseAlphabets: false,
-  lowerCaseAlphabets: false,
-  specialChars: false,
-});
 const axios = require("axios");
 
 
 exports.makePayment = async (req, res, next) => {
   try {
     const id = req.user?.id;
-
+    
     if (!id) {
       return next({
         message: "Unauthorized",
@@ -23,13 +17,19 @@ exports.makePayment = async (req, res, next) => {
     const mother = await Mother.findOne({
       where: { id },
     });
-
+    
     if (!mother) {
       return next({
         message: "Mother does not exist",
         statusCode: 404,
       });
     }
+    const reference = otpGenerator.generate(10, {
+      digits: true,
+      upperCaseAlphabets: false,
+      lowerCaseAlphabets: false,
+      specialChars: false,
+    });
     const { amount } = req.body;
 
     const payload = {
@@ -38,12 +38,12 @@ exports.makePayment = async (req, res, next) => {
         email: mother.email,
         name: mother.firstName + " " + mother.lastName,
       },
-      // redirect_url:"https://goal.com/api/v1/payment/payment",
+      redirect_url:"https://www.google.com",
       currency: "NGN",
-      reference: reference,
+      reference: reference
     };
 
-    console.log('after kora response', payload)
+    console.log('before kora response', payload)
     
     const { data } = await axios.post(
       "https://api.korapay.com/merchant/api/v1/charges/initialize",
@@ -55,7 +55,7 @@ exports.makePayment = async (req, res, next) => {
       },
     );
 
-    console.log('before kora response', data)
+    console.log('after kora response', data)
 
     const motherBalance = new payment({
       amount: amount,
