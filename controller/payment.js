@@ -52,7 +52,6 @@ exports.makePayment = async (req, res, next) => {
       },
     );
     console.log('payload', payload)
-    console.log(data);
     console.log(process.env.KORA_SK)
 
     const motherBalance = await payment.create({
