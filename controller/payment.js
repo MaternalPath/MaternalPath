@@ -51,6 +51,7 @@ exports.makePayment = async (req, res, next) => {
         },
       },
     );
+    console.log('payload', payload)
     console.log(data);
     console.log(process.env.KORA_SK)
 
@@ -76,6 +77,7 @@ exports.makePayment = async (req, res, next) => {
       data,
     });
   } catch (error) {
+    console.log(error)
     next({
       message: error.message,
       statusCode: 500,
