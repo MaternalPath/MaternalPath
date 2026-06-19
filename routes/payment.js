@@ -54,7 +54,7 @@ const router = express.Router();
  *         description: Mother not found
  */
 
-router.post('/balance', Authentication, makePayment)
+router.post('/payment/balance', Authentication, makePayment)
 
 /**
  * @swagger
