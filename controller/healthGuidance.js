@@ -1,4 +1,5 @@
-const { MotherUpdate, pregnancyTip} = require("../models");
+const { MotherUpdate, pregnancyTip, healthGuide, trimesterSymptoms, wellnessAndSelfCare} = require("../models");
+// const { trimesterSymptoms, wellnessAndSelfCare } = require("./trimester");
 
 
 exports.healthGuidance = async (req, res, next) => {
@@ -30,7 +31,23 @@ exports.healthGuidance = async (req, res, next) => {
            where: { week: currentWeek }
             });
 
-            const 
+            // const nutrition = await healthGuide.findOne({
+            //     where: {
+            //         dayNumber: currentWeek
+            //     }
+            // })
+
+            const trimesterGuide = await trimesterSymptoms.findOne({
+                where: {
+                    trimester: trimester
+                }
+            })
+
+            const wellness = await wellnessAndSelfCare.findOne({
+                where: {
+                    week: currentWeek
+                }
+            })
 
             const status = "You and your baby are doing well. Continue following your personalized care plan."
 
@@ -42,6 +59,10 @@ exports.healthGuidance = async (req, res, next) => {
                 wellnessStatus: status,
                 focus,
                 healthStatus: health,
+                nutrition,
+                trimesterGuide,
+                wellness,
+                status
             })
     } catch (error) {
         next({

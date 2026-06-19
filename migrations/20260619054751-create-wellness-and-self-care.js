@@ -14,15 +14,15 @@ module.exports = {
       allowNull: false
     },
     title: {
-      type: Sequelize.JSON,
+      type: Sequelize.TEXT,
       allowNull: false
     },
     description: {
-      type: Sequelize.JSON,
+      type: Sequelize.TEXT,
       allowNull: false
     },
     foodsToAvoid: {
-      type: Sequelize.JSON,
+      type: Sequelize.TEXT,
       allowNull: false
     },
     createdAt: {

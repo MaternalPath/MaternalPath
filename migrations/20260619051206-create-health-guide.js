@@ -14,11 +14,11 @@ module.exports = {
       allowNull: false
     },
     title: {
-      type: Sequelize.JSON,
+      type: Sequelize.TEXT,
       allowNull: false
     },
     description: {
-      type: Sequelize.JSON,
+      type: Sequelize.TEXT,
       allowNull: false
     },
     createdAt: {
