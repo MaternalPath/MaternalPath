@@ -30,13 +30,18 @@ exports.healthGuidance = async (req, res, next) => {
            where: { week: currentWeek }
             });
 
+            const 
+
             const status = "You and your baby are doing well. Continue following your personalized care plan."
 
             const focus = tip.title
+
+            const health = "Healthy Progress"
         
             res.status(200).json({
                 wellnessStatus: status,
-                focus
+                focus,
+                healthStatus: health,
             })
     } catch (error) {
         next({

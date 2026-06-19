@@ -1,4 +1,4 @@
-const { Mother, MotherUpdate, Hospital, wallet, uploadedBill, verifyPatientFund, PatientUpdate } = require('../models');
+const { Mother, MotherUpdate, Hospital, wallet, uploadedBill, verifyPatientFund } = require('../models');
 
 exports.getPatientDetails = async (req, res, next) => {
     try {
@@ -68,9 +68,8 @@ exports.getPatientDashboard = async (req, res, next) => {
             });
         }
 
-        // 1. Fixed: Use motherId, not patientId. Use consistent variable name
-        const motherUpdate = await PatientUpdate.findOne({
-            where: { motherId }, // was patientId - undefined
+        const motherUpdate = await MotherUpdate.findOne({
+            where: { motherId },
             order: [['createdAt', 'DESC']]
         });
 
@@ -85,7 +84,7 @@ exports.getPatientDashboard = async (req, res, next) => {
             where: { motherId }
         });
 
-        // 3. Wallet calculations - use motherUpdate consistently
+        // 3. Wallet calculations
         const savingsGoal = Number(motherUpdate.savingsGoalAmount) || 0;
         const currentSavings = Number(walletRecord?.currentBalance) || 0;
         const remainingAmount = savingsGoal - currentSavings;
@@ -115,7 +114,7 @@ exports.getPatientDashboard = async (req, res, next) => {
             limit: 10
         });
 
-        // 6. Construct response - all use motherUpdate now
+        // 6. Construct response
         const walletSummary = {
             savingsGoal,
             currentSavings,
