@@ -57,7 +57,7 @@ exports.getPatientDetails = async (req, res, next) => {
     }
 };
 
-exports.getMotherDashboard = async (req, res, next) => {
+exports.getPatientDashboard = async (req, res, next) => {
     try {
         const motherId = req.user?.id;
 
@@ -69,15 +69,15 @@ exports.getMotherDashboard = async (req, res, next) => {
         }
 
         // Get pregnancy info from MotherUpdate
-        const motherUpdate = await MotherUpdate.findOne({
-            where: { motherId },
+        const patientUpdate = await PatientUpdate.findOne({
+            where: { patientId },
             order: [['createdAt', 'DESC']]
         });
 
-        if (!motherUpdate) {
+        if (!patientUpdate) {
             return next({
                 statusCode: 404,
-                message: "Mother record not found"
+                message: "patient record not found"
             });
         }
 
@@ -87,7 +87,7 @@ exports.getMotherDashboard = async (req, res, next) => {
         });
 
         // Wallet summary calculations
-        const savingsGoal = Number(motherUpdate.savingsGoalAmount) || 0;
+        const savingsGoal = Number(patientUpdate.savingsGoalAmount) || 0;
         const currentSavings = walletRecord?.currentBalance || 0;
         const remainingAmount = savingsGoal - currentSavings;
         const savingsProgress = savingsGoal > 0 
@@ -145,7 +145,7 @@ exports.getMotherDashboard = async (req, res, next) => {
         }));
 
         res.status(200).json({
-            message: 'Mother dashboard retrieved successfully',
+            message: 'Patient details retrieved successfully',
             wallet: walletSummary,
             pregnancy: pregnancySummary,
             recentBills: recentBillsSummary
