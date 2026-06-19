@@ -9,13 +9,6 @@ const otpGenerator = require("otp-generator");
 const dayjs = require("dayjs");
 const axios = require("axios");
 
-const reference = otpGenerator.generate(10, {
-      digits: true,
-      upperCaseAlphabets: false,
-      lowerCaseAlphabets: false,
-      specialChars: false,
-    });
-
 exports.initiatePayment = async (req, res, next) => {
   try {
     const id = req.user?.id;
@@ -27,6 +20,13 @@ exports.initiatePayment = async (req, res, next) => {
         statusCode: 404
       })
     }
+
+    const reference = otpGenerator.generate(10, {
+      digits: true,
+      upperCaseAlphabets: false,
+      lowerCaseAlphabets: false,
+      specialChars: false,
+    });
 
     const name = mother.firstName+ + mother.lastName;
     const payload = {
