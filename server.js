@@ -113,6 +113,7 @@ const swaggerSpec = swaggerJsdoc(options);
 app.use('/api/v1/documentation', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
 
 
+
 app.use((err, req, res, next) => {
     const status = err.statusCode || error.status || 500;
     res.status(status).json({
