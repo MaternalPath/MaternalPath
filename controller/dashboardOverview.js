@@ -92,6 +92,8 @@ const currentDay = mother.currentPregnancyWeek * 7;
         time: dayjs(item.createdAt).fromNow(),
         }));
 
+        result: JSON.parse
+
 res.status(200).json({
     message: "Dashboard retrieved successfully",
     info,
