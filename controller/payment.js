@@ -53,9 +53,7 @@ exports.makePayment = async (req, res, next) => {
 
     const { data } = await axios.post("https://korapay.com", payload, {
       headers: {
-        Authorization: `Bearer ${process.env.KORA_SK.trim()}`, // .trim() strips hidden hosting whitespace
-        "Content-Type": "application/json",
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)", // Mimics a trusted browser agent
+        Authorization: `Bearer ${process.env.KORA_SK.trim()}`,
       },
     });
 
