@@ -47,7 +47,7 @@ exports.getHospitalDashboard = async (req, res) => {
       message: 'Dashboard data retrieved successfully',
       totalVerificationRequests,
       pendingAuthorizations,
-      approvedRequest,
+      approvedRequest, 
       declinedRequest
     });
   } catch (error) {
@@ -176,101 +176,214 @@ exports.getHospitalDashboard = async (req, res) => {
 
 
 
+// exports.searchMothers = async (req, res) => {
+//   try {
+//     // const { search } = req.query;
+//     const hospitalId = req.user?.id;
+
+//     if (!search?.trim()) {
+//       return res.status(400).json({ message: 'Search query parameter is required' });
+//     }
+
+//     // Search by email OR phoneNumber only
+//     const mother = await Mother.findOne({
+//       where: {
+//         hospitalId,
+//         [Op.or]: [
+//           { email: search.trim() },
+//           { phoneNumber: search.trim() }
+//         ]
+//       },
+//       attributes: { exclude: ['password', 'otp', 'otpExpiresAt'] },
+//       include: [
+//         {
+//           model: MotherUpdate,
+//           limit: 1,
+//           order: [['createdAt', 'DESC']],
+//           required: false
+//         },
+//         {
+//           model: Hospital,
+//           attributes: ['hospitalName'],
+//           required: false
+//         }
+//       ]
+//     });
+
+//     if (!mother) {
+//       return res.status(404).json({ message: 'Mother not found with that email or phone number' });
+//     }
+
+//     const motherUpdate = mother.MotherUpdates?.[0] || null;
+
+//     const [verificationFund] = await verifyPatientFund.findOrCreate({
+//       where: { maternalId: mother.id },
+//       defaults: {
+//         patientName: `${mother.firstName} ${mother.lastName}`,
+//         maternalId: mother.id,
+//         hospitalId,
+//         hospitalName: mother.Hospital?.hospitalName || '',
+//         pregnancyWeek: motherUpdate?.currentPregnancyWeek || 0,
+//         dueDate: motherUpdate?.estimatedDueDate? new Date(motherUpdate.estimatedDueDate) : new Date(),
+//         walletBalance: 0,
+//         savingsGoal: Number(motherUpdate?.savingsGoalAmount) || 100000,
+//         goalPercentage: 0,
+//         status: 'Pending',
+//         readiness: 'Just Started'
+//       }
+//     });
+
+//     // Always recalc wallet from payments as source of truth
+//     const payments = await payment.findAll({
+//       where: { motherId: mother.id, status: ['successful', 'completed'] },
+//       attributes: ['amount']
+//     });
+
+//     const walletBalance = payments.reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
+
+//     if (verificationFund.walletBalance!== walletBalance) {
+//       verificationFund.walletBalance = walletBalance;
+//       await verificationFund.save();
+//     }
+
+//     const deliverySavingsGoal = verificationFund.savingsGoal;
+//     const readinessPercentage = deliverySavingsGoal > 0
+//      ? Math.min(Math.round((walletBalance / deliverySavingsGoal) * 100), 100)
+//       : 0;
+
+//     let status = 'Not eligible';
+//     if (readinessPercentage >= 100) status = 'Fully eligible';
+//     else if (readinessPercentage >= 50) status = 'Partially eligible';
+
+//     res.status(200).json({
+//       patientName: `${mother.firstName} ${mother.lastName}`,
+//       patientId: mother.id,
+//       pregnancyStage: motherUpdate?.trimester || 'unknown',
+//       pregnancyWeek: motherUpdate?.currentPregnancyWeek || 0,
+//       walletBalance,
+//       deliverySavingsGoal,
+//       preferredHospital: mother.Hospital?.hospitalName || 'N/A',
+//       readinessPercentage,
+//       status
+//     });
+
+//   } catch (error) {
+//     console.error('searchMothers error:', error);
+//     res.status(500).json({ 
+//       message: 'Error searching for patient'
+//      });
+//   }
+// };
+
+
+
 exports.searchMothers = async (req, res) => {
   try {
-    const { search } = req.query;
+    const { search } = req.query; // Using query params - correct for GET
     const hospitalId = req.user?.id;
 
-    if (!search?.trim()) {
-      return res.status(400).json({ message: 'Search query parameter is required' });
+    if (!search) {
+      return res.status(400).json({
+        message: 'Search query parameter is required'
+      });
     }
 
-    // Search by email OR phoneNumber only
+    // 1. Fixed: Remove duplicate hospitalId, search by id OR phoneNumber
     const mother = await Mother.findOne({
       where: {
-        hospitalId,
+        hospitalId, // Only once
         [Op.or]: [
-          { email: search.trim() },
-          { phoneNumber: search.trim() }
+          { id: search }, // Patient ID
+          { phoneNumber: search } // Phone Number
         ]
       },
-      attributes: { exclude: ['password', 'otp', 'otpExpiresAt'] },
-      include: [
-        {
-          model: MotherUpdate,
-          limit: 1,
-          order: [['createdAt', 'DESC']],
-          required: false
-        },
-        {
-          model: Hospital,
-          attributes: ['hospitalName'],
-          required: false
-        }
-      ]
-    });
-
-    if (!mother) {
-      return res.status(404).json({ message: 'Mother not found with that email or phone number' });
-    }
-
-    const motherUpdate = mother.MotherUpdates?.[0] || null;
-
-    const [verificationFund] = await verifyPatientFund.findOrCreate({
-      where: { maternalId: mother.id },
-      defaults: {
-        patientName: `${mother.firstName} ${mother.lastName}`,
-        maternalId: mother.id,
-        hospitalId,
-        hospitalName: mother.Hospital?.hospitalName || '',
-        pregnancyWeek: motherUpdate?.currentPregnancyWeek || 0,
-        dueDate: motherUpdate?.estimatedDueDate? new Date(motherUpdate.estimatedDueDate) : new Date(),
-        walletBalance: 0,
-        savingsGoal: Number(motherUpdate?.savingsGoalAmount) || 100000,
-        goalPercentage: 0,
-        status: 'Pending',
-        readiness: 'Just Started'
+      attributes: {
+        exclude: ['password', 'otp', 'otpExpiresAt']
       }
     });
 
-    // Always recalc wallet from payments as source of truth
-    const payments = await payment.findAll({
-      where: { motherId: mother.id, status: ['successful', 'completed'] },
-      attributes: ['amount']
-    });
-
-    const walletBalance = payments.reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
-
-    if (verificationFund.walletBalance!== walletBalance) {
-      verificationFund.walletBalance = walletBalance;
-      await verificationFund.save();
+    if (!mother) {
+      return res.status(404).json({
+        message: 'Mother not found'
+      });
     }
 
-    const deliverySavingsGoal = verificationFund.savingsGoal;
+    // 2. Get latest pregnancy update
+    const motherUpdate = await MotherUpdate.findOne({
+      where: { motherId: mother.id },
+      order: [['createdAt', 'DESC']] 
+    });
+
+    // 3. Get or create verification fund
+    let verificationFund = await verifyPatientFund.findOne({
+      where: { maternalId: mother.id },
+      order: [['createdAt', 'DESC']]
+    });
+
+    if (!verificationFund && motherUpdate) {
+      const hospital = await Hospital.findByPk(hospitalId);
+      verificationFund = await verifyPatientFund.create({
+        patientName: `${mother.firstName} ${mother.lastName}`,
+        maternalId: mother.id,
+        hospitalId,
+        hospitalName: hospital ? hospital.hospitalName : '',
+        pregnancyWeek: motherUpdate.currentPregnancyWeek || 0,
+        dueDate: motherUpdate.estimatedDueDate ? new Date(motherUpdate.estimatedDueDate) : new Date(),
+        walletBalance: 0,
+        savingsGoal: parseInt(motherUpdate.savingsGoalAmount) || 100000,
+        goalPercentage: 0,
+        status: 'Pending',
+        readiness: 'Just Started'
+      });
+    }
+
+    // 4. Calculate wallet balance from payments
+    const payments = await payment.findAll({
+      where: { motherId: mother.id },
+      attributes: ['amount', 'status']
+    });
+
+    const totalPaid = payments
+      .filter(p => p.status === 'successful' || p.status === 'completed')
+      .reduce((sum, p) => sum + (parseInt(p.amount) || 0), 0);
+
+    const deliverySavingsGoal = verificationFund?.savingsGoal || (motherUpdate ? parseInt(motherUpdate.savingsGoalAmount) || 100000 : 100000);
+    const walletBalance = verificationFund?.walletBalance ?? totalPaid;
     const readinessPercentage = deliverySavingsGoal > 0
-     ? Math.min(Math.round((walletBalance / deliverySavingsGoal) * 100), 100)
+      ? Math.min(Math.round((walletBalance / deliverySavingsGoal) * 100), 100)
       : 0;
 
+    // 5. Determine eligibility
     let status = 'Not eligible';
-    if (readinessPercentage >= 100) status = 'Fully eligible';
-    else if (readinessPercentage >= 50) status = 'Partially eligible';
+    if (readinessPercentage >= 100) {
+      status = 'Fully eligible';
+    } else if (readinessPercentage >= 50) {
+      status = 'Partially eligible';
+    }
+
+    const hospitalData = await Hospital.findByPk(mother.hospitalId, {
+      attributes: ['hospitalName']
+    });
+
+    const pregnancyStage = motherUpdate?.trimester || 'unknown';
+    const pregnancyWeek = motherUpdate?.currentPregnancyWeek || 0;
 
     res.status(200).json({
       patientName: `${mother.firstName} ${mother.lastName}`,
       patientId: mother.id,
-      pregnancyStage: motherUpdate?.trimester || 'unknown',
-      pregnancyWeek: motherUpdate?.currentPregnancyWeek || 0,
+      pregnancyStage,
+      pregnancyWeek,
       walletBalance,
       deliverySavingsGoal,
-      preferredHospital: mother.Hospital?.hospitalName || 'N/A',
+      preferredHospital: hospitalData?.hospitalName || 'N/A',
       readinessPercentage,
       status
     });
-
   } catch (error) {
-    console.error('searchMothers error:', error);
-    res.status(500).json({ 
-      message: 'Error searching for patient'
-     });
+    console.log(error);
+    res.status(500).json({
+      message: 'Error searching for patient',
+      error: error.message
+    });
   }
 };
