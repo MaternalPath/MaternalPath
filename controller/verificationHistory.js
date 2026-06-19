@@ -94,3 +94,29 @@ exports.getVerificationRecords = async (req, res, next) => {
         }); 
     }
 }
+
+exports.getVerificationHistories = async (req, res) => {
+    try {
+        const records = await verifyPatientFund.findAll({
+            order: [['createdAt', 'DESC']]
+        });
+
+        const formattedRecords = records.map(record => ({
+            patientName: record.patientName,
+            date: record.createdAt,
+            amountRequested: record.walletBalance,
+            authorizationStatus: record.status,
+            hospitalStatus: record.readiness
+        }));
+
+        res.status(200).json({
+            message: 'Verification histories fetched successfully',
+            data: formattedRecords 
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            message: error.message
+        });
+    }
+};

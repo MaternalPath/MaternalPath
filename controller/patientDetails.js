@@ -68,6 +68,7 @@ exports.getPatientDashboard = async (req, res, next) => {
             });
         }
 
+        // 1. Fixed: Use motherId, not patientId. Use consistent variable name
         const motherUpdate = await MotherUpdate.findOne({
             where: { motherId },
             order: [['createdAt', 'DESC']]
