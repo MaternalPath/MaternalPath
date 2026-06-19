@@ -87,10 +87,12 @@ exports.makePayment = async (req, res, next) => {
       data,
     });
   } catch (error) {
-    console.log("STATUS:", error.response?.status);
-    console.log("DATA:", error.response?.data);
-    console.log("HEADERS:", error.response?.headers);
-    next(error);
+    // console.log("STATUS:", error.response?.status);
+    // console.log("DATA:", error.response?.data);
+    // console.log("HEADERS:", error.response?.headers);
+    res.status(500).json({
+      message: error.message
+    });
   }
 };
 
