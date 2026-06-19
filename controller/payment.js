@@ -42,6 +42,9 @@ exports.makePayment = async (req, res, next) => {
       currency: "NGN",
       reference: reference,
     };
+
+    console.log('after kora response', payload)
+    
     const { data } = await axios.post(
       "https://api.korapay.com/merchant/api/v1/charges/initialize",
       payload,
@@ -51,20 +54,22 @@ exports.makePayment = async (req, res, next) => {
         },
       },
     );
-    console.log('payload', payload)
-    console.log(process.env.KORA_SK)
 
-    const motherBalance = await payment.create({
+    console.log('before kora response', data)
+
+    const motherBalance = new payment({
       amount: amount,
       reference: data.data.reference,
       motherId: id,
     });
-    const transactions = await transactionHistory.create({
+    const transactions = new transactionHistory({
       amount: amount,
       date: new Date(),
       motherId: id,
     });
 
+    // await motherBalance.save();
+    // await transactions.save();
     // const currentBalance = parseFloat(mother.currentBalance) + parseFloat(amount);
     // let currentBalance = payment.amount;
     // currentBalance += Number(amount);
