@@ -24,6 +24,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.JSON,
       allowNull: false
     },
+    foodsToAvoid:{
+      type: DataTypes.JSON,
+      allowNull: false
+    },
     createdAt: {
         type: DataTypes.DATE,
         allowNull: false

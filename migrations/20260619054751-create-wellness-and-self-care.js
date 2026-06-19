@@ -4,21 +4,35 @@ module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable('wellnessAndSelfCares', {
       id: {
-        allowNull: false,
-        autoIncrement: true,
-        primaryKey: true,
-        type: Sequelize.INTEGER
+      allowNull: false,
+      primaryKey: true,
+      type: Sequelize.UUID,
+      defaultValue: Sequelize.UUIDV4
+    },
+    week: {
+      type: Sequelize.INTEGER,
+      allowNull: false
+    },
+    title: {
+      type: Sequelize.TEXT,
+      allowNull: false
+    },
+    description: {
+      type: Sequelize.TEXT,
+      allowNull: false
+    },
+    foodsToAvoid: {
+      type: Sequelize.TEXT,
+      allowNull: false
+    },
+    createdAt: {
+        type: Sequelize.DATE,
+        allowNull: false
+
       },
-      name: {
-        type: Sequelize.STRING
-      },
-      createdAt: {
-        allowNull: false,
-        type: Sequelize.DATE
-      },
-      updatedAt: {
-        allowNull: false,
-        type: Sequelize.DATE
+    updatedAt: {
+        type: Sequelize.DATE,
+        allowNull: false
       }
     });
   },

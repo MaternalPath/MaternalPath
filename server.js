@@ -18,6 +18,7 @@ const dashRouter = require('./routes/dashboardOverview');
 const trackerRouter = require('./routes/pregnancyTracker');
 const emergencyRouter = require('./routes/emergencyWallet');
 const motherNotificationRouter = require('./routes/motherNotification');
+const guidanceRouter = require('./routes/healthGuidance');
 const expressSession = require('express-session')
 const passport = require('passport');
 require('./controller/mother')
@@ -54,6 +55,7 @@ app.use('/api/v1', emergencyRouter);
 app.use('/api/v1/tracker', trackerRouter);
 app.use('/api/v1/mothers', motherNotificationRouter);
 app.use('/api/v1/notifications', notificationRouter);
+app.use('/api/v1/guide', guidanceRouter);
 
 app.get('/', (req, res) => {
     res.send('Welcome to MaternalPath API');

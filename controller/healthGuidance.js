@@ -1,4 +1,5 @@
-const { Mother, pregnancyTip} = require("../models");
+const { MotherUpdate, pregnancyTip, healthGuide, trimesterSymptoms, wellnessAndSelfCare} = require("../models");
+// const { trimesterSymptoms, wellnessAndSelfCare } = require("./trimester");
 
 
 exports.healthGuidance = async (req, res, next) => {
@@ -9,9 +10,7 @@ exports.healthGuidance = async (req, res, next) => {
                 message: 'Mother not found'
             })
         }
-
-        const id = req.user?.id;
-                const mother = await mother.findOne({where: {id}})
+                const mother = await MotherUpdate.findOne({where: {motherId:id}})
                 if (!mother) {
                     return next({
                         message: 'mother does not exist',
@@ -31,9 +30,39 @@ exports.healthGuidance = async (req, res, next) => {
             const tip = await pregnancyTip.findOne({
            where: { week: currentWeek }
             });
+
+            // const nutrition = await healthGuide.findOne({
+            //     where: {
+            //         dayNumber: currentWeek
+            //     }
+            // })
+
+            const trimesterGuide = await trimesterSymptoms.findOne({
+                where: {
+                    trimester: trimester
+                }
+            })
+
+            const wellness = await wellnessAndSelfCare.findOne({
+                where: {
+                    week: currentWeek
+                }
+            })
+
+            const status = "You and your baby are doing well. Continue following your personalized care plan."
+
+            const focus = tip.title
+
+            const health = "Healthy Progress"
         
             res.status(200).json({
-                tip
+                wellnessStatus: status,
+                focus,
+                healthStatus: health,
+                nutrition,
+                trimesterGuide,
+                wellness,
+                status
             })
     } catch (error) {
         next({

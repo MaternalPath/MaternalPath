@@ -2,7 +2,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('trimestaerSymptoms', {
+    await queryInterface.createTable('trimesterSymptoms', {
       id: {
         allowNull: false,
         primaryKey: true,
@@ -10,7 +10,7 @@ module.exports = {
         defaultValue: Sequelize.UUIDV4
       },
     whatToExpect:{
-      type: Sequelize.JSON,
+      type: Sequelize.TEXT,
       allowNull: false
     },
     createdAt: {
@@ -25,6 +25,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('trimestaerSymptoms');
+    await queryInterface.dropTable('trimesterSymptoms');
   }
 };
