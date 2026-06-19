@@ -38,7 +38,7 @@ exports.makePayment = async (req, res, next) => {
         email: mother.email,
         name: mother.firstName + " " + mother.lastName,
       },
-      redirect_url: "http://localhost:2245/api/v1/payment/payment",
+      redirect_url:"https://goal.com/api/v1/payment/payment",
       currency: "NGN",
       reference: reference,
     };
