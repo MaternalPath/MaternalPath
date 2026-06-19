@@ -1,13 +1,18 @@
-const { Mother, wallet, payment, MotherUpdate, transactionHistory } = require("../models");
+const {
+  Mother,
+  wallet,
+  payment,
+  MotherUpdate,
+  transactionHistory,
+} = require("../models");
 const otpGenerator = require("otp-generator");
 const dayjs = require("dayjs");
 const axios = require("axios");
 
-
 exports.makePayment = async (req, res, next) => {
   try {
     const id = req.user?.id;
-    
+
     if (!id) {
       return next({
         message: "Unauthorized",
@@ -17,7 +22,7 @@ exports.makePayment = async (req, res, next) => {
     const mother = await Mother.findOne({
       where: { id },
     });
-    
+
     if (!mother) {
       return next({
         message: "Mother does not exist",
@@ -38,14 +43,14 @@ exports.makePayment = async (req, res, next) => {
         email: mother.email,
         name: mother.firstName + " " + mother.lastName,
       },
-      redirect_url:"https://www.google.com",
+      redirect_url: "https://www.google.com",
       currency: "NGN",
-      reference: reference
+      reference: reference,
     };
 
-    console.log('before kora response', payload)
-    console.log('key:', process.env.KORA_SK)
-    
+    console.log("before kora response", payload);
+    console.log("key:", process.env.KORA_SK);
+
     const { data } = await axios.post(
       "https://api.korapay.com/merchant/api/v1/charges/initialize",
       payload,
@@ -82,11 +87,10 @@ exports.makePayment = async (req, res, next) => {
       data,
     });
   } catch (error) {
-    console.log(error)
-    next({
-      message: error.message,
-      statusCode: 500,
-    });
+    console.log("STATUS:", error.response?.status);
+    console.log("DATA:", error.response?.data);
+    console.log("HEADERS:", error.response?.headers);
+    next(error);
   }
 };
 
@@ -124,7 +128,7 @@ exports.verifyPayment = async (req, res, next) => {
       });
     }
 
-    console.log(walletRec.currentBalance)
+    console.log(walletRec.currentBalance);
 
     if (data.status === true && data.data.status === "success") {
       paymentRecord.status = "successful";
@@ -132,18 +136,18 @@ exports.verifyPayment = async (req, res, next) => {
       await walletRec.save();
       await paymentRecord.save();
 
-      const balance = walletRec.currentBalance
-      const goals = MotherUpdate.savingsGoalAmount
-      const remainingAmountNeeded = goals - balance
+      const balance = walletRec.currentBalance;
+      const goals = MotherUpdate.savingsGoalAmount;
+      const remainingAmountNeeded = goals - balance;
 
       return res.status(200).json({
         message: "Payment successful",
         balance,
         goals,
-        remainingAmount: remainingAmountNeeded
+        remainingAmount: remainingAmountNeeded,
       });
     }
-    
+
     if (data.status === true && data.data.status === "success") {
       transactionHistory.status = "Completed";
     }
@@ -158,41 +162,41 @@ exports.verifyPayment = async (req, res, next) => {
 
 exports.monthlyGoals = async (req, res, next) => {
   try {
-const payments = await payment.findAll({
-  where: {
-    motherId: req.user.id,
-    status: "successful"
-  }
-});
+    const payments = await payment.findAll({
+      where: {
+        motherId: req.user.id,
+        status: "successful",
+      },
+    });
 
-const monthlySavings = {};
+    const monthlySavings = {};
 
-for (let i = 0; i < 12; i++) {
-  const month = dayjs().month(i).format("MMMM");
-  monthlySavings[month] = 0;
-}
+    for (let i = 0; i < 12; i++) {
+      const month = dayjs().month(i).format("MMMM");
+      monthlySavings[month] = 0;
+    }
 
-payments.forEach((payment) => {
-  const month = dayjs(payment.createdAt).format("MMMM");
-  monthlySavings[month] += Number(payment.amount)
+    payments.forEach((payment) => {
+      const month = dayjs(payment.createdAt).format("MMMM");
+      monthlySavings[month] += Number(payment.amount);
 
-  if (!monthlySavings[month]) {
-    monthlySavings[month] = 0;
-  }
+      if (!monthlySavings[month]) {
+        monthlySavings[month] = 0;
+      }
 
-  monthlySavings[month] += Number(payment.amount);
-});
+      monthlySavings[month] += Number(payment.amount);
+    });
 
-console.log(monthlySavings);
+    console.log(monthlySavings);
 
-res.status(200).json({
-  message: "monthly payment retrieved successfully",
-  monthlySavings
-})
+    res.status(200).json({
+      message: "monthly payment retrieved successfully",
+      monthlySavings,
+    });
   } catch (error) {
     next({
       message: error.message,
-      statusCode: 500
-    })
+      statusCode: 500,
+    });
   }
-}
+};
