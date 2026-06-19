@@ -29,6 +29,7 @@ exports.initiatePayment = async (req, res, next) => {
     });
 
     const name = mother.firstName+ + mother.lastName;
+    const { amount } = req.body;
     const payload = {
       amount: amount,
       customer: {
