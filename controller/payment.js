@@ -9,88 +9,58 @@ const otpGenerator = require("otp-generator");
 const dayjs = require("dayjs");
 const axios = require("axios");
 
-exports.makePayment = async (req, res, next) => {
+exports.initiatePayment = async (req, res, next) => {
   try {
     const id = req.user?.id;
-
-    if (!id) {
-      return next({
-        message: "Unauthorized",
-        statusCode: 401,
-      });
-    }
-    const mother = await Mother.findOne({
-      where: { id },
-    });
+    const mother = await Mother.findOne(id);
 
     if (!mother) {
       return next({
-        message: "Mother does not exist",
-        statusCode: 404,
-      });
+        message: `mother with ${id} not found`,
+        statusCode: 404
+      })
     }
-    const reference = otpGenerator.generate(10, {
-      digits: true,
-      upperCaseAlphabets: false,
-      lowerCaseAlphabets: false,
-      specialChars: false,
-    });
-    const { amount } = req.body;
 
+    const name = mother.firstName+ + mother.lastName;
     const payload = {
       amount: amount,
       customer: {
         email: mother.email,
-        name: mother.firstName + " " + mother.lastName,
+        name: name
       },
-      redirect_url: "https://www.google.com",
-      currency: "NGN",
-      reference: reference,
+      redirect_url: 'http://localhost:2245/api/v1',
+      currency: 'NGN',
+      reference: reference
     };
 
-    console.log("before kora response", payload);
-    console.log("key:", process.env.KORA_SK);
-
-    const { data } = await axios.post("https://korapay.com", payload, {
+    const { data } = await axios.post('https://api.korapay.com/merchant/api/v1/charges/initialize', payload, {
       headers: {
-        Authorization: `Bearer ${process.env.KORA_SK.trim()}`,
+        Authorization: `Bearer ${process.env.KORA_SK}`
       },
-    });
+    })
 
-    // console.log('after kora response', data)
-
-    const motherBalance = new payment({
+    const motherBalance = await payment.create({
       amount: amount,
       reference: data.data.reference,
-      motherId: id,
+      motherId: id
     });
-    const transactions = new transactionHistory({
+
+    const transactions = await transactionHistory.create({
       amount: amount,
       date: new Date(),
       motherId: id,
-    });
-
-    // await motherBalance.save();
-    // await transactions.save();
-    // const currentBalance = parseFloat(mother.currentBalance) + parseFloat(amount);
-    // let currentBalance = payment.amount;
-    // currentBalance += Number(amount);
-
-    // await Mother.update({ currentBalance, amount }, { where: { id: mother.id } });
+    })
 
     res.status(200).json({
       message: "Payment initiated successfully",
-      data,
-    });
+      data
+    })
   } catch (error) {
-    // console.log("STATUS:", error.response?.status);
-    // console.log("DATA:", error.response?.data);
-    // console.log("HEADERS:", error.response?.headers);
-    res.status(500).json({
-      message: error.message,
-    });
+    next({
+      message: error.message
+    })
   }
-};
+}
 
 exports.verifyPayment = async (req, res, next) => {
   try {
