@@ -273,10 +273,12 @@ exports.loginMother = async (req, res, next) => {
       });
     }
 
+    const verify = false;
+
     if (mother.isVerified == false) {
       return next({
         message: "Please verify your email before logging in",
-        isVerified: "false",
+        verify,
         statusCode: 404,
       });
     }
