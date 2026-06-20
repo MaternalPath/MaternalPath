@@ -72,11 +72,11 @@ exports.createHospital = async (req, res) => {
         const hospitalLogo = req.files?.hospitalLogo?.[0]
             ? `/uploads/hospitals/${req.files.hospitalLogo[0].filename}`
             : null;
-        const verificationDocuments = req.files?.verificationDocuments
+        const verificationDocument = req.files?.verificationDocument
             ? req.files.verificationDocuments.map((file) => `/uploads/hospitals/${file.filename}`)
             : [];
 
-        const emailExists = await Hospital.findOne({ where: { email: email.toLowerCase() } });
+        const emailExists = await Hospital.findOne({ where: { email: email.toLowerCase() } }); 
          console.log(emailExists)
         if (emailExists) {
             return res.status(400).json({
@@ -648,6 +648,7 @@ exports.updateHospitalProfile = async(req, res, next) => {
        }) 
     }
 }
+
 exports.logout = async (req, res, next) => {
     try {
         const { id } = req.user;
