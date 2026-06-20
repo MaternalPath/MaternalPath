@@ -49,11 +49,10 @@ module.exports = {
       enum: ['allNotifications','pregnancyUpdates', 'healthReminders', 'walletAlerts', 'hospitalNotifications'],
       defaultValue: 'allNotifications' 
     },
-    status: {
-      type: Sequelize.TEXT,
+    isRead: {
+      type: Sequelize.BOOLEAN,
       allowNull: false,
-      enum: ['read', 'unread'],
-      defaultValue: 'unread'
+      defaultValue: false
     },
     time: {
         type: Sequelize.DATE,

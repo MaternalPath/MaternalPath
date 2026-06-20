@@ -81,7 +81,6 @@ exports.markAsRead = async (req, res) => {
 
 
 
-// Mark a notification as unread
 exports.markAsUnread = async (req, res) => {
   try {
     const { id } = req.params;
@@ -108,8 +107,6 @@ exports.markAsUnread = async (req, res) => {
 };
 
 
-
-// Delete a notification
 exports.deleteNotification = async (req, res) => {
   try {
     const { id } = req.params;
@@ -134,8 +131,6 @@ exports.deleteNotification = async (req, res) => {
 };
 
 
-
-// Get all unread notifications
 exports.getUnreadNotifications = async (req, res) => {
   try {
     const where = { isRead: false, ...buildWhereClause(req) };
@@ -165,8 +160,6 @@ exports.getUnreadNotifications = async (req, res) => {
 };
 
 
-
-// Get all read notifications
 exports.getReadNotifications = async (req, res) => {
   try {
     const where = { isRead: true, ...buildWhereClause(req) };
@@ -196,55 +189,13 @@ exports.getReadNotifications = async (req, res) => {
 };
 
 
-
-// Get notifications by type (verification_alert, pending_review, etc.)
 exports.getNotificationsByType = async (req, res) => {
   try {
     const { type } = req.params;
-    const where = { type, ...buildWhereClause(req) };
-
-    const validTypes = ['verification_alert', 'pending_review', 'bill_upload_update', 'payment_update', 'system_notification', 'general'];
-    if (!validTypes.includes(type)) {
-      return res.status(400).json({
-        message: `Invalid type. Must be one of: ${validTypes.join(', ')}`
-      });
-    }
-
-    const { page = 1, limit = 20 } = req.query;
-    const offset = (parseInt(page) - 1) * parseInt(limit);
-
-    const { count, rows } = await motherNotification.findAndCountAll({
-      where,
-      order: [['createdAt', 'DESC']],
-      limit: parseInt(limit),
-      offset
-    });
-
-    res.status(200).json({
-      message: `Notifications of type '${type}' retrieved successfully`,
-      total: count,
-      page: parseInt(page),
-      totalPages: Math.ceil(count / parseInt(limit)),
-      data: rows
-    });
-  } catch (error) {
-    res.status(500).json({
-      message: 'Error fetching notifications by type',
-      error: error.message
-    });
-  }
-};
-
-
-
-// Get notifications by status (info, warning, success, error)
-exports.getNotificationsByStatus = async (req, res) => {
-  try {
-    const { status } = req.params;
     const where = { status, ...buildWhereClause(req) };
 
-    const validStatuses = ['info', 'warning', 'success', 'error'];
-    if (!validStatuses.includes(status)) {
+    const validStatuses = ['allNotifications','pregnancyUpdates', 'healthReminders', 'walletAlerts', 'hospitalNotifications'];
+    if (!validStatuses.includes(type)) {
       return res.status(400).json({
         message: `Invalid status. Must be one of: ${validStatuses.join(', ')}`
       });
@@ -261,7 +212,7 @@ exports.getNotificationsByStatus = async (req, res) => {
     });
 
     res.status(200).json({
-      message: `Notifications with status '${status}' retrieved successfully`,
+      message: `Notifications with type '${type}' retrieved successfully`,
       total: count,
       page: parseInt(page),
       totalPages: Math.ceil(count / parseInt(limit)),
@@ -300,7 +251,6 @@ exports.getRecentNotifications = async (req, res) => {
 };
 
 
-// Get total count of notifications for the authenticated user
 exports.getNotificationCount = async (req, res) => {
   try {
     const where = buildWhereClause(req);
@@ -325,84 +275,48 @@ exports.getNotificationCount = async (req, res) => {
   }
 };
 
-exports.getNotificationStats = async (req, res) => {
-  try {
-    const where = buildWhereClause(req);
+// exports.createSystemNotification = async (req, res) => {
+//   try {
+//     const { title, message, type, status, metadata } = req.body;
 
-    const totalNotifications = await motherNotification.count({ where });
-    const pendingReviews = await motherNotification.count({
-      where: { ...where, type: 'pending_review' }
-    });
-    const verificationAlerts = await motherNotification.count({
-      where: { ...where, type: 'verification_alert' }
-    });
-    const billUploadUpdates = await motherNotification.count({
-      where: { ...where, type: 'bill_upload_update' }
-    });
-    const unreadCount = await motherNotification.count({
-      where: { ...where, isRead: false }
-    });
+//     // Validation
+//     if (!title || !title.trim()) {
+//       return res.status(400).json({ message: 'Title is required' });
+//     }
+//     if (!message || !message.trim()) {
+//       return res.status(400).json({ message: 'Message is required' });
+//     }
 
-    res.status(200).json({
-      message: 'Notification stats retrieved successfully',
-      data: {
-        totalNotifications,
-        pendingReviews,
-        verificationAlerts,
-        billUploadUpdates,
-        unreadCount
-      }
-    });
-  } catch (error) {
-    res.status(500).json({
-      message: 'Error fetching notification stats',
-      error: error.message
-    });
-  }
-};
+//     // Get all hospital IDs
+//     const mothers = await Mother.findAll({ attributes: ['id'] });
 
-exports.createSystemNotification = async (req, res) => {
-  try {
-    const { title, message, type, status, metadata } = req.body;
+//     if (mothers.length === 0) {
+//       return res.status(404).json({ message: 'No hospitals found to notify' });
+//     }
 
-    // Validation
-    if (!title || !title.trim()) {
-      return res.status(400).json({ message: 'Title is required' });
-    }
-    if (!message || !message.trim()) {
-      return res.status(400).json({ message: 'Message is required' });
-    }
+//     // Create a notification for each hospital
+//     const notificationData = mothers.map(hospital => ({
+//       hospitalId: hospital.id,
+//       title: title.trim(),
+//       message: message.trim(),
+//       type: type || 'system_notification',
+//       status: status || 'info',
+//       isRead: false,
+//       metadata: metadata || null,
+//       createdAt: new Date(),
+//       updatedAt: new Date()
+//     }));
 
-    // Get all hospital IDs
-    const mothers = await Mother.findAll({ attributes: ['id'] });
+//     await motherNotification.bulkCreate(notificationData);
 
-    if (mothers.length === 0) {
-      return res.status(404).json({ message: 'No hospitals found to notify' });
-    }
-
-    // Create a notification for each hospital
-    const notificationData = mothers.map(hospital => ({
-      hospitalId: hospital.id,
-      title: title.trim(),
-      message: message.trim(),
-      type: type || 'system_notification',
-      status: status || 'info',
-      isRead: false,
-      metadata: metadata || null,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    }));
-
-    await motherNotification.bulkCreate(notificationData);
-
-    res.status(201).json({
-      message: `System notification sent to ${mothers.length} hospitals successfully`,
-      count: mothers.length
-    });
-  } catch (error) {
-    res.status(500).json({
-      message: 'Error creating system notification',
-      error: error.message
-    });
-  }
-};
+//     res.status(201).json({
+//       message: `System notification sent to ${mothers.length} hospitals successfully`,
+//       count: mothers.length
+//     });
+//   } catch (error) {
+//     res.status(500).json({
+//       message: 'Error creating system notification',
+//       error: error.message
+//     });
+//   }
+// };
