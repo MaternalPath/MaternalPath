@@ -95,7 +95,7 @@ router.post('/createMessage', createMessage);
  *         description: Internal server error
  */
 
-router.get('/weeklyMessage', weeklyMessage);
+router.get('/weeklyMessage',Authentication, weeklyMessage);
 
 router.post('/dailyMessage', createDaily);
 
