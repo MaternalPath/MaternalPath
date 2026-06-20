@@ -11,8 +11,8 @@ const axios = require("axios");
 
 exports.initiatePayment = async (req, res, next) => {
   try {
-    const koraKey = process.env.KORA_SK?.trim();
     
+    const koraKey = process.env.KORA_SK?.trim();
     if (!koraKey) {
       console.error('KORA_SK is not configured in environment variables');
       return next({
@@ -54,12 +54,13 @@ exports.initiatePayment = async (req, res, next) => {
         email: mother.email,
         name: name
       },
-      redirect_url: 'https://maternal-path-fe.vercel.app/',
+      redirect_url: 'http://maternal-path-fe.vercel.app',
       currency: 'NGN',
       reference: reference
     };
 
-    const { data } = await axios.post(`${process.env.PAYMENT_API}/charges/initialize`, payload, {
+    const { data } = await axios.post(`${process.env.PAYMENT_API}/charges/initialize
+`, payload, {
       headers: {
         Authorization: `Bearer ${koraKey}`
       },
