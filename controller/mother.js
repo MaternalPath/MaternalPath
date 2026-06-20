@@ -273,12 +273,9 @@ exports.loginMother = async (req, res, next) => {
       });
     }
 
-    const verify = false;
-
     if (mother.isVerified == false) {
       return next({
         message: "Please verify your email before logging in",
-        verify,
         statusCode: 404,
       });
     }
@@ -594,7 +591,7 @@ exports.updateMother = async (req, res, next) => {
       selectedHospital: hospital.hospitalName,
       hospitalAddress: hospital.address,
       hospitalContact: hospital.phoneNumber,
-      estimatedDeliveryCost: savingsGoalAmount?? MotherUpdate.savingsGoalAmount,
+      estimatedDeliveryCost: savingsGoalAmount?? hospital.deliveryFee ?? MotherUpdate.savingsGoalAmount,
       pregnancyProgress: progress,
       daysUntilDueDate: daysLeft,
     };

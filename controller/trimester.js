@@ -260,16 +260,9 @@ exports.weeklyMessage = async (req, res, next) => {
     const tip = await pregnancyTip.findOne({
    where: { week: currentWeek }
     });
-    console.log("tip:", tip.dataValues)
-
 
     res.status(200).json({
-        data: {
-            id: tip.dataValues.id,
-            week:tip.dataValues.week,
-            title: JSON.parse(tip.dataValues.title),
-            description: JSON.parse(tip.dataValues.description),
-        }
+        tip
     })
     } catch (error) {
         next({

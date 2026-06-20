@@ -98,7 +98,6 @@ router.post('/initiate', Authentication, initiatePayment)
  *         description: Mother not found
  */
 router.post('/initiateCard', Authentication, initiateCard)
-router.post('/initiate-card', Authentication, initiateCard)
 
 /**
  * @swagger

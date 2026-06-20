@@ -21,11 +21,11 @@ module.exports = (sequelize, DataTypes) => {
         defaultValue: DataTypes.UUIDV4
       },
     whatToExpect:{
-      type: DataTypes.TEXT,
+      type: DataTypes.JSON,
       allowNull: false
     },
     nutritionGuidance:{
-      type: DataTypes.TEXT,
+      type: DataTypes.JSON,
       allowNull: false
     },
     createdAt: {
