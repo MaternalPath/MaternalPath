@@ -591,14 +591,14 @@ exports.updateMother = async (req, res, next) => {
       selectedHospital: hospital.hospitalName,
       hospitalAddress: hospital.address,
       hospitalContact: hospital.phoneNumber,
-      estimatedDeliveryCost: hospital.deliveryFee,
+      estimatedDeliveryCost: savingsGoalAmount?? MotherUpdate.savingsGoalAmount,
       pregnancyProgress: progress,
       daysUntilDueDate: daysLeft,
     };
 
     if (savingsGoalAmount < hospital.deliveryFee) {
       return res.status(400).json({
-        message: 'savings goal should be higher or equal to estimated delivery cost'
+        message: 'savings goal should be higher or equal to Hospital delivery cost'
       })
     }
 

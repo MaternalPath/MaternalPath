@@ -25,15 +25,15 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false
     },
     title: {
-      type: DataTypes.JSON,
+      type: DataTypes.TEXT,
       allowNull: false
     },
     description: {
-      type: DataTypes.JSON,
+      type: DataTypes.TEXT,
       allowNull: false
     },
     foodsToAvoid: {
-      type: DataTypes.JSON,
+      type: DataTypes.TEXT,
       allowNull: false
     },
     createdAt: {

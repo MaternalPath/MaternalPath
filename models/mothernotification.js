@@ -49,21 +49,21 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: true
     },
     title: {
-      type: DataTypes.JSON,
+      type: DataTypes.TEXT,
       allowNull: false
     },
     description: {
-      type: DataTypes.JSON,
+      type: DataTypes.TEXT,
       allowNull: false
     },
     type: {
-      type: DataTypes.JSON,
+      type: DataTypes.TEXT,
       allowNull: false,
       enum: ['allNotifications','pregnancyUpdates', 'healthReminders', 'walletAlerts', 'hospitalNotifications'],
       defaultValue: 'allNotifications' 
     },
     status: {
-      type: DataTypes.JSON,
+      type: DataTypes.TEXT,
       allowNull: false,
       enum: ['read', 'unread'],
       defaultValue: 'unread'

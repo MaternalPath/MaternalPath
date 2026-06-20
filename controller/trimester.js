@@ -239,7 +239,8 @@ exports.wellnessAndSelfCare = async (req, res, next) => {
 exports.weeklyMessage = async (req, res, next) => {
     try {
         const id = req.user?.id;
-        const mother = await Mother.findOne({where: {id}})
+        console.log("id:", id)
+        const mother = await MotherUpdate.findOne({where: { motherId: id }})
         if (!mother) {
             return next({
                 message: 'mother does not exist',
@@ -259,9 +260,16 @@ exports.weeklyMessage = async (req, res, next) => {
     const tip = await pregnancyTip.findOne({
    where: { week: currentWeek }
     });
+    console.log("tip:", tip.dataValues)
+
 
     res.status(200).json({
-        tip
+        data: {
+            id: tip.dataValues.id,
+            week:tip.dataValues.week,
+            title: JSON.parse(tip.dataValues.title),
+            description: JSON.parse(tip.dataValues.description),
+        }
     })
     } catch (error) {
         next({
