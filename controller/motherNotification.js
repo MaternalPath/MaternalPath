@@ -6,6 +6,14 @@ const { Op } = require("sequelize");
 const cron = require("node-cron");
 dayjs.extend(relativeTime);
 
+function buildWhereClause(req) {
+  const where = {};
+  if (req.user?.id) {
+    where.motherId = req.user.id;
+  }
+  return where;
+}
+
 exports.getNotifications = async (req, res, next) => {
     try {
         const id = req.user?.id;
@@ -192,7 +200,7 @@ exports.getReadNotifications = async (req, res) => {
 exports.getNotificationsByType = async (req, res) => {
   try {
     const { type } = req.params;
-    const where = { status, ...buildWhereClause(req) };
+    const where = { type, ...buildWhereClause(req) };
 
     const validStatuses = ['allNotifications','pregnancyUpdates', 'healthReminders', 'walletAlerts', 'hospitalNotifications'];
     if (!validStatuses.includes(type)) {
