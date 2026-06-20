@@ -596,6 +596,12 @@ exports.updateMother = async (req, res, next) => {
       daysUntilDueDate: daysLeft,
     };
 
+    if (savingsGoalAmount < estimatedDeliveryCost) {
+      return res.status(400).json({
+        message: 'savings goal should be higher or equal to estimated delivery cost'
+      })
+    }
+
     if (mother.isUpdated === false) {
       await MotherUpdate.create(data);
       await mother.update(details);
