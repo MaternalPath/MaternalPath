@@ -110,7 +110,7 @@ const options = {
 
 const swaggerSpec = swaggerJsdoc(options);
 
-app.use('/api/v1/documentation', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
+app.use('/api/v1/documentation', swaggerUi.serve, swaggerUi.setup(swaggerSpec)) 
 
 
 
