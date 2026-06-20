@@ -1,4 +1,5 @@
 require('dotenv').config();
+const path = require('path');
 const express = require('express');
 const PORT = process.env.PORT || 3002;
 const rateLimiter = require('./middlewares/rateLimiter')
@@ -105,7 +106,10 @@ const swaggerDefinition = {
 
 const options = {
     swaggerDefinition,
-    apis: ['./routes/*.js', './routes/**/*.js']
+    apis: [
+      path.resolve(__dirname, 'routes/*.js'),
+      path.resolve(__dirname, 'routes/**/*.js'),
+    ],
 }
 
 const swaggerSpec = swaggerJsdoc(options);
