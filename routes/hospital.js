@@ -106,12 +106,9 @@ const router = express.Router();
  *                 type: string
  *                 example: 12 Hospital Road, Lagos
  *               verificationDocuments:
- *                 type: array
- *                 maxItems: 5
- *                 description: Upload only 1 JPG, JPEG, PNG, or PDF file. file must be 5MB or less.
- *                 items:
- *                   type: string
- *                   format: binary
+ *                 type: string
+ *                 format: binary
+ *                 description: JPG, JPEG, PNG, or PDF file. Maximum size is 5MB
  *               hospitalLogo:
  *                 type: string
  *                 format: binary
@@ -591,72 +588,78 @@ router.get('/profile', Authentication, getHospitalProfile);
 
 /**
  * @swagger
- * /api/v1/hospital/updateHospital:
- *   put:
- *     summary: Update hospital profile
- *     tags: [Hospital]
- *     security:
- *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               hospitalName:
- *                 type: string
- *                 example: Lagos General Hospital
- *               email:
- *                 type: string
- *                 example: hospital@example.com
- *               phoneNumber:
- *                 type: string
- *                 example: "09099923323"
- *               address:
- *                 type: string
- *                 example: 45 Hospital Road, Lagos
- *               deliveryFee:
- *                 type: number
- *                 example: 150000
- *     responses:
- *       200:
- *         description: Hospital updated successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Hospital Updated successfully
- *                 data:
- *                   type: object
- *                   properties:
- *                     hospitalName:
- *                       type: string
- *                       example: Lagos General Hospital
- *                     email:
- *                       type: string
- *                       example: hospital@example.com
- *                     phoneNumber:
- *                       type: string
- *                       example: "09099923323"
- *                     address:
- *                       type: string
- *                       example: 45 Hospital Road, Lagos
- *                     deliveryFee:
- *                       type: number
- *                       example: 150000
- *       401:
- *         description: Unauthorized - token not found or invalid
- *       404:
- *         description: Hospital not found
- *       500:
- *         description: Internal server error
- */
+paths:
+  /hospital/profile:
+    put:
+      summary: Update hospital profile
+      description: Updates the profile details of the authenticated hospital.
+      tags:
+        - Hospital
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                hospitalName:
+                  type: string
+                  example: City General Hospital
+                email:
+                  type: string
+                  format: email
+                  example: contact@citygeneral.com
+                phoneNumber:
+                  type: string
+                  example: "09124545904"
+                address:
+                  type: string
+                  example: "123 Health Ave, Medical District"
+                deliveryFee:
+                  type: number
+                  format: float
+                  example: 15.50
+                hospitalLogo:
+                 type: string
+                   format: binary
+                   description: JPG, JPEG, PNG, or PDF file. Maximum size is 5MB
+      responses:
+        200:
+          description: Hospital updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Hospital Updated successfully
+                  data:
+                    type: object
+                    properties:
+                      hospitalName:
+                        type: string
+                      email:
+                        type: string
+                      phoneNumber:
+                        type: string
+                      address:
+                        type: string
+                      deliveryFee:
+                        type: number
+                      hospitalLogo:
+                        type: string
+        401:
+          description: Unauthorized
+        404:
+          description: Hospital not found
+        500:
+          description: Internal Server Error
+  */
 
-router.put('/updateHospital', Authentication, updateHospitalProfile);
+router.put('/updateHospital', Authentication, upload.single('hospitalLogo'), updateHospitalProfile);
 
 /**
  * @swagger
