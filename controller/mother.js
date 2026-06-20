@@ -276,7 +276,7 @@ exports.loginMother = async (req, res, next) => {
     if (mother.isVerified == false) {
       return next({
         message: "Please verify your email before logging in",
-        isVerified: false,
+        isVerified: "false",
         statusCode: 404,
       });
     }
