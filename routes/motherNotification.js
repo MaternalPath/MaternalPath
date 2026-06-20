@@ -16,8 +16,8 @@ const router = express.Router();
  * /api/v1/mothers/notifications:
  *   get:
  *     tags:
- *       - Mothers  Notifications
- *     summary: Gat mother notifications
+ *       - Mother Notifications
+ *     summary: Get mother notifications
  *     description: Retrieves all notifications for the authenticated mother based on her current pregnancy week and day, scheduled for delivery at 8:00 AM daily
  *     security:
  *       - bearerAuth: []
@@ -87,7 +87,7 @@ router.get('/notifications', Authentication ,getNotifications)
  * /api/v1/mothers/stats:
  *   get:
  *     tags:
- *       - Mothers Notifications
+ *       - Mother Notifications
  *     summary: Get notification statistics
  *     description: Retrieves aggregate notification counts (total, unread, read) for the authenticated mother.
  *     security:
@@ -131,14 +131,14 @@ router.get('/notifications', Authentication ,getNotifications)
  *                   type: string
  */
 
-router.get('/stats', Authentication, markAsRead);
+router.get('/stats', Authentication, getNotificationCount);
 
 /**
  * @swagger
  * /api/v1/mothers/unread:
  *   get:
  *     tags:
- *       - Mothers Notifications
+ *       - Mother Notifications
  *     summary: Get unread notifications
  *     description: Retrieves a paginated list of unread notifications for the authenticated mother.
  *     security:
@@ -220,7 +220,7 @@ router.get('/unread', Authentication, getUnreadNotifications);
  * /api/v1/mothers/read:
  *   get:
  *     tags:
- *       - Mothers Notifications
+ *       - Mother Notifications
  *     summary: Get read notifications
  *     description: Retrieves a paginated list of read notifications for the authenticated mother.
  *     security:
@@ -303,7 +303,7 @@ router.get('/read', Authentication, getReadNotifications);
  * /api/v1/mothers/recent:
  *   get:
  *     tags:
- *       - Mothers Notifications
+ *       - Mother Notifications
  *     summary: Get recent notifications
  *     description: Retrieves the 5 most recent notifications for the authenticated mother, ordered by creation date (descending).
  *     security:
@@ -366,7 +366,7 @@ router.get('/recent', Authentication, getRecentNotifications);
  * /api/v1/mothers/count:
  *   get:
  *     tags:
- *       - Mothers Notifications
+ *       - Mother Notifications
  *     summary: Get notification count
  *     description: Retrieves aggregate notification counts (total, unread, read) for the authenticated mother.
  *     security:
@@ -417,7 +417,7 @@ router.get('/count', Authentication, getNotificationCount);
  * /api/v1/mothers/type/{type}:
  *   get:
  *     tags:
- *       - Mothers Notifications
+ *       - Mother Notifications
  *     summary: Get notifications by type
  *     description: Retrieves a paginated list of notifications filtered by type for the authenticated mother.
  *     security:
@@ -521,7 +521,7 @@ router.get('/type/:type', Authentication, getNotificationsByType);
  * /api/v1/mothers/{id}/read:
  *   patch:
  *     tags:
- *       - Mothers Notifications
+ *       - Mother Notifications
  *     summary: Mark notification as read
  *     description: Marks a single notification as read for the authenticated mother.
  *     security:
@@ -589,6 +589,81 @@ router.get('/type/:type', Authentication, getNotificationsByType);
  *                   type: string
  */
 
+router.patch('/:id/read', Authentication, markAsRead);
+
+/**
+ * @swagger
+ * /api/v1/mothers/{id}/unread:
+ *   patch:
+ *     tags:
+ *       - Mother Notifications
+ *     summary: Mark notification as unread
+ *     description: Marks a single notification as unread for the authenticated mother.
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Notification ID
+ *     responses:
+ *       200:
+ *         description: Notification marked as unread
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Notification marked as unread
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: integer
+ *                       example: 1
+ *                     type:
+ *                       type: string
+ *                       example: payment_update
+ *                     message:
+ *                       type: string
+ *                       example: Your bill has been approved
+ *                     isRead:
+ *                       type: boolean
+ *                       example: false
+ *                     createdAt:
+ *                       type: string
+ *                       format: date-time
+ *                       example: 2024-01-15T08:00:00.000z
+ *       401:
+ *         description: Unauthorized - token not found or invalid
+ *       404:
+ *         description: Not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Notification not found
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Error updating notification
+ *                 error:
+ *                   type: string
+ */
+
 router.patch('/:id/unread', Authentication, markAsUnread);
 
 /**
@@ -596,7 +671,7 @@ router.patch('/:id/unread', Authentication, markAsUnread);
  * /api/v1/mothers/notifications/{id}:
  *   delete:
  *     tags:
- *       - Mothers Notifications
+ *       - Mother Notifications
  *     summary: Delete notification
  *     description: Permanently deletes a single notification for the authenticated mother.
  *     security:
