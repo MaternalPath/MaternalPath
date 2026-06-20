@@ -28,15 +28,23 @@ exports.initiatePayment = async (req, res, next) => {
       specialChars: false,
     });
 
-    const name = mother.firstName+ + mother.lastName;
+    const name = mother.firstName + ' ' + mother.lastName;
     const { amount } = req.body;
+    
+    if (!amount || amount <= 0) {
+      return next({
+        message: 'Invalid amount provided',
+        statusCode: 400
+      });
+    }
+
     const payload = {
       amount: amount,
       customer: {
         email: mother.email,
         name: name
       },
-      redirect_url: 'http://localhost:2245/api/v1',
+      redirect_url: 'http://localhost:2245/api/v1/payment/payment',
       currency: 'NGN',
       reference: reference
     };
@@ -64,9 +72,34 @@ exports.initiatePayment = async (req, res, next) => {
       data
     })
   } catch (error) {
+    console.error('Payment error:', error.response?.status, error.response?.data || error.message);
+    
+    if (error.response?.status === 403) {
+      return next({
+        message: 'Kora API authentication failed. Please check your API key.',
+        statusCode: 403
+      });
+    }
+
+    if (error.response?.status === 400) {
+      return next({
+        message: error.response.data?.message || 'Invalid payment request',
+        statusCode: 400
+      });
+    }
+
     next({
-      message: error.message
-    })
+      message: error.message || 'Payment initialization failed',
+      statusCode: error.response?.status || 500
+    });
+  }
+}
+
+exports.initialize = async (req, res, next) => {
+  try{
+
+  }catch(error){
+    message: error.message
   }
 }
 
@@ -128,10 +161,18 @@ exports.verifyPayment = async (req, res, next) => {
       transactionHistory.status = "Completed";
     }
   } catch (error) {
-    console.log(error);
+    console.error('Payment verification error:', error.response?.status, error.response?.data || error.message);
+    
+    if (error.response?.status === 403) {
+      return next({
+        message: 'Kora API authentication failed. Please check your API key.',
+        statusCode: 403
+      });
+    }
+
     next({
-      message: error.message,
-      statusCode: 500,
+      message: error.message || 'Payment verification failed',
+      statusCode: error.response?.status || 500,
     });
   }
 };
@@ -176,3 +217,6 @@ exports.monthlyGoals = async (req, res, next) => {
     });
   }
 };
+
+// Alias for backwards compatibility
+exports.makePayment = exports.initiatePayment;
