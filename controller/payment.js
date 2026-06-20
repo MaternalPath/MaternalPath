@@ -11,6 +11,16 @@ const axios = require("axios");
 
 exports.initiatePayment = async (req, res, next) => {
   try {
+    const koraKey = process.env.KORA_SK?.trim();
+    
+    if (!koraKey) {
+      console.error('KORA_SK is not configured in environment variables');
+      return next({
+        message: 'Payment service is not properly configured',
+        statusCode: 500
+      });
+    }
+
     const id = req.user?.id;
     const mother = await Mother.findByPk(id);
 
@@ -51,7 +61,7 @@ exports.initiatePayment = async (req, res, next) => {
 
     const { data } = await axios.post('https://api.korapay.com/merchant/api/v1/charges/initialize', payload, {
       headers: {
-        Authorization: `Bearer ${process.env.KORA_SK}`
+        Authorization: `Bearer ${koraKey}`
       },
     })
 
@@ -105,6 +115,16 @@ exports.initialize = async (req, res, next) => {
 
 exports.verifyPayment = async (req, res, next) => {
   try {
+    const koraKey = process.env.KORA_SK?.trim();
+    
+    if (!koraKey) {
+      console.error('KORA_SK is not configured in environment variables');
+      return next({
+        message: 'Payment service is not properly configured',
+        statusCode: 500
+      });
+    }
+
     const { reference } = req.query;
     const paymentRecord = await payment.findOne({ where: { reference } });
     const walletRec = await wallet.findOne({
@@ -122,7 +142,7 @@ exports.verifyPayment = async (req, res, next) => {
       `https://api.korapay.com/merchant/api/v1/charges/${reference}`,
       {
         headers: {
-          Authorization: `Bearer ${process.env.KORA_SK}`,
+          Authorization: `Bearer ${koraKey}`,
         },
       },
     );
