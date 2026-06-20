@@ -588,77 +588,79 @@ router.get('/profile', Authentication, getHospitalProfile);
 
 /**
  * @swagger
-paths:
-  /hospital/profile:
-    put:
-      summary: Update hospital profile
-      description: Updates the profile details of the authenticated hospital.
-      tags:
-        - Hospital
-      security:
-        - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                hospitalName:
-                  type: string
-                  example: City General Hospital
-                email:
-                  type: string
-                  format: email
-                  example: contact@citygeneral.com
-                phoneNumber:
-                  type: string
-                  example: "09124545904"
-                address:
-                  type: string
-                  example: "123 Health Ave, Medical District"
-                deliveryFee:
-                  type: number
-                  format: float
-                  example: 15.50
-                hospitalLogo:
-                 type: string
-                   format: binary
-                   description: JPG, JPEG, PNG, or PDF file. Maximum size is 5MB
-      responses:
-        200:
-          description: Hospital updated successfully
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Hospital Updated successfully
-                  data:
-                    type: object
-                    properties:
-                      hospitalName:
-                        type: string
-                      email:
-                        type: string
-                      phoneNumber:
-                        type: string
-                      address:
-                        type: string
-                      deliveryFee:
-                        type: number
-                      hospitalLogo:
-                        type: string
-        401:
-          description: Unauthorized
-        404:
-          description: Hospital not found
-        500:
-          description: Internal Server Error
-  */
-
+ * /hospital/profile:
+ *   put:
+ *     summary: Update hospital profile
+ *     description: Updates the authenticated hospital's profile information. Only the logged-in hospital can update its own profile.
+ *     tags:
+ *       - Hospital
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               hospitalName:
+ *                 type: string
+ *                 example: "City General Hospital"
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: "info@citygeneral.com"
+ *               phoneNumber:
+ *                 type: string
+ *                 example: "+2348012345678"
+ *               address:
+ *                 type: string
+ *                 example: "123 Allen Avenue, Ikeja, Lagos"
+ *               deliveryFee:
+ *                 type: number
+ *                 example: 5000
+ *               hospitalLogo:
+ *                 type: string
+ *                 example: "https://example.com/uploads/logo.png"
+ *     responses:
+ *       200:
+ *         description: Hospital profile updated successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Hospital Updated successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     hospitalName:
+ *                       type: string
+ *                       example: "City General Hospital"
+ *                     email:
+ *                       type: string
+ *                       example: "info@citygeneral.com"
+ *                     phoneNumber:
+ *                       type: string
+ *                       example: "+2348012345678"
+ *                     address:
+ *                       type: string
+ *                       example: "123 Allen Avenue, Ikeja, Lagos"
+ *                     deliveryFee:
+ *                       type: number
+ *                       example: 5000
+ *                     hospitalLogo:
+ *                       type: string
+ *                       example: "https://example.com/uploads/logo.png"
+ *       401:
+ *         description: Unauthorized. Authentication token is missing or invalid.
+ *       404:
+ *         description: Hospital not found.
+ *       500:
+ *         description: Internal server error.
+ */
 router.put('/updateHospital', Authentication, upload.single('hospitalLogo'), updateHospitalProfile);
 
 /**
@@ -684,6 +686,6 @@ router.put('/updateHospital', Authentication, upload.single('hospitalLogo'), upd
  *                   example: Logout successful
  */
 
-router.post('/logout', logout)
+router.post('/logout', logout) 
 
 module.exports = router;
