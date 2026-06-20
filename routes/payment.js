@@ -1,7 +1,6 @@
 const express = require('express');
 const { Authentication } = require('../middlewares/auth');
 const { makePayment, verifyPayment, monthlyGoals, initiatePayment } = require('../controller/payment');
-const { initiateCard } = require('../controller/cardPayment');
 const router = express.Router();
 
 
@@ -56,48 +55,6 @@ const router = express.Router();
  */
 
 router.post('/initiate', Authentication, initiatePayment)
-
-/**
- * @swagger
- * /api/v1/payment/initiateCard:
- *   post:
- *     tags:
- *       - Payment
- *     summary: Initiate a card payment
- *     description: Initiates a card payment using Kora and returns a payment transaction response
- *     security:
- *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - amount
- *             properties:
- *               amount:
- *                 type: number
- *                 example: 5000.00
- *     responses:
- *       200:
- *         description: Payment initiated successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Payment initiated successfully
- *                 data:
- *                   type: object
- *       401:
- *         description: Unauthorized - token not found or invalid
- *       404:
- *         description: Mother not found
- */
-router.post('/initiateCard', Authentication, initiateCard)
 
 /**
  * @swagger
