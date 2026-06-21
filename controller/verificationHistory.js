@@ -1,4 +1,5 @@
-const { verifyPatientFund } = require('../models');
+const { verifyPatientFund, Mother } = require('../models');
+const { Op } = require('sequelize');
 
 const generateverificationNumber = () => {
   const randomNumber = Math.floor(100000 + Math.random() * 900000);
@@ -49,6 +50,8 @@ exports.getVerificationHistory = async (req, res, next) => {
 
 exports.getVerificationRecords = async (req, res, next) => {
     try {
+        const { page = 1, limit = 20, status } = req.query;
+        const offset = (page - 1) * limit;
 
         const whereClause = {};
         if (status && ['Pending', 'Approved', 'Rejected'].includes(status)) {
@@ -66,28 +69,33 @@ exports.getVerificationRecords = async (req, res, next) => {
                 'patientName',
                 'pregnancyWeek',
                 'hospitalName',
-                'walletAmount',
-                'verificationStatus', 
-                'verificationDate'
+                'walletBalance',
+                'status',
+                'createdAt'
             ],
             order: [['createdAt', 'DESC']],
             limit: Number(limit),
             offset: Number(offset)
         });
 
+        const formattedRecords = rows.map(record => ({
+            patientName: record.patientName,
+            pregnancyWeek: record.pregnancyWeek,
+            hospitalName: record.hospitalName,
+            walletAmount: record.walletBalance,
+            verificationStatus: record.status,
+            verificationDate: record.createdAt
+        }));
+
         res.status(200).json({
             message: 'Verification records fetched successfully',
             data: {
-                patientName,
-                pregnancyWeek,
-                hospitalName,
-                walletAmount,
-                verificationStatus, 
-                verificationDate
+                totalRecords: count,
+                currentPage: Number(page),
+                totalPages: Math.ceil(count / limit),
+                records: formattedRecords
             }
         });
-        const { page = 1, limit = 20, status } = req.query;
-        const offset = (page - 1) * limit;
     } catch (error) {
         res.status(500).json({
             message: error.message
@@ -97,21 +105,59 @@ exports.getVerificationRecords = async (req, res, next) => {
 
 exports.getVerificationHistories = async (req, res) => {
     try {
-        const records = await verifyPatientFund.findAll({
-            order: [['createdAt', 'DESC']]
+        const hospitalId = req.user?.id;
+        const { search, status, page = 1, limit = 20 } = req.query;
+        const offset = (page - 1) * limit;
+
+        // Build where clause - always scope to the authenticated hospital
+        const whereClause = { hospitalId };
+
+        // Filter by status if provided
+        if (status && ['Pending', 'Approved', 'Rejected'].includes(status)) {
+            whereClause.status = status;
+        }
+
+        // Search by patient name or hospital name
+        if (search) {
+            whereClause[Op.or] = [
+                { patientName: { [Op.like]: `%${search}%` } },
+                { hospitalName: { [Op.like]: `%${search}%` } }
+            ];
+        }
+
+        const { count, rows } = await verifyPatientFund.findAndCountAll({
+            where: whereClause,
+            order: [['createdAt', 'DESC']],
+            limit: Number(limit),
+            offset: Number(offset)
         });
 
-        const formattedRecords = records.map(record => ({
+        const formattedRecords = rows.map(record => ({
+            id: record.id,
             patientName: record.patientName,
-            date: record.createdAt,
-            amountRequested: record.walletBalance,
-            authorizationStatus: record.status,
-            hospitalStatus: record.readiness
+            maternalId: record.maternalId,
+            hospitalName: record.hospitalName,
+            pregnancyWeek: record.pregnancyWeek,
+            dueDate: record.dueDate,
+            walletBalance: record.walletBalance,
+            savingsGoal: record.savingsGoal,
+            goalPercentage: record.goalPercentage,
+            status: record.status,
+            readiness: record.readiness,
+            notes: record.notes,
+            verifiedBy: record.verifiedBy,
+            verifiedAt: record.verifiedAt,
+            date: record.createdAt
         }));
 
         res.status(200).json({
             message: 'Verification histories fetched successfully',
-            data: formattedRecords 
+            data: {
+                totalRecords: count,
+                currentPage: Number(page),
+                totalPages: Math.ceil(count / limit),
+                records: formattedRecords
+            }
         });
 
     } catch (error) {

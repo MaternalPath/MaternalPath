@@ -140,9 +140,10 @@ const generateBillNumber = () => {
 
 exports.uploadBill = async (req, res) => {
     try {
-        // 1. Get maternalId and other fields from req.body (matches your Swagger schema)
+        // 1. Get mother identifier and other fields from req.body
         const {
             maternalId,
+            motherId,
             referenceNumber,
             category,
             amount,
@@ -150,11 +151,24 @@ exports.uploadBill = async (req, res) => {
             dueDate
         } = req.body;
 
-        // 2. Query Mother using the maternalId from the body
-        const mother = await Mother.findOne({ where: { maternalId } });
+        // 2. Support multiple ways to identify a mother:
+        //    - maternalId: the string identifier (maternalId field)
+        //    - motherId:   the UUID primary key (id field)
+        //    - Also check req.params.motherId for backwards compatibility
+        const motherIdValue = maternalId || motherId || req.params.motherId;
+
+        let mother;
+        if (motherIdValue) {
+            // Try by maternalId (string) first, then by primary key (UUID)
+            mother = await Mother.findOne({ where: { maternalId: motherIdValue } });
+            if (!mother) {
+                mother = await Mother.findByPk(motherIdValue);
+            }
+        }
+
         if (!mother) {
             return res.status(404).json({
-                message: 'Mother not found'
+                message: 'Mother not found. Please provide a valid maternalId or motherId.'
             });
         }
 
