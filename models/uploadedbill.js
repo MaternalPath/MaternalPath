@@ -19,21 +19,21 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
       allowNull: false
+    }, 
+    hospitalId: {
+      type: DataTypes.UUID,
+      allowNull: false,
+      references: {
+        model: 'Hospitals',
+        key: 'id'
+      },
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE'
     },
-    // hospitalId: {
-    //   type: DataTypes.UUID,
-    //   allowNull: false,
-    //   references: {
-    //     model: 'Hospitals',
-    //     key: 'id'
-    //   },
-    //   onDelete: 'CASCADE',
-    //   onUpdate: 'CASCADE'
-    // },
-    // billId: {
-    //   type: DataTypes.STRING,
-    //   allowNull: false
-    // },
+    billId: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
     fullName: DataTypes.STRING,
     maternalId: DataTypes.STRING,
     phoneNumber: DataTypes.STRING,
