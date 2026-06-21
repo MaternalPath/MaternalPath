@@ -1,5 +1,5 @@
 const { where } = require("sequelize");
-const {firstTrimester, secondTrimester, thirdTrimester, Mother, pregnancyTip, dailyReminder, MotherUpdate, motherNotification} = require("../models");
+const {firstTrimester, secondTrimester, thirdTrimester, Mother, pregnancyTip, dailyReminder, MotherUpdate, motherNotification, healthGuide, wellnessAndSelfCare} = require("../models");
 const dayjs = require("dayjs");
 const relativeTime = require("dayjs/plugin/relativeTime");
 const { Op } = require("sequelize");
@@ -191,7 +191,10 @@ exports.nutritionGuide = async (req, res, next) => {
         await motherNotification.create({
         title,
         description,
-        week
+        dayNumber,
+        type: "pregnancyUpdates",
+        status: "unread",
+        time: `${seconds} seconds ago`
         });
 
        res.status(201).json({
@@ -205,7 +208,7 @@ exports.nutritionGuide = async (req, res, next) => {
     });  
     }
 }
-exports.wellnessAndSelfCare = async (req, res, next) => {
+exports.wellnessAndSelf = async (req, res, next) => {
     try {
        const {week, title, description, foodsToAvoid} = req.body;
 
@@ -221,7 +224,10 @@ exports.wellnessAndSelfCare = async (req, res, next) => {
         await motherNotification.create({
         title,
         description,
-        week
+        week,
+        type: "wellnessAndSelfCare",
+        status: "unread",
+        time: `${seconds} seconds ago`
         });
 
        res.status(201).json({
