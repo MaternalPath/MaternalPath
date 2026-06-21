@@ -566,6 +566,16 @@ exports.updateMother = async (req, res, next) => {
       isUpdated: true,
     };
 
+    let price 
+
+    if (savingsGoalAmount < hospital.deliveryFee) {
+      price = hospital.deliveryFee
+    }else if (savingsGoalAmount > hospital.deliveryFee) {
+      price = savingsGoalAmount
+    }else{
+      price = hospital.deliveryFee
+    }
+
     const data = {
       motherId: mother.id,
       ...(result ? { image: result.secure_url, imagePublicId: result.public_id } : {}),
@@ -591,7 +601,7 @@ exports.updateMother = async (req, res, next) => {
       selectedHospital: hospital.hospitalName,
       hospitalAddress: hospital.address,
       hospitalContact: hospital.phoneNumber,
-      estimatedDeliveryCost: savingsGoalAmount?? hospital.deliveryFee ?? MotherUpdate.savingsGoalAmount,
+      estimatedDeliveryCost: price ?? MotherUpdate.savingsGoalAmount,
       pregnancyProgress: progress,
       daysUntilDueDate: daysLeft,
     };
