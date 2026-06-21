@@ -72,7 +72,7 @@ exports.createHospital = async (req, res) => {
         const hospitalLogo = req.files?.hospitalLogo?.[0]
             ? `/uploads/hospitals/${req.files.hospitalLogo[0].filename}`
             : null;
-        const verificationDocument = req.files?.verificationDocument
+        const verificationDocuments = req.files?.verificationDocuments
             ? req.files.verificationDocuments.map((file) => `/uploads/hospitals/${file.filename}`)
             : [];
 
