@@ -566,7 +566,7 @@ exports.updateMother = async (req, res, next) => {
       isUpdated: true,
     };
 
-    let price = ""
+    let price 
 
     if (savingsGoalAmount < hospital.deliveryFee) {
       price = hospital.deliveryFee
