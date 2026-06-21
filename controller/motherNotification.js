@@ -199,6 +199,13 @@ exports.getReadNotifications = async (req, res) => {
 
 exports.getNotificationsByType = async (req, res) => {
   try {
+    const id = req.user?.id;
+        if (!id) {
+            return res.status(404).json({
+                message: 'Id not found'
+            })
+        }
+        dayjs.extend(relativeTime);
     const { type } = req.params;
     const where = { type, ...buildWhereClause(req) };
 
