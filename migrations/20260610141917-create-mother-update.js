@@ -64,7 +64,7 @@ module.exports = {
                 allowNull: false
              },
             emergencyContactNumber: {
-                type: Sequelize.INTEGER,
+                type: Sequelize.STRING,
                 allowNull: false
              },
             selectedHospital: {
