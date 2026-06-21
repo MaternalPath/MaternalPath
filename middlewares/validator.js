@@ -207,10 +207,10 @@ exports.updateValidation = (req,res,next)=>{
       "any.required": "Emergency contact name is required."
     }),
 
-  emergencyContactNumber: joi.string().trim().pattern(/^\+?[0-9]{10,15}$/).required().messages({
+  emergencyContactNumber: joi.string().trim().pattern(/^[0-9]{11}$/).required().messages({
       "string.base": "Emergency contact phone number must be a string.",
       "string.empty": "Emergency contact phone number is required.",
-      "string.pattern.base": "Emergency contact phone number must be between 10 and 15 digits and may start with '+'.",
+      "string.pattern.base": "Emergency contact phone number must be digits",
       "any.required": "Emergency contact phone number is required."
     }),
 
