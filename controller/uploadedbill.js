@@ -13,7 +13,7 @@ const generateBillNumber = () => {
 
 exports.uploadBill = async (req, res) => {
     try {
-        const { motherId } = req.params;
+        const motherId = req.params.motherId || req.body.motherId;
 
         const mother = await Mother.findByPk(motherId);
         if (!mother) {
