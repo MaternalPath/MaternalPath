@@ -62,7 +62,7 @@ module.exports = (sequelize, DataTypes) => {
     allergies: { type: DataTypes.STRING, allowNull: false },
     currentPregnancyWeek: { type: DataTypes.INTEGER, allowNull: false },
     emergencyContactName: { type: DataTypes.STRING, allowNull: false },
-    emergencyContactNumber: { type: DataTypes.INTEGER, allowNull: false },
+    emergencyContactNumber: { type: DataTypes.STRING, allowNull: false },
     selectedHospital: { type: DataTypes.STRING, allowNull: false },
     hospitalAddress: { type: DataTypes.STRING },
     hospitalContact: { type: DataTypes.STRING },
