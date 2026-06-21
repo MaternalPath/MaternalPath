@@ -159,7 +159,6 @@ const router = express.Router();
  *         description: Internal server error
  */
 router.post('/upload', Authentication, upload.single('documentUpload'), uploadBill);
-// router.post('/upload/:motherId', Authentication, upload.single('documentUpload'), uploadBill);
 
 // // Add a diagnostic check to ensure getBill is a function
 // if (typeof getBill !== 'function') {

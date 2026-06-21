@@ -493,7 +493,6 @@ exports.getHospitalMothers = async (req, res) => {
 };
 
 
-
 exports.getHospitalMother = async (req, res) => {
   try {
     const hospitalId = req.user?.id;
@@ -622,15 +621,15 @@ exports.updateHospitalProfile = async(req, res, next) => {
             })
         }
 
-        const { hospitalName, email, phoneNumber, address, deliveryFee, hospitalLogo } = req.body;
+        const { hospitalLogo, hospitalName, email, phoneNumber, address, deliveryFee } = req.body;
 
-        const data = { 
+        const data = {
+             hospitalLogo: hospitalLogo ?? hospital.hospitalLogo, 
             hospitalName: hospitalName ?? hospital.hospitalName, 
             email: email ?? hospital.email, 
             phoneNumber: phoneNumber ?? hospital.phoneNumber, 
             address: address ?? hospital.address,  
             deliveryFee: deliveryFee ?? hospital.deliveryFee,
-            hospitalLogo: hospitalLogo ?? hospital.hospitalLogo
         }
 
         await Hospital.update(data, {
