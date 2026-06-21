@@ -305,11 +305,11 @@ exports.updateValidation = (req, res, next) => {
         "any.required": "Emergency contact name is required.",
       }),
 
-    emergencyContactNumber: joi.string().trim().length(11).pattern(/^[0-9]+$/).required().messages({
+    emergencyContactNumber: joi.string().trim().length(10).pattern(/^[0-9]+$/).required().messages({
         "string.base": "Emergency contact phone number must be a string.",
         "string.empty": "Emergency contact phone number is required.",
         "string.length":
-          "Emergency contact phone number must be exactly 11 digits.",
+          "Emergency contact phone number must be exactly 10 digits.",
         "string.pattern.base":
           "Emergency contact phone number must contain only digits.",
         "any.required": "Emergency contact phone number is required.",
