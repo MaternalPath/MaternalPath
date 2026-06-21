@@ -144,7 +144,6 @@ exports.createMother = async (req, res, next) => {
       firstName: mother.firstName,
       lastName: mother.lastName,
       email: mother.email,
-      otp: mother.otp,
       phoneNumber: mother.phoneNumber,
       hospitalId: mother.hospitalId,
     };
@@ -565,12 +564,14 @@ exports.updateMother = async (req, res, next) => {
       hospitalId: selectedHospitalId,
       isUpdated: true,
     };
+    const delivery = Number(hospital.deliveryFee)
+    const save = Number(savingsGoalAmount)
 
     let price 
-
-    if (savingsGoalAmount < hospital.deliveryFee) {
+    
+    if (save < delivery) {
       price = hospital.deliveryFee
-    }else if (savingsGoalAmount > hospital.deliveryFee) {
+    }else if (save > delivery) {
       price = savingsGoalAmount
     }else{
       price = hospital.deliveryFee
@@ -592,7 +593,7 @@ exports.updateMother = async (req, res, next) => {
       emergencyContactName: emergencyContactName ?? MotherUpdate.emergencyContactName,
       emergencyContactNumber: emergencyContactNumber ?? MotherUpdate.emergencyContactNumber,
       allergies: allergies ?? MotherUpdate.allergies,
-      savingsGoalAmount: savingsGoalAmount ?? MotherUpdate.savingsGoalAmount,
+      savingsGoalAmount: price ?? MotherUpdate.savingsGoalAmount,
       weeklyContribution: weeklyContribution ?? MotherUpdate.weeklyContribution,
       linkedPaymentMethod:
         linkedPaymentMethod ?? MotherUpdate.linkedPaymentMethod,
@@ -601,7 +602,7 @@ exports.updateMother = async (req, res, next) => {
       selectedHospital: hospital.hospitalName,
       hospitalAddress: hospital.address,
       hospitalContact: hospital.phoneNumber,
-      estimatedDeliveryCost: price ?? MotherUpdate.savingsGoalAmount,
+      estimatedDeliveryCost: hospital.deliveryFee,
       pregnancyProgress: progress,
       daysUntilDueDate: daysLeft,
     };
