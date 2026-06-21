@@ -151,10 +151,7 @@ exports.uploadBill = async (req, res) => {
             dueDate
         } = req.body;
 
-        // 2. Support multiple ways to identify a mother:
-        //    - maternalId: the string identifier (maternalId field)
-        //    - motherId:   the UUID primary key (id field)
-        //    - Also check req.params.motherId for backwards compatibility
+      
         const motherIdValue = maternalId || motherId || req.params.motherId;
 
         let mother;
@@ -168,7 +165,7 @@ exports.uploadBill = async (req, res) => {
 
         if (!mother) {
             return res.status(404).json({
-                message: 'Mother not found. Please provide a valid maternalId or motherId.'
+                message: 'Mother not found'
             });
         }
 
@@ -217,21 +214,26 @@ exports.uploadBill = async (req, res) => {
             });
         }
 
-        // Generate a unique bill ID
-        const billId = `BILL-${Date.now()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+        // Generate a unique bill ID (required by the database schema)
+        const generatedBillId = `BILL-${Date.now()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+
+        // Validate category against allowed ENUM values
+        const allowedCategories = ['Natural Delivery', 'C section'];
+        const validCategory = allowedCategories.includes(category) ? category : 'Natural Delivery';
 
         // Create bill and kick off the workflow at stage 1
-        const bill = await uploadedBill.create({
+        const bill = new uploadedBill({
+            billId: generatedBillId,
             hospitalId: hospital.id,
             motherId: mother.id,
             fullName: `${mother.firstName} ${mother.lastName}`,
             email: mother.email,
-            maternalId: mother.maternalId || null, // Safe mapping
+            maternalId: mother.maternalId || null,
             phoneNumber: mother.phoneNumber,
             pregnancyWeek: latestUpdate?.currentPregnancyWeek || null,
             expectedDeliveryDate,
             preferredHospital: mother.Hospital?.hospitalName || null,
-            category,
+            category: validCategory,
             amount,
             billingDate,
             dueDate,
@@ -241,7 +243,7 @@ exports.uploadBill = async (req, res) => {
             documentUpload,
             billNumber: generateBillNumber()
         });
-
+        await bill.save();
         res.status(201).json({
             message: 'Bill uploaded successfully and entered customer review',
             data: bill,
