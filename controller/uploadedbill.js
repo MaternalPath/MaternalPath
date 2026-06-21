@@ -11,31 +11,160 @@ const generateBillNumber = () => {
   return `BL-${randomNumber}`;
 };
 
+
+// exports.uploadBill = async (req, res) => {
+//     try {
+//         // Get maternalId from the body (which matches your Swagger body)
+//         const { maternalId, referenceNumber, category, amount, billingDate, dueDate } = req.body;
+
+//         // Find the mother using maternalId in the where clause
+//         const mother = await Mother.findOne({ where: { maternalId } });
+//         if (!mother) {
+//             return res.status(404).json({
+//                 message: 'Mother not found'
+//             });
+//         }
+
+
+// exports.uploadBill = async (req, res) => {
+//     try {
+//         const { motherId } = req.params;
+
+//         const mother = await Mother.findOne({ where: { maternalId } });
+//         if (!mother) {
+//             return res.status(404).json({
+//                 message: 'Mother not found'
+//             });
+//         }
+
+//         const hospitalId = req.user.id
+//         const hospital = await Hospital.findByPk(hospitalId);
+//         if (!hospital) {
+//             return res.status(404).json({
+//                 message: 'Hospital not found'
+//             });
+//         }
+//         const {
+//             referenceNumber,
+//             category,
+//             amount,
+//             billingDate,
+//             dueDate
+//         } = req.body;
+
+//         // Required field validation (systemValidation: requiredFieldComplete)
+//         const requiredFields = { referenceNumber, amount, category, billingDate, dueDate };
+//         const missingFields = Object.keys(requiredFields).filter(
+//             (field) => requiredFields[field] === undefined || requiredFields[field] === null || requiredFields[field] === ''
+//         );
+
+//         if (missingFields.length > 0) {
+//             return res.status(400).json({
+//                 message: 'Required fields missing',
+//                 missingFields,
+//                 systemValidation: 'requiredFieldComplete'
+//             });
+//         }
+
+//         // Auto-fill mother details for the bill
+//         const fullName = `${mother.firstName} ${mother.lastName}`;
+//         const maternalId = mother.maternalId || null;
+//         const phoneNumber = mother.phoneNumber || null;
+
+//         // Get expectedDeliveryDate from the latest MotherUpdate
+//         const { MotherUpdate } = require('../models');
+//         const latestUpdate = await MotherUpdate.findOne({
+//             where: { motherId: mother.id },
+//             attributes: ['estimatedDueDate'],
+//             order: [['createdAt', 'DESC']]
+//         });
+//         const expectedDeliveryDate = latestUpdate?.estimatedDueDate || null;
+
+//         // Capture uploaded document (systemValidation: fileUploadedProgress)
+//         const documentUpload = req.file
+//             ? `/uploads/bills/${req.file.filename}`
+//             : (req.files?.documentUpload?.[0]
+//                 ? `/uploads/bills/${req.files.documentUpload[0].filename}`
+//                 : null);
+
+//         if (!documentUpload) {
+//             return res.status(400).json({
+//                 message: 'Bill document is required',
+//                 systemValidation: 'fileUploadedProgress'  
+//             });
+//         }
+
+//         // Generate a unique bill ID
+//         const billId = `BILL-${Date.now()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+
+//         // Create bill and kick off the workflow at stage 1
+//         const bill = await uploadedBill.create({
+//             // billId,
+//             hospitalId: hospital.id,
+//             motherId: mother.id,
+//             fullName: `${mother.firstName} ${mother.lastName}`,
+//             email: mother.email,
+//             maternalId: mother.maternalId || null,
+//             phoneNumber: mother.phoneNumber,
+//             pregnancyWeek: latestUpdate?.currentPregnancyWeek || null,
+//             expectedDeliveryDate: latestUpdate?.estimatedDueDate || null,
+//             preferredHospital: mother.Hospital?.hospitalName || null,
+//             category,
+//             amount,
+//             billingDate,
+//             dueDate,
+//             verificationWorkFlow: 'uploadedBill',
+//             systemValidation: 'fileUploadedProgress',
+//             billSummary: 'patienceName',
+//             documentUpload,
+//             billNumber: generateBillNumber()
+//         });
+
+//         // console.log('Bill created:', bill);
+
+//         res.status(201).json({
+//             message: 'Bill uploaded successfully and entered customer review',
+//             data: bill,
+//             workflow: {
+//                 currentStage: bill.verificationWorkFlow,
+//                 nextStage: 'customerReview'
+//             }
+//         });
+//     } catch (error) {
+//         console.log(error);
+//         res.status(500).json({
+//             message: error.message
+//         });
+//     }
+// };
+
 exports.uploadBill = async (req, res) => {
     try {
-        const { motherId } = req.params;
-
-        const mother = await Mother.findByPk(motherId);
-        if (!mother) {
-            return res.status(404).json({
-                message: 'Mother not found'
-            });
-        }
-
-        const hospitalId = req.user.id
-        const hospital = await Hospital.findByPk(hospitalId);
-        if (!hospital) {
-            return res.status(404).json({
-                message: 'Hospital not found'
-            });
-        }
+        // 1. Get maternalId and other fields from req.body (matches your Swagger schema)
         const {
+            maternalId,
             referenceNumber,
             category,
             amount,
             billingDate,
             dueDate
         } = req.body;
+
+        // 2. Query Mother using the maternalId from the body
+        const mother = await Mother.findOne({ where: { maternalId } });
+        if (!mother) {
+            return res.status(404).json({
+                message: 'Mother not found'
+            });
+        }
+
+        const hospitalId = req.user.id;
+        const hospital = await Hospital.findByPk(hospitalId);
+        if (!hospital) {
+            return res.status(404).json({
+                message: 'Hospital not found'
+            });
+        }
 
         // Required field validation (systemValidation: requiredFieldComplete)
         const requiredFields = { referenceNumber, amount, category, billingDate, dueDate };
@@ -50,11 +179,6 @@ exports.uploadBill = async (req, res) => {
                 systemValidation: 'requiredFieldComplete'
             });
         }
-
-        // Auto-fill mother details for the bill
-        const fullName = `${mother.firstName} ${mother.lastName}`;
-        const maternalId = mother.maternalId || null;
-        const phoneNumber = mother.phoneNumber || null;
 
         // Get expectedDeliveryDate from the latest MotherUpdate
         const { MotherUpdate } = require('../models');
@@ -84,15 +208,14 @@ exports.uploadBill = async (req, res) => {
 
         // Create bill and kick off the workflow at stage 1
         const bill = await uploadedBill.create({
-            // billId,
             hospitalId: hospital.id,
             motherId: mother.id,
             fullName: `${mother.firstName} ${mother.lastName}`,
             email: mother.email,
-            maternalId: mother.maternalId || null,
+            maternalId: mother.maternalId || null, // Safe mapping
             phoneNumber: mother.phoneNumber,
             pregnancyWeek: latestUpdate?.currentPregnancyWeek || null,
-            expectedDeliveryDate: latestUpdate?.estimatedDueDate || null,
+            expectedDeliveryDate,
             preferredHospital: mother.Hospital?.hospitalName || null,
             category,
             amount,
@@ -104,8 +227,6 @@ exports.uploadBill = async (req, res) => {
             documentUpload,
             billNumber: generateBillNumber()
         });
-
-        // console.log('Bill created:', bill);
 
         res.status(201).json({
             message: 'Bill uploaded successfully and entered customer review',
