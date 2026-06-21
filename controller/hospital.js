@@ -602,6 +602,53 @@ exports.getHospitalProfile = async (req, res) => {
 // }
 
 
+// exports.updateHospitalProfile = async(req, res, next) => {
+//     try {
+//         const id = req.user?.id;
+//         if (!id) {
+//             return next({
+//                 message: "Unauthorized",
+//                 statusCode: 401
+//             })
+//         }
+
+//         const hospital = await Hospital.findOne({ where: {id}});
+
+//         if (!hospital) {
+//             return next({
+//                 message: "Hospital not found",
+//                 statusCode: 404
+//             })
+//         }
+
+//         const { hospitalLogo, hospitalName, email, phoneNumber, address, deliveryFee } = req.body;
+
+//         const data = {
+//              hospitalLogo: hospitalLogo ?? hospital.hospitalLogo, 
+//             hospitalName: hospitalName ?? hospital.hospitalName, 
+//             email: email ?? hospital.email, 
+//             phoneNumber: phoneNumber ?? hospital.phoneNumber, 
+//             address: address ?? hospital.address,  
+//             deliveryFee: deliveryFee ?? hospital.deliveryFee,
+//         }
+
+//         await Hospital.update(data, {
+//             where: { id }
+//         });
+
+//         res.status(200).json({
+//             message: 'Hospital Updated successfully',
+//             data
+//         })
+//     } catch (error) {
+//        next({
+//         message: error.message,
+//         statusCode: 500
+//        }) 
+//     }
+// }
+
+
 exports.updateHospitalProfile = async(req, res, next) => {
     try {
         const id = req.user?.id;
@@ -621,10 +668,17 @@ exports.updateHospitalProfile = async(req, res, next) => {
             })
         }
 
-        const { hospitalLogo, hospitalName, email, phoneNumber, address, deliveryFee } = req.body;
+        // 1. Destructure the other fields from req.body (exclude hospitalLogo from here)
+        const { hospitalName, email, phoneNumber, address, deliveryFee } = req.body;
+
+        // 2. Check if a new file was uploaded in req.file. 
+        // If not, keep the existing logo (or fallback to req.body.hospitalLogo if they sent a string URL)
+        const logoPath = req.file
+            ? `/uploads/hospitals/${req.file.filename}` 
+            : (req.body.hospitalLogo ?? hospital.hospitalLogo);
 
         const data = {
-             hospitalLogo: hospitalLogo ?? hospital.hospitalLogo, 
+            hospitalLogo: logoPath, 
             hospitalName: hospitalName ?? hospital.hospitalName, 
             email: email ?? hospital.email, 
             phoneNumber: phoneNumber ?? hospital.phoneNumber, 

@@ -599,7 +599,7 @@ router.get('/profile', Authentication, getHospitalProfile);
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
  *             properties:
@@ -621,45 +621,8 @@ router.get('/profile', Authentication, getHospitalProfile);
  *                 example: 5000
  *               hospitalLogo:
  *                 type: string
- *                 example: "https://example.com/uploads/logo.png"
- *     responses:
- *       200:
- *         description: Hospital profile updated successfully.
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Hospital Updated successfully
- *                 data:
- *                   type: object
- *                   properties:
- *                     hospitalName:
- *                       type: string
- *                       example: "City General Hospital"
- *                     email:
- *                       type: string
- *                       example: "info@citygeneral.com"
- *                     phoneNumber:
- *                       type: string
- *                       example: "+2348012345678"
- *                     address:
- *                       type: string
- *                       example: "123 Allen Avenue, Ikeja, Lagos"
- *                     deliveryFee:
- *                       type: number
- *                       example: 5000
- *                     hospitalLogo:
- *                       type: string
- *                       example: "https://example.com/uploads/logo.png"
- *       401:
- *         description: Unauthorized. Authentication token is missing or invalid.
- *       404:
- *         description: Hospital not found.
- *       500:
- *         description: Internal server error.
+ *                 format: binary
+ *                 description: Upload hospital logo image file (JPG, PNG)
  */
 router.put('/updateHospital', Authentication, upload.single('hospitalLogo'), updateHospitalProfile);
 
