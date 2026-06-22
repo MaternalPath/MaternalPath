@@ -351,7 +351,11 @@ router.post('/reset-password', resetPassword);
  *     tags:
  *       - Mother
  *     summary: Update mother profile
- *     description: Updates the authenticated mother's profile including an optional image upload.
+ *     description: >
+ *       Updates the authenticated mother's profile including an optional image upload.
+ *       `currentPregnancyWeek` and `trimester` are calculated automatically from
+ *       `estimatedDueDate` and do not need to be supplied in the request.
+ *       `savingsGoalAmount` must be greater than or equal to the selected hospital's delivery fee.
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -364,7 +368,7 @@ router.post('/reset-password', resetPassword);
  *               image:
  *                 type: string
  *                 format: binary
- *                 description: JPG, JPEG, PNG, or PDF file. Maximum size is 5MB.
+ *                 description: Optional profile image. Accepted formats - JPG, JPEG, PNG. Maximum size is 5MB.
  *               firstName:
  *                 type: string
  *                 example: Jane
@@ -385,10 +389,7 @@ router.post('/reset-password', resetPassword);
  *                 type: string
  *                 format: date
  *                 example: "2026-12-01"
- *               trimester:
- *                 type: integer
- *                 example: 2
- *                 description: Must be 1, 2 or 3
+ *                 description: Must be a future date (not today). Used to calculate pregnancy week, trimester, and days until due date.
  *               hospitalId:
  *                 type: string
  *                 example: "3f4d73a0-b228-4691-b848-3e2dcab195a3"
@@ -398,12 +399,9 @@ router.post('/reset-password', resetPassword);
  *               existingHealthConditions:
  *                 type: string
  *                 example: None
- *               currentPregnancyWeek:
- *                 type: integer
- *                 example: 20
  *               emergencyContactName:
  *                 type: string
- *                 example: "John Doe"
+ *                 example: John Doe
  *               emergencyContactNumber:
  *                 type: string
  *                 example: "8098765432"
@@ -413,6 +411,7 @@ router.post('/reset-password', resetPassword);
  *               savingsGoalAmount:
  *                 type: number
  *                 example: 500000
+ *                 description: Must be greater than or equal to the selected hospital's delivery fee.
  *               weeklyContribution:
  *                 type: number
  *                 example: 10000
@@ -433,15 +432,59 @@ router.post('/reset-password', resetPassword);
  *                 data:
  *                   type: object
  *                   properties:
- *                     firstName:
+ *                     motherId:
  *                       type: string
- *                       example: Jane
- *                     lastName:
- *                       type: string
- *                       example: Doe
+ *                       example: "3f4d73a0-b228-4691-b848-3e2dcab195a3"
  *                     image:
  *                       type: string
  *                       example: "https://res.cloudinary.com/sample/image.jpg"
+ *                       description: Only present if an image was uploaded.
+ *                     estimatedDueDate:
+ *                       type: string
+ *                       format: date
+ *                       example: "2026-12-01"
+ *                     trimester:
+ *                       type: integer
+ *                       example: 2
+ *                       description: Calculated automatically from estimatedDueDate. 1 = first, 2 = second, 3 = third.
+ *                     bloodType:
+ *                       type: string
+ *                       example: O+
+ *                     dateOfBirth:
+ *                       type: string
+ *                       format: date
+ *                       example: "1995-06-15"
+ *                     address:
+ *                       type: string
+ *                       example: 123 Main St, Lagos
+ *                     existingHealthConditions:
+ *                       type: string
+ *                       example: None
+ *                     currentPregnancyWeek:
+ *                       type: integer
+ *                       example: 20
+ *                       description: Calculated automatically from estimatedDueDate.
+ *                     emergencyContactName:
+ *                       type: string
+ *                       example: John Doe
+ *                     emergencyContactNumber:
+ *                       type: string
+ *                       example: "8098765432"
+ *                     allergies:
+ *                       type: string
+ *                       example: Penicillin
+ *                     savingsGoalAmount:
+ *                       type: number
+ *                       example: 500000
+ *                     weeklyContribution:
+ *                       type: number
+ *                       example: 10000
+ *                     linkedPaymentMethod:
+ *                       type: string
+ *                       example: transfer
+ *                     hospitalId:
+ *                       type: string
+ *                       example: "3f4d73a0-b228-4691-b848-3e2dcab195a3"
  *                     selectedHospital:
  *                       type: string
  *                       example: Lagos General Hospital
@@ -456,16 +499,69 @@ router.post('/reset-password', resetPassword);
  *                       example: 150000
  *                     pregnancyProgress:
  *                       type: number
- *                       example: 50
+ *                       example: 62.5
+ *                       description: Calculated as (currentBalance / 40) * 100.
  *                     daysUntilDueDate:
  *                       type: integer
  *                       example: 140
+ *                 details:
+ *                   type: object
+ *                   properties:
+ *                     firstName:
+ *                       type: string
+ *                       example: Jane
+ *                     lastName:
+ *                       type: string
+ *                       example: Doe
+ *                     phoneNumber:
+ *                       type: string
+ *                       example: "+2348012345678"
+ *                     hospitalId:
+ *                       type: string
+ *                       example: "3f4d73a0-b228-4691-b848-3e2dcab195a3"
+ *                     isUpdated:
+ *                       type: boolean
+ *                       example: true
  *       400:
- *         description: Invalid trimester value
+ *         description: Bad request
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: savings goal should be higher or equal to Hospital delivery cost
  *       401:
  *         description: Unauthorized - token not found or invalid
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Unauthorized
  *       404:
- *         description: Mother or hospital not found
+ *         description: Resource not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Mother not found
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Internal server error
  */
 router.put('/update-profile', Authentication, upload.single('image'), updateValidation, updateMother);
 
