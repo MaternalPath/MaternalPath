@@ -243,11 +243,6 @@ exports.updateValidation = (req, res, next) => {
       "any.required": "Date of birth is required.",
     }),
 
-    trimester: joi.number().integer().valid(1, 2, 3).required().messages({
-      "number.base": "Trimester must be a number.",
-      "any.only": "Trimester must be 1, 2, or 3.",
-      "any.required": "Trimester is required.",
-    }),
     bloodType: joi
       .string()
       .trim()
@@ -275,19 +270,7 @@ exports.updateValidation = (req, res, next) => {
           "Existing health conditions cannot exceed 255 characters.",
         "any.required": "Existing health conditions is required.",
       }),
-    currentPregnancyWeek: joi
-      .number()
-      .integer()
-      .min(1)
-      .max(42)
-      .required()
-      .messages({
-        "number.base": "Current pregnancy week must be a number.",
-        "number.integer": "Current pregnancy week must be a whole number.",
-        "number.min": "Current pregnancy week must be at least 1.",
-        "number.max": "Current pregnancy week cannot be more than 42.",
-        "any.required": "Current pregnancy week is required.",
-      }),
+      
     emergencyContactName: joi
       .string()
       .trim()
