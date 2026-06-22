@@ -588,7 +588,7 @@ router.get('/profile', Authentication, getHospitalProfile);
 
 /**
  * @swagger
- * /hospital/profile:
+ * /api/v1/hospital/profile:
  *   put:
  *     summary: Update hospital profile
  *     description: Updates the authenticated hospital's profile information. Only the logged-in hospital can update its own profile.
