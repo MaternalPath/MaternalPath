@@ -2,7 +2,7 @@ const { verifyPatientFund, Mother } = require('../models');
 const { Op } = require('sequelize');
 
 const generateverificationNumber = () => {
-  const randomNumber = Math.floor(100000 + Math.random() * 900000);
+  const randomNumber = Math.floor(1000 + Math.random() * 9000);
   return `VER-${randomNumber}`;
 };
 
@@ -58,7 +58,6 @@ exports.getVerificationRecords = async (req, res, next) => {
             whereClause.status = status;
         }
 
-        // If the request comes from a hospital user, scope to their records
         if (req.user?.role === 'hospital') {
             whereClause.hospitalId = req.user.id;
         }
@@ -69,6 +68,7 @@ exports.getVerificationRecords = async (req, res, next) => {
                 'patientName',
                 'pregnancyWeek',
                 'hospitalName',
+                'preferredHospital',
                 'walletBalance',
                 'status',
                 'createdAt'
@@ -79,9 +79,11 @@ exports.getVerificationRecords = async (req, res, next) => {
         });
 
         const formattedRecords = rows.map(record => ({
+            verificationNumber: generateVerificationNumber(),
             patientName: record.patientName,
             pregnancyWeek: record.pregnancyWeek,
             hospitalName: record.hospitalName,
+            preferredHospital: record.preferredHospital,
             walletAmount: record.walletBalance,
             verificationStatus: record.status,
             verificationDate: record.createdAt

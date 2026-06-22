@@ -92,9 +92,8 @@ exports.createVerificationRequest = async (req, res) => {
   }
 };
 
-/**
- * Get all verification requests for a hospital
- */
+
+
 exports.getVerificationRequests = async (req, res) => {
   try {
     const hospitalId = req.user.id; 
@@ -136,9 +135,8 @@ exports.getVerificationRequests = async (req, res) => {
   }
 };
 
-/**
- * Get a single verification request by ID
- */
+
+
 exports.getVerificationRequest = async (req, res) => {
   try {
     const hospitalId = req.user.id;
@@ -176,9 +174,8 @@ exports.getVerificationRequest = async (req, res) => {
   }
 };
 
-/**
- * Approve a verification request
- */
+
+
 exports.approveVerificationRequest = async (req, res) => {
   try {
     const hospitalId = req.user.id;
@@ -218,9 +215,7 @@ exports.approveVerificationRequest = async (req, res) => {
   }
 };
 
-/**
- * Reject a verification request
- */
+
 exports.rejectVerificationRequest = async (req, res) => {
   try {
     const hospitalId = req.user.id;
