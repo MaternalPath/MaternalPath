@@ -24,11 +24,6 @@ const sendMail = async (options) => {
         console.log("Message sent: %s", info.messageId);
         console.log("Message sent to: %s", options.email);
     } catch (error) {
-        await Mother.destroy({
-                where: {
-                    email: options.email
-                }
-                });
         console.log("Error while sending mail:", error.message);
     }
 }

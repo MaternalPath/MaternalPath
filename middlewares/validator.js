@@ -231,11 +231,11 @@ exports.updateValidation = (req, res, next) => {
       "string.base": "Image must be a string.",
       "any.required": "Image is required.",
     }),
-    estimatedDueDate: joi.date().min("now").required().messages({
-      "date.base": "Estimated due date must be a valid date.",
-      "date.min": "Estimated due date cannot be in the past.",
-      "any.required": "Estimated due date is required.",
-    }),
+    estimatedDueDate: joi.date().min(new Date(new Date().setHours(0,0,0,0) + 86400000)).required().messages({
+  "date.base": "Estimated due date must be a valid date.",
+  "date.min": "Estimated due date must be a future date, not today or in the past.",
+  "any.required": "Estimated due date is required.",
+}),
 
     dateOfBirth: joi.date().less("now").required().messages({
       "date.base": "Date of birth must be a valid date.",

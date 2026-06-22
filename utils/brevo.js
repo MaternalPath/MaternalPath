@@ -20,12 +20,7 @@ exports.sendBrevoEmail = async (options) => {
         console.log(`Email sent successfully to ${options.email}`, result.messageId);
         
     } catch (error) {
-        await Mother.destroy({
-        where: {
-            email: options.email
-        }
-        });
-       console.log(`Error while sending email to ${options.email}:`, error.message) 
+       console.log(`Error while sending email to ${options.email}:`, error.message);
     }
 }
 
