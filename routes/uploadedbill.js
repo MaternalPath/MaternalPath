@@ -687,7 +687,7 @@ router.get('/dashboard', Authentication, getUploadedBillDashboard);
  *         description: Internal server error.
  */
 
-router.get('/uploaded-bills', getUploadedBillRecords);
+router.get('/uploaded-bills', Authentication, getUploadedBillRecords);
 
 
 
