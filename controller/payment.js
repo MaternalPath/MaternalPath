@@ -8,6 +8,13 @@ const {
 const otpGenerator = require("otp-generator");
 const dayjs = require("dayjs");
 const axios = require("axios");
+const { where } = require("sequelize");
+
+const getPaymentApiUrl = () => {
+  const baseUrl = process.env.PAYMENT_API?.trim() || 'https://api.korapay.com/merchant/api/v1';
+  const normalizedUrl = baseUrl.replace(/\/$/, '');
+  return `${normalizedUrl}/charges/initialize`;
+};
 
 exports.initiatePayment = async (req, res, next) => {
   try {
@@ -54,17 +61,16 @@ exports.initiatePayment = async (req, res, next) => {
         email: mother.email,
         name: name
       },
-      redirect_url: 'http://maternal-path-fe.vercel.app',
+      redirect_url: 'http://localhost:2245/api/v1/payment/initialize',
       currency: 'NGN',
       reference: reference
     };
 
-    const { data } = await axios.post(`${process.env.PAYMENT_API}/charges/initialize
-`, payload, {
-      headers: {
-        Authorization: `Bearer ${koraKey}`
-      },
-    })
+    const { data } = await axios.post('https://api.korapay.com/merchant/api/v1/charges/initialize', payload, {
+            headers: {
+                Authorization:  `Bearer ${process.env.KORA_SK}`
+            }
+        });
 
     const motherBalance = await payment.create({
       amount: amount,
@@ -106,81 +112,142 @@ exports.initiatePayment = async (req, res, next) => {
   }
 }
 
-exports.initialize = async (req, res, next) => {
-  try{
+exports.makePayment = async (req, res, next) => {
+  try {
+    const id = req.user?.id;
+    if (!id) {
+      return next({ message: 'Id not found', status: 404 });
+    }
 
-  }catch(error){
-    message: error.message
+    // const mother = await Mother.findOne({ where: { id } });
+    // if (!mother) {
+    //   return next({ message: 'Mother not found', status: 404 });
+    // }
+
+    const mother = await MotherUpdate.findOne({
+      where: { motherId: id },
+    });
+    if (!mother) {
+      return next({ message: 'Mother not found', status: 404 });
+    }
+
+    const walletRec = await wallet.findOne({
+      where: { motherId: id }, 
+    });
+    if (!walletRec) {
+      return next({ message: 'Wallet not found', status: 404 });
+    }
+
+    const { amount } = req.body;
+
+    const reference = otpGenerator.generate(10, {
+      digits: true,
+      upperCaseAlphabets: false,
+      lowerCaseAlphabets: false,
+      specialChars: false,
+    });
+
+    const paymentRecord = await payment.create({
+      amount,
+      reference: reference, 
+      motherId: id,
+    });
+
+    await transactionHistory.create({
+      amount,
+      date: new Date(),
+      motherId: id,
+    });
+
+    paymentRecord.status = 'successful';
+    walletRec.currentBalance += amount;
+
+    await walletRec.save();
+    await paymentRecord.save();
+
+    const balance = walletRec.currentBalance;
+    const goals = motherUpdate.savingsGoalAmount;
+    const remainingAmountNeeded = goals - balance;
+
+    res.status(200).json({
+      message: 'Payment successful',
+      balance,
+      goals,
+      remainingAmount: remainingAmountNeeded,
+    });
+  } catch (error) {
+    // fix: was `message: error.message` — a label expression, not a response; errors were silently swallowed
+    next({ message: error.message, statusCode: 500 });
   }
-}
+};
 
 exports.verifyPayment = async (req, res, next) => {
   try {
-    const koraKey = process.env.KORA_SK?.trim();
+    // const koraKey = process.env.KORA_SK?.trim();
     
-    if (!koraKey) {
-      console.error('KORA_SK is not configured in environment variables');
-      return next({
-        message: 'Payment service is not properly configured',
-        statusCode: 500
-      });
-    }
+    // if (!koraKey) {
+    //   console.error('KORA_SK is not configured in environment variables');
+    //   return next({
+    //     message: 'Payment service is not properly configured',
+    //     statusCode: 500
+    //   });
+    // }
 
-    const { reference } = req.query;
-    const paymentRecord = await payment.findOne({ where: { reference } });
-    const walletRec = await wallet.findOne({
-      where: { motherId: paymentRecord.dataValues.motherId },
-    });
+    // const { reference } = req.query;
+    // const paymentRecord = await payment.findOne({ where: { reference } });
+    // const walletRec = await wallet.findOne({
+    //   where: { motherId: paymentRecord.dataValues.motherId },
+    // });
 
-    if (!walletRec) {
-      return next({
-        message: `No wallet found`,
-        statusCode: 404,
-      });
-    }
+    // if (!walletRec) {
+    //   return next({
+    //     message: `No wallet found`,
+    //     statusCode: 404,
+    //   });
+    // }
 
-    const { data } = await axios.get(
-      `https://api.korapay.com/merchant/api/v1/charges/${reference}`,
-      {
-        headers: {
-          Authorization: `Bearer ${koraKey}`,
-        },
-      },
-    );
+    // const { data } = await axios.get(
+    //   `https://api.korapay.com/merchant/api/v1/charges/${reference}`,
+    //   {
+    //     headers: {
+    //       Authorization: `Bearer ${koraKey}`,
+    //     },
+    //   },
+    // );
 
-    console.log(data);
+    // console.log(data);
 
-    if (data.status === true && data.data.status === "processing") {
-      paymentRecord.status = "processing";
-      await paymentRecord.save();
-      return res.status(200).json({
-        message: "Payment is still processing",
-      });
-    }
+    // if (data.status === true && data.data.status === "processing") {
+    //   paymentRecord.status = "processing";
+    //   await paymentRecord.save();
+    //   return res.status(200).json({
+    //     message: "Payment is still processing",
+    //   });
+    // }
 
-    console.log(walletRec.currentBalance);
+    // console.log(walletRec.currentBalance);
 
-    if (data.status === true && data.data.status === "success") {
-      paymentRecord.status = "successful";
-      walletRec.dataValues.currentBalance += paymentRecord.dataValues.amount;
-      await walletRec.save();
-      await paymentRecord.save();
+    // if (data.status === true && data.data.status === "success") {
+    //   paymentRecord.status = "successful";
+    //   walletRec.dataValues.currentBalance += paymentRecord.dataValues.amount;
+    //   await walletRec.save();
+    //   await paymentRecord.save();
 
-      const balance = walletRec.currentBalance;
-      const goals = MotherUpdate.savingsGoalAmount;
-      const remainingAmountNeeded = goals - balance;
+    //   const balance = walletRec.currentBalance;
+    //   const goals = MotherUpdate.savingsGoalAmount;
+    //   const remainingAmountNeeded = goals - balance;
 
-      return res.status(200).json({
-        message: "Payment successful",
-        balance,
-        goals,
-        remainingAmount: remainingAmountNeeded,
-      });
-    }
+    //   return res.status(200).json({
+    //     message: "Payment successful",
+    //     balance,
+    //     goals,
+    //     remainingAmount: remainingAmountNeeded,
+    //   });
+    // }
 
-    if (data.status === true && data.data.status === "success") {
-      transactionHistory.status = "Completed";
-    }
+    // if (data.status === true && data.data.status === "success") {
+    //   transactionHistory.status = "Completed";
+    // }
   } catch (error) {
     console.error('Payment verification error:', error.response?.status, error.response?.data || error.message);
     
@@ -200,37 +267,37 @@ exports.verifyPayment = async (req, res, next) => {
 
 exports.monthlyGoals = async (req, res, next) => {
   try {
-    const payments = await payment.findAll({
-      where: {
-        motherId: req.user.id,
-        status: "successful",
-      },
-    });
+    // const payments = await payment.findAll({
+    //   where: {
+    //     motherId: req.user.id,
+    //     status: "successful",
+    //   },
+    // });
 
-    const monthlySavings = {};
+    // const monthlySavings = {};
 
-    for (let i = 0; i < 12; i++) {
-      const month = dayjs().month(i).format("MMMM");
-      monthlySavings[month] = 0;
-    }
+    // for (let i = 0; i < 12; i++) {
+    //   const month = dayjs().month(i).format("MMMM");
+    //   monthlySavings[month] = 0;
+    // }
 
-    payments.forEach((payment) => {
-      const month = dayjs(payment.createdAt).format("MMMM");
-      monthlySavings[month] += Number(payment.amount);
+    // payments.forEach((payment) => {
+    //   const month = dayjs(payment.createdAt).format("MMMM");
+    //   monthlySavings[month] += Number(payment.amount);
 
-      if (!monthlySavings[month]) {
-        monthlySavings[month] = 0;
-      }
+    //   if (!monthlySavings[month]) {
+    //     monthlySavings[month] = 0;
+    //   }
 
-      monthlySavings[month] += Number(payment.amount);
-    });
+    //   monthlySavings[month] += Number(payment.amount);
+    // });
 
-    console.log(monthlySavings);
+    // console.log(monthlySavings);
 
-    res.status(200).json({
-      message: "monthly payment retrieved successfully",
-      monthlySavings,
-    });
+    // res.status(200).json({
+    //   message: "monthly payment retrieved successfully",
+    //   monthlySavings,
+    // });
   } catch (error) {
     next({
       message: error.message,

@@ -57,11 +57,12 @@ const savingsProgress =
                 ? (walletRecord.currentBalance * 100) / mother.savingsGoalAmount
                 : 0;
 
-const reminder = await dailyReminder.findOne({
-        where: {
-            dayNumber: pregnancyDay
-        }
-        });
+    const reminder = await dailyReminder.findOne({
+    where: {
+        dayNumber: pregnancyDay
+    },
+    attributes: { exclude: ['time'] }
+    });
 
 const info = {
     trimester: mother.trimester,
@@ -84,7 +85,7 @@ const currentDay = mother.currentPregnancyWeek * 7;
         where: {
                 [Op.or]: [{ week: currentWeek }, { dayNumber: currentDay }]
               },
-                attributes: { exclude: ['id', 'hospitalId', 'motherId', 'dayNumber', 'week'] }
+                attributes: { exclude: ['id', 'hospitalId', 'motherId', 'dayNumber', 'week', 'time'] }
         });
 
         const result = notifications.map(item => ({

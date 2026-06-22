@@ -557,6 +557,8 @@ exports.updateMother = async (req, res, next) => {
 
     const progress = (walletRecord.currentBalance * 100) / 40;
 
+    const diffInWeeks = Math.floor(daysLeft / 7);
+
     const details = {
       firstName: firstName ?? mother.firstName,
       lastName: lastName ?? mother.lastName,
@@ -576,20 +578,29 @@ exports.updateMother = async (req, res, next) => {
     }else{
       price = hospital.deliveryFee
     }
+    let trim
+
+    if (currentPregnancyWeek <= 12 ) {
+      trim = 1
+    }else if (currentPregnancyWeek <= 26) {
+      trim = 2
+    }else{
+      trim = 3
+    }
 
     const data = {
       motherId: mother.id,
       ...(result ? { image: result.secure_url, imagePublicId: result.public_id } : {}),
 
       estimatedDueDate: estimatedDueDate ?? MotherUpdate.estimatedDueDate,
-      trimester: trimester ?? MotherUpdate.trimester,
+      trimester: trim ?? MotherUpdate.trimester,
       bloodType: bloodType ?? MotherUpdate.bloodType,
       dateOfBirth: dateOfBirth ?? MotherUpdate.dateOfBirth,
       address: address ?? MotherUpdate.address,
       existingHealthConditions:
         existingHealthConditions ?? MotherUpdate.existingHealthConditions,
       currentPregnancyWeek:
-        currentPregnancyWeek ?? MotherUpdate.currentPregnancyWeek,
+        diffInWeeks ?? MotherUpdate.currentPregnancyWeek,
       emergencyContactName: emergencyContactName ?? MotherUpdate.emergencyContactName,
       emergencyContactNumber: emergencyContactNumber ?? MotherUpdate.emergencyContactNumber,
       allergies: allergies ?? MotherUpdate.allergies,
@@ -607,11 +618,11 @@ exports.updateMother = async (req, res, next) => {
       daysUntilDueDate: daysLeft,
     };
 
-    // if (savingsGoalAmount < hospital.deliveryFee) {
-    //   return res.status(400).json({
-    //     message: 'savings goal should be higher or equal to Hospital delivery cost'
-    //   })
-    // }
+    if (savingsGoalAmount < hospital.deliveryFee) {
+      return res.status(400).json({
+        message: 'savings goal should be higher or equal to Hospital delivery cost'
+      })
+    }
 
     if (mother.isUpdated === false) {
       await MotherUpdate.create(data);

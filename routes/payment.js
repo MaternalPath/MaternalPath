@@ -1,6 +1,6 @@
 const express = require('express');
 const { Authentication } = require('../middlewares/auth');
-const { makePayment, verifyPayment, monthlyGoals, initiatePayment } = require('../controller/payment');
+const { initiatePayment, verifyPayment, monthlyGoals, makePayment } = require('../controller/payment');
 const { initializeCardCharge } = require('../controller/cardPayment');
 const router = express.Router();
 
@@ -55,8 +55,9 @@ const router = express.Router();
  *         description: Mother not found
  */
 
-router.post('/initialize/card', initializeCardCharge)
-router.post('/initiate', Authentication, initiatePayment)
+router.post('/initialize/card', initializeCardCharge);
+
+router.post('/initiate', Authentication, makePayment)
 
 /**
  * @swagger
