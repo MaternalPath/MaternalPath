@@ -540,12 +540,6 @@ exports.updateMother = async (req, res, next) => {
       fs.unlinkSync(req.file.path);
     }
 
-    if (trimester > 3) {
-      return next({
-        message: "invalid trimester",
-      });
-    }
-
     const today = new Date();
     //today.setHours(0, 0, 0, 0);
 
@@ -560,7 +554,7 @@ exports.updateMother = async (req, res, next) => {
     const details = {
       firstName: firstName ?? mother.firstName,
       lastName: lastName ?? mother.lastName,
-      phoneNumber: phoneNumber ?? `+234{mother.phoneNumber}`,
+      phoneNumber: phoneNumber ?? `+234${mother.phoneNumber}`,
       hospitalId: selectedHospitalId,
       isUpdated: true,
     };
@@ -578,9 +572,9 @@ exports.updateMother = async (req, res, next) => {
     }
     let trim
 
-    if (currentPregnancyWeek <= 12 ) {
+    if (diffInWeeks  <= 12 ) {
       trim = 1
-    }else if (currentPregnancyWeek <= 26) {
+    }else if (diffInWeeks  <= 26) {
       trim = 2
     }else{
       trim = 3
@@ -616,7 +610,7 @@ exports.updateMother = async (req, res, next) => {
       daysUntilDueDate: daysLeft,
     };
 
-    if (savingsGoalAmount < hospital.deliveryFee) {
+    if (Number(savingsGoalAmount) < Number(hospital.deliveryFee)) {
       return res.status(400).json({
         message: 'savings goal should be higher or equal to Hospital delivery cost'
       })
