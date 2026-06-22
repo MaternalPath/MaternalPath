@@ -606,10 +606,6 @@ router.get('/profile', Authentication, getHospitalProfile);
  *               hospitalName:
  *                 type: string
  *                 example: "City General Hospital"
- *               email:
- *                 type: string
- *                 format: email
- *                 example: "info@citygeneral.com"
  *               phoneNumber:
  *                 type: string
  *                 example: "+2348012345678"
