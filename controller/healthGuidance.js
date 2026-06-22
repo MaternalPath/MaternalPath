@@ -55,8 +55,13 @@ exports.healthGuidance = async (req, res, next) => {
             const status = "You and your baby are doing well. Continue following your personalized care plan.";
             const focus = tip?.title || 'Weekly health tip unavailable.';
             const health = "Healthy Progress";
+            const metrix = {
+                trimester: mother.trimester,
+                week: mother.currentPregnancyWeek,
+                };
         
             res.status(200).json({
+                metrix,
                 wellnessStatus: status,
                 focus,
                 healthStatus: health,
