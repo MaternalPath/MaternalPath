@@ -620,7 +620,7 @@ router.get('/profile', Authentication, getHospitalProfile);
  *                 format: binary
  *                 description: Upload hospital logo image file (JPG, PNG)
  */
-router.put('/updateHospital', Authentication, upload.single('hospitalLogo'), updateHospitalProfile);
+router.put('/profile', Authentication, upload.single('hospitalLogo'), updateHospitalProfile);
 
 /**
  * @swagger
