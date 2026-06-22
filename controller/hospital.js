@@ -120,12 +120,6 @@ exports.createHospital = async (req, res) => {
             hospitalName: hospital.hospitalName,
             email: hospital.email,
             phoneNumber: hospital.phoneNumber,
-            address: hospital.address,
-            hospitalLogo: hospital.hospitalLogo,
-            verificationDocuments,
-            otp: hospital.otp,
-            deliveryFee: hospital.deliveryFee,
-            medicalLicenseNumber: hospital.medicalLicenseNumber
         }
 
         res.status(201).json({
@@ -263,8 +257,6 @@ exports.loginHospital = async (req, res) => {
             process.env.JWT_SECRET || 'olachi',
             { expiresIn: '1d' }
         );
-           
-        // redisClient.setex(`hospital_${hospital.id}`, 7 * 24 * 60 * 60, token);
 
         res.status(200).json({
             message: 'Login successful',
@@ -668,11 +660,8 @@ exports.updateHospitalProfile = async(req, res, next) => {
             })
         }
 
-        // 1. Destructure the other fields from req.body (exclude hospitalLogo from here)
-        const { hospitalName, email, phoneNumber, address, deliveryFee } = req.body;
+        const { hospitalName, phoneNumber, address, deliveryFee } = req.body;
 
-        // 2. Check if a new file was uploaded in req.file. 
-        // If not, keep the existing logo (or fallback to req.body.hospitalLogo if they sent a string URL)
         const logoPath = req.file
             ? `/uploads/hospitals/${req.file.filename}` 
             : (req.body.hospitalLogo ?? hospital.hospitalLogo);
@@ -680,10 +669,9 @@ exports.updateHospitalProfile = async(req, res, next) => {
         const data = {
             hospitalLogo: logoPath, 
             hospitalName: hospitalName ?? hospital.hospitalName, 
-            email: email ?? hospital.email, 
             phoneNumber: phoneNumber ?? hospital.phoneNumber, 
             address: address ?? hospital.address,  
-            deliveryFee: deliveryFee ?? hospital.deliveryFee,
+            deliveryFee: deliveryFee ?? hospital.deliveryFee
         }
 
         await Hospital.update(data, {

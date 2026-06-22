@@ -1,15 +1,11 @@
 const { verifyPatientFund, Mother, Hospital, payment, MotherUpdate } = require('../models');
 const { Op } = require('sequelize');
 
-/**
- * Get hospital dashboard statistics
- * Returns counts of verification requests grouped by status
- */
+
 exports.getHospitalDashboard = async (req, res) => {
   try {
     const hospitalId = req.user.id;
 
-    // Verify hospital exists
     const hospital = await Hospital.findByPk(hospitalId);
     if (!hospital) {
       return res.status(404).json({
@@ -17,7 +13,6 @@ exports.getHospitalDashboard = async (req, res) => {
       });
     }
 
-    // Get all verification requests for this hospital
     const totalVerificationRequests = await verifyPatientFund.count({
       where: { hospitalId }
     });
