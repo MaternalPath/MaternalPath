@@ -154,7 +154,7 @@ router.get( "/dashboard", Authentication,getHospitalDashboard );
  * /api/v1/hospital/search:
  *   get:
  *     summary: Search and verify patient delivery fund status
- *     description: Search patient by ID or Phone Number to get fund status
+ *     description: Search patient by full name (firstName + lastName) or phone number to get fund status and delivery readiness.
  *     tags: [Patient Verification]
  *     security:
  *       - bearerAuth: []
@@ -164,8 +164,8 @@ router.get( "/dashboard", Authentication,getHospitalDashboard );
  *         required: true
  *         schema:
  *           type: string
- *         description: Patient ID or Phone Number
- *         example: "08012345678 or `1234567890"
+ *         description: Patient full name or phone number. Supports partial matching on both.
+ *         example: "Ada Okafor or 9024545904"
  *     responses:
  *       200:
  *         description: Patient found
@@ -176,24 +176,40 @@ router.get( "/dashboard", Authentication,getHospitalDashboard );
  *               properties:
  *                 patientName:
  *                   type: string
+ *                   example: Ada Okafor
  *                 patientId:
  *                   type: string
+ *                   format: uuid
  *                 pregnancyStage:
  *                   type: string
+ *                   example: second
  *                 pregnancyWeek:
  *                   type: integer
+ *                   example: 22
  *                 walletBalance:
  *                   type: number
+ *                   example: 35000
  *                 deliverySavingsGoal:
  *                   type: number
+ *                   example: 100000
  *                 preferredHospital:
  *                   type: string
+ *                   example: Maternal Path Hospital
  *                 readinessPercentage:
  *                   type: integer
+ *                   example: 35
  *                 status:
  *                   type: string
+ *                   enum: [Not eligible, Partially eligible, Fully eligible]
+ *                   example: Not eligible
+ *       400:
+ *         description: Search query parameter is required
+ *       401:
+ *         description: Missing or invalid authentication token
  *       404:
  *         description: Mother not found
+ *       500:
+ *         description: Error searching for patient
  */
 router.get('/search', Authentication, searchMothers);
 

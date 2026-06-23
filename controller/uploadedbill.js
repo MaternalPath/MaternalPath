@@ -260,18 +260,22 @@ exports.uploadBill = async (req, res) => {
     }
 };
 
-/**
- * Moves workflow from 'uploadedBill' to 'customerReview'
- */
+
 exports.customerReview = async (req, res) => {
     try {
-        // const { billId } = req.params;
+        const { billId } = req.params;
         const { approved } = req.body;
+        const hospitalId = req.user.id;
 
-        const bill = await uploadedBill.findByPk(billNumber);
+        const bill = await uploadedBill.findOne({
+            where: {
+                id: billId,
+                hospitalId
+            }
+        });
         if (!bill) {
             return res.status(404).json({
-                message: 'Bill not found'
+                message: 'Bill not found for this hospital'
             });
         }
 
@@ -310,17 +314,21 @@ exports.customerReview = async (req, res) => {
     }
 };
 
-/**
- * Moves workflow from 'customerReview' to 'fundValidation'
- */
+
 exports.validateFunds = async (req, res) => {
     try {
-        const { billNumber } = req.params;
+        const { billId } = req.params;
+        const hospitalId = req.user.id;
 
-        const bill = await uploadedBill.findByPk(billNumber);
+        const bill = await uploadedBill.findOne({
+            where: {
+                id: billId,
+                hospitalId
+            }
+        });
         if (!bill) {
             return res.status(404).json({
-                message: 'Bill not found'
+                message: 'Bill not found for this hospital'
             });
         }
 
@@ -378,18 +386,22 @@ exports.validateFunds = async (req, res) => {
     }
 };
 
-/**
- * Moves workflow from 'fundValidation' to 'finalApproval'
- */
+
 exports.finalApproval = async (req, res) => {
     try {
-        const { billNumber } = req.params;
+        const { billId } = req.params;
         const { approved } = req.body;
+        const hospitalId = req.user.id;
 
-        const bill = await uploadedBill.findByPk(billId);
+        const bill = await uploadedBill.findOne({
+            where: {
+                id: billId,
+                hospitalId
+            }
+        });
         if (!bill) {
             return res.status(404).json({
-                message: 'Bill not found'
+                message: 'Bill not found for this hospital'
             });
         }
 
@@ -426,17 +438,21 @@ exports.finalApproval = async (req, res) => {
     }
 };
 
-/**
- * Get the current status (workflow stage + system validation) of a single bill
- */
+
 exports.getBillStatus = async (req, res) => {
     try {
-        const {  billNumber } = req.params;
+        const { billId } = req.params;
+        const hospitalId = req.user.id;
 
-        const bill = await uploadedBill.findByPk(billId);
+        const bill = await uploadedBill.findOne({
+            where: {
+                id: billId,
+                hospitalId
+            }
+        });
         if (!bill) {
             return res.status(404).json({
-                message: 'Bill not found'
+                message: 'Bill not found for this hospital'
             });
         }
 
@@ -467,18 +483,21 @@ exports.getBillStatus = async (req, res) => {
     }
 };
 
-/**
- * Generate a bill summary object, picking the fields named by the billSummary enum value
- */
+
 exports.getBillSummary = async (req, res) => {
     try {
-        const { billNumber} = req.params;
-        // const { summaryType } = req.query;
+        const { billId } = req.params;
+        const hospitalId = req.user.id;
 
-        const bill = await uploadedBill.findByPk(billNumber);
+        const bill = await uploadedBill.findOne({
+            where: {
+                id: billId,
+                hospitalId
+            }
+        });
         if (!bill) {
             return res.status(404).json({
-                message: 'Bill not found'
+                message: 'Bill not found for this hospital'
             });
         }
 
@@ -522,10 +541,16 @@ exports.getBillSummary = async (req, res) => {
  */
 exports.runSystemValidation = async (req, res) => {
     try {
-        const { billNumber } = req.params;
+        const { billId } = req.params;
         const { validationType } = req.body;
+        const hospitalId = req.user.id;
 
-        const bill = await uploadedBill.findByPk(billNumber);
+        const bill = await uploadedBill.findOne({
+            where: {
+                id: billId,
+                hospitalId
+            }
+        });
         if (!bill) {
             return res.status(404).json({
                 message: 'Bill not found'
@@ -782,20 +807,32 @@ exports.getUploadedBillDashboard = async (req, res) => {
 
 exports.getUploadedBillRecords = async (req, res) => {
     try {
-        const hello = await uploadedBill.findAll()
+        const { id: hospitalId } = req.user;
 
-        // console.log(allBills)
+        const { status, page = 1, limit = 20 } = req.query;
+        const offset = (parseInt(page) - 1) * parseInt(limit);
 
-        // const bills = allBIlls.map(bill => ({
-        //     ...bill.toJSON(),
-        //     uploadedDate: new Date(bill.uploadedDate).toISOString().split('T')[0] 
-        // }));
+        const whereClause = { hospitalId };
 
+        if (status) {
+            whereClause.verificationStatus = status;
+        }
 
+        const { count, rows } = await uploadedBill.findAndCountAll({
+            where: whereClause,
+            order: [['createdAt', 'DESC']],
+            limit: parseInt(limit),
+            offset: parseInt(offset)
+        });
 
         res.status(200).json({
             message: 'Uploaded Bills records fetched successfully',
-            data: hello
+            data: {
+                totalRecords: count,
+                currentPage: parseInt(page),
+                totalPages: Math.ceil(count / parseInt(limit)),
+                records: rows
+            }
         });
 
     } catch (error) {

@@ -11,7 +11,7 @@ const {
   verifyResetOTP,
   resetPassword,
   forgotPassword,
-  getHospitalMothers,
+  getAllHospitalMothers,
   getHospitalMother,
   getHospitalProfile,
   updateHospitalProfile,
@@ -391,7 +391,15 @@ router.post('/reset-password', resetPassword);
  *     tags: [Hospital]
  *     security:
  *       - bearerAuth: []
- *     description: Returns only mothers whose hospitalId matches the authenticated hospital's token.
+ *     description: Returns only mothers whose hospitalId matches the authenticated hospital's token. Supports optional search by full name or phone number.
+ *     parameters:
+ *       - in: query
+ *         name: search
+ *         required: false
+ *         schema:
+ *           type: string
+ *         description: Search mothers by full name (firstName + lastName) or phone number. Supports partial matching.
+ *         example: "Ada Okafor"
  *     responses:
  *       200:
  *         description: Mothers retrieved successfully
@@ -431,15 +439,6 @@ router.post('/reset-password', resetPassword);
  *                       phoneNumber:
  *                         type: string
  *                         example: "+2348012345678"
- *                       estimatedDueDate:
- *                         type: string
- *                         example: "2026-12-01"
- *                       trimester:
- *                         type: string
- *                         example: second
- *                       selectedHospital:
- *                         type: string
- *                         example: Maternal Path Hospital
  *                       isVerified:
  *                         type: boolean
  *                         example: true
@@ -453,7 +452,7 @@ router.post('/reset-password', resetPassword);
  *       500:
  *         description: Internal server error
  */
-router.get('/mothers', Authentication, getHospitalMothers);
+router.get('/mothers', Authentication, getAllHospitalMothers);
 
 /**
  * @swagger
@@ -588,7 +587,7 @@ router.get('/profile', Authentication, getHospitalProfile);
 
 /**
  * @swagger
- * /hospital/profile:
+ * /api/v1/hospital/profile:
  *   put:
  *     summary: Update hospital profile
  *     description: Updates the authenticated hospital's profile information. Only the logged-in hospital can update its own profile.
@@ -606,10 +605,6 @@ router.get('/profile', Authentication, getHospitalProfile);
  *               hospitalName:
  *                 type: string
  *                 example: "City General Hospital"
- *               email:
- *                 type: string
- *                 format: email
- *                 example: "info@citygeneral.com"
  *               phoneNumber:
  *                 type: string
  *                 example: "+2348012345678"
@@ -624,7 +619,7 @@ router.get('/profile', Authentication, getHospitalProfile);
  *                 format: binary
  *                 description: Upload hospital logo image file (JPG, PNG)
  */
-router.put('/updateHospital', Authentication, upload.single('hospitalLogo'), updateHospitalProfile);
+router.put('/profile', Authentication, upload.single('hospitalLogo'), updateHospitalProfile);
 
 /**
  * @swagger

@@ -1,4 +1,4 @@
-const { verifyPatientFund, Mother, Hospital, payment, MotherUpdate } = require('../models');
+const { verifyPatientFund, Mother, Hospital, payment, MotherUpdate, sequelize } = require('../models');
 const { Op } = require('sequelize');
 
 
@@ -274,22 +274,27 @@ exports.getHospitalDashboard = async (req, res) => {
 
 exports.searchMothers = async (req, res) => {
   try {
-    const { search } = req.query; // Using query params - correct for GET
+    const { search } = req.query;
     const hospitalId = req.user?.id;
 
-    if (!search) {
+    if (!search?.trim()) {
       return res.status(400).json({
         message: 'Search query parameter is required'
       });
     }
 
-    // 1. Fixed: Remove duplicate hospitalId, search by id OR phoneNumber
+    const trimmedSearch = search.trim();
+
+    // Search by full name (firstName + lastName concatenated) or phoneNumber
     const mother = await Mother.findOne({
       where: {
-        hospitalId, // Only once
+        hospitalId,
         [Op.or]: [
-          { id: search }, // Patient ID
-          { phoneNumber: search } // Phone Number
+          sequelize.where(
+            sequelize.fn('CONCAT', sequelize.col('firstName'), ' ', sequelize.col('lastName')),
+            { [Op.like]: `%${trimmedSearch}%` }
+          ),
+          { phoneNumber: { [Op.like]: `%${trimmedSearch}%` } }
         ]
       },
       attributes: {

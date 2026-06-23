@@ -7,14 +7,16 @@ exports.checkBill = async(req, res, next) => {
 
         if (!id) {
             return next({
-                message: `User with ${id} not found`,
-                statusCode: 404
+                message: `User not authenticated`,
+                statusCode: 401
             })
         }
 
-        const hospitals = await uploadedBill.findAll();
+        const bills = await uploadedBill.findAll({
+            where: { hospitalId: id }
+        });
 
-        const data = hospitals.map(bill => ({
+        const data = bills.map(bill => ({
             billRef: bill.billNumber,
             patientName: bill.fullName,
             hospital: bill.hospitalName,
@@ -23,7 +25,7 @@ exports.checkBill = async(req, res, next) => {
         }));
 
         res.status(200).json({
-            message: 'bills retrieved successfully',
+            message: 'Bills retrieved successfully',
             data
         })
     } catch (error) {

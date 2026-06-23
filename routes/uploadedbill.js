@@ -661,11 +661,34 @@ router.get('/dashboard', Authentication, getUploadedBillDashboard);
  * @swagger
  * /api/v1/bill/uploaded-bills:
  *   get:
- *     summary: Get all uploaded bill records
+ *     summary: Get uploaded bill records for the authenticated hospital
  *     tags:
  *       - Uploaded Bills
  *     security:
  *       - bearerAuth: []
+ *     description: Returns paginated bill records scoped to the authenticated hospital. Supports optional status filtering.
+ *     parameters:
+ *       - in: query
+ *         name: status
+ *         required: false
+ *         schema:
+ *           type: string
+ *         description: Filter by verification status
+ *         example: "Verified"
+ *       - in: query
+ *         name: page
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number for pagination
+ *       - in: query
+ *         name: limit
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           default: 20
+ *         description: Number of records per page
  *     responses:
  *       200:
  *         description: Uploaded bill records retrieved successfully.
@@ -678,16 +701,28 @@ router.get('/dashboard', Authentication, getUploadedBillDashboard);
  *                   type: string
  *                   example: Uploaded Bills records fetched successfully
  *                 data:
- *                   type: array
- *                   items:
- *                     type: object
+ *                   type: object
+ *                   properties:
+ *                     totalRecords:
+ *                       type: integer
+ *                       example: 15
+ *                     currentPage:
+ *                       type: integer
+ *                       example: 1
+ *                     totalPages:
+ *                       type: integer
+ *                       example: 3
+ *                     records:
+ *                       type: array
+ *                       items:
+ *                         type: object
  *       401:
  *         description: Unauthorized. Invalid or missing token.
  *       500:
  *         description: Internal server error.
  */
 
-router.get('/uploaded-bills', getUploadedBillRecords);
+router.get('/uploaded-bills', Authentication, getUploadedBillRecords);
 
 
 
