@@ -67,6 +67,10 @@ passport.deserializeUser((token, done) => {
   return done(null, token);
 });
 
+console.log("clientId:", process.env.clientId);
+console.log("clientSecret:", process.env.clientSecret);
+console.log("callback:", process.env.googleCallback);
+
 exports.createMother = async (req, res, next) => {
   try {
     const {

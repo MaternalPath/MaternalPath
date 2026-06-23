@@ -27,6 +27,7 @@ exports.pregnancyTracker = async (req, res, next) => {
     const dueDate = new Date(mother.estimatedDueDate);
 
     const daysLeft = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
+    console.log('daysLeft:', daysLeft)
 
     const currentWeek = 40 - Math.floor(daysLeft / 7);
 
@@ -38,6 +39,10 @@ exports.pregnancyTracker = async (req, res, next) => {
       trimester: mother.trimester,
       week: mother.currentPregnancyWeek,
     };
+    const due = {
+      estimatedDueDate: mother.estimatedDueDate,
+      daysUntilDelivery: daysLeft
+    }
     const currentweek = mother.currentPregnancyWeek;
     const firsttrim = [
       [
@@ -117,6 +122,7 @@ exports.pregnancyTracker = async (req, res, next) => {
       });
       res.status(200).json({
         metrix,
+        due,
         perTrimester,
         firsttrim,
         tip
