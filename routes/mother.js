@@ -348,13 +348,8 @@ router.post('/reset-password', resetPassword);
  * @swagger
  * /api/v1/mother/update-profile:
  *   put:
- *     tags:
- *       - Mother
  *     summary: Update mother profile
- *     description: >
- *       Updates the authenticated mother's profile including an optional image upload.
- *       `trimester` and `currentPregnancyWeek` are auto-calculated from `estimatedDueDate`.
- *       `savingsGoalAmount` must be greater than or equal to the selected hospital's delivery fee.
+ *     tags: [Mother]
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -388,7 +383,7 @@ router.post('/reset-password', resetPassword);
  *                 type: string
  *                 format: date
  *                 example: "2026-12-01"
- *                 description: Used to auto-calculate trimester and currentPregnancyWeek.
+ *                 description: Used to auto-calculate trimester, currentPregnancyWeek and daysUntilDueDate.
  *               hospitalId:
  *                 type: string
  *                 example: "3f4d73a0-b228-4691-b848-3e2dcab195a3"
@@ -445,11 +440,6 @@ router.post('/reset-password', resetPassword);
  *                     trimester:
  *                       type: integer
  *                       example: 2
- *                       description: Auto-calculated. 1 = first, 2 = second, 3 = third trimester.
- *                     currentPregnancyWeek:
- *                       type: integer
- *                       example: 20
- *                       description: Auto-calculated from estimatedDueDate.
  *                     bloodType:
  *                       type: string
  *                       example: O+
@@ -463,6 +453,9 @@ router.post('/reset-password', resetPassword);
  *                     existingHealthConditions:
  *                       type: string
  *                       example: None
+ *                     currentPregnancyWeek:
+ *                       type: integer
+ *                       example: 20
  *                     emergencyContactName:
  *                       type: string
  *                       example: John Doe
