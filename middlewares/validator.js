@@ -256,7 +256,7 @@ exports.updateValidation = (req, res, next) => {
         "any.required": "Blood type is required",
       }),
 
-    trimester: Joi.number()
+    trimester: joi.number()
     .integer()
     .valid(1, 2, 3)
     .required()
@@ -266,7 +266,7 @@ exports.updateValidation = (req, res, next) => {
       "any.required": "Trimester is required",
     }),
 
-  currentPregnancyWeek: Joi.number()
+  currentPregnancyWeek: joi.number()
     .integer()
     .min(1)
     .max(42)
