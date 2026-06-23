@@ -14,6 +14,7 @@ const passport = require("passport");
 const redisClient = require('../config/redis')
 
 const cloudinary = require('../config/cloudinary')
+const multer = require('../config/multer')
 
 
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
