@@ -556,7 +556,7 @@ exports.updateMother = async (req, res, next) => {
 
     const progress = (walletRecord.currentBalance * 100) / 40;
 
-    const diffInWeeks = Math.floor(daysLeft / 7);
+    // const diffInWeeks = Math.floor(daysLeft / 7);
 
     const details = {
       firstName: firstName ?? mother.firstName,
@@ -607,12 +607,6 @@ exports.updateMother = async (req, res, next) => {
       pregnancyProgress: progress,
       daysUntilDueDate: daysLeft,
     };
-
-    if (Number(savingsGoalAmount) < Number(hospital.deliveryFee)) {
-      return res.status(400).json({
-        message: 'savings goal should be higher or equal to Hospital delivery cost'
-      })
-    }
 
     if (mother.isUpdated === false) {
       await MotherUpdate.create(data);
