@@ -11,11 +11,12 @@ const {
   verifyResetOTP,
   resetPassword,
   forgotPassword,
-  getAllHospitalMothers,
-  getHospitalMother,
+  getHospitalMothers,
+  // getHospitalMother,
   getHospitalProfile,
   updateHospitalProfile,
-  logout
+  logout,
+  deleteAccount
 } = require('../controller/hospital');
 const { hospitalRegisterValidator, hospitalLoginValidator, changePasswordValidator } = require('../middlewares/hospitalValidator');
 const { Authentication } = require('../middlewares/auth');
@@ -452,76 +453,76 @@ router.post('/reset-password', resetPassword);
  *       500:
  *         description: Internal server error
  */
-router.get('/mothers', Authentication, getAllHospitalMothers);
+router.get('/mothers', Authentication, getHospitalMothers);
 
-/**
- * @swagger
- * /api/v1/hospital/mothers/{motherId}:
- *   get:
- *     summary: Get one mother registered to the logged-in hospital
- *     tags: [Hospital]
- *     security:
- *       - bearerAuth: []
- *     description: Returns one mother only if her hospitalId matches the authenticated hospital's token.
- *     parameters:
- *       - in: path
- *         name: motherId
- *         required: true
- *         schema:
- *           type: string
- *           format: uuid
- *         description: The mother's ID
- *     responses:
- *       200:
- *         description: Mother retrieved successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Mother retrieved successfully
- *                 data:
- *                   type: object
- *                   properties:
- *                     id:
- *                       type: string
- *                       format: uuid
- *                       example: 9c27d236-7d61-4f3c-8f72-a1b2c3d4e5f6
- *                     hospitalId:
- *                       type: string
- *                       format: uuid
- *                       example: 2dbb3a33-49c4-4c71-9b23-a8f47162c197
- *                     firstName:
- *                       type: string
- *                       example: Ada
- *                     lastName:
- *                       type: string
- *                       example: Okafor
- *                     email:
- *                       type: string
- *                       example: ada@example.com
- *                     phoneNumber:
- *                       type: string
- *                       example: "+2348012345678"
- *                     selectedHospital:
- *                       type: string
- *                       example: Maternal Path Hospital
- *                     isVerified:
- *                       type: boolean
- *                       example: true
- *                     isUpdated:
- *                       type: boolean
- *                       example: true
- *       401:
- *         description: Missing or invalid hospital token
- *       404:
- *         description: Mother not found for this hospital
- *       500:
- *         description: Internal server error
- */
-router.get('/mothers/:motherId', Authentication, getHospitalMother);
+// /**
+//  * @swagger
+//  * /api/v1/hospital/mothers/{motherId}:
+//  *   get:
+//  *     summary: Get one mother registered to the logged-in hospital
+//  *     tags: [Hospital]
+//  *     security:
+//  *       - bearerAuth: []
+//  *     description: Returns one mother only if her hospitalId matches the authenticated hospital's token.
+//  *     parameters:
+//  *       - in: path
+//  *         name: motherId
+//  *         required: true
+//  *         schema:
+//  *           type: string
+//  *           format: uuid
+//  *         description: The mother's ID
+//  *     responses:
+//  *       200:
+//  *         description: Mother retrieved successfully
+//  *         content:
+//  *           application/json:
+//  *             schema:
+//  *               type: object
+//  *               properties:
+//  *                 message:
+//  *                   type: string
+//  *                   example: Mother retrieved successfully
+//  *                 data:
+//  *                   type: object
+//  *                   properties:
+//  *                     id:
+//  *                       type: string
+//  *                       format: uuid
+//  *                       example: 9c27d236-7d61-4f3c-8f72-a1b2c3d4e5f6
+//  *                     hospitalId:
+//  *                       type: string
+//  *                       format: uuid
+//  *                       example: 2dbb3a33-49c4-4c71-9b23-a8f47162c197
+//  *                     firstName:
+//  *                       type: string
+//  *                       example: Ada
+//  *                     lastName:
+//  *                       type: string
+//  *                       example: Okafor
+//  *                     email:
+//  *                       type: string
+//  *                       example: ada@example.com
+//  *                     phoneNumber:
+//  *                       type: string
+//  *                       example: "+2348012345678"
+//  *                     selectedHospital:
+//  *                       type: string
+//  *                       example: Maternal Path Hospital
+//  *                     isVerified:
+//  *                       type: boolean
+//  *                       example: true
+//  *                     isUpdated:
+//  *                       type: boolean
+//  *                       example: true
+//  *       401:
+//  *         description: Missing or invalid hospital token
+//  *       404:
+//  *         description: Mother not found for this hospital
+//  *       500:
+//  *         description: Internal server error
+//  */
+// router.get('/mothers/:motherId', Authentication, getHospitalMother);
 
 
 /**
@@ -618,6 +619,41 @@ router.get('/profile', Authentication, getHospitalProfile);
  *                 type: string
  *                 format: binary
  *                 description: Upload hospital logo image file (JPG, PNG)
+ *     responses:
+ *       200:
+ *         description: Hospital Updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Hospital Updated successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     hospitalLogo:
+ *                       type: string
+ *                       example: "/uploads/hospitals/12345-logo.png"
+ *                     hospitalName:
+ *                       type: string
+ *                       example: "City General Hospital"
+ *                     phoneNumber:
+ *                       type: string
+ *                       example: "+2348012345678"
+ *                     address:
+ *                       type: string
+ *                       example: "123 Allen Avenue, Ikeja, Lagos"
+ *                     deliveryFee:
+ *                       type: number
+ *                       example: 5000
+ *       401:
+ *         description: Unauthorized - missing or invalid token
+ *       404:
+ *         description: Hospital not found
+ *       500:
+ *         description: Internal server error
  */
 router.put('/profile', Authentication, upload.single('hospitalLogo'), updateHospitalProfile);
 
@@ -645,5 +681,41 @@ router.put('/profile', Authentication, upload.single('hospitalLogo'), updateHosp
  */
 
 router.post('/logout', logout) 
+
+/**
+ * @swagger
+ * /api/v1/hospital/delete-account:
+ *   delete:
+ *     summary: Delete hospital account
+ *     tags: [Hospital]
+ *     security:
+ *       - bearerAuth: []
+ *     description: Permanently deletes the authenticated hospital's account. Requires current password for confirmation. Also clears the Redis session token.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - password
+ *             properties:
+ *               password:
+ *                 type: string
+ *                 format: password
+ *                 example: "Password123"
+ *     responses:
+ *       200:
+ *         description: Hospital account deleted successfully
+ *       400:
+ *         description: Invalid password - account deletion failed
+ *       401:
+ *         description: Unauthorized - missing or invalid token
+ *       404:
+ *         description: Hospital not found
+ *       500:
+ *         description: Internal server error
+ */
+router.delete('/delete-account', Authentication, deleteAccount);
 
 module.exports = router;
