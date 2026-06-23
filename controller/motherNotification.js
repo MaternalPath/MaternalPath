@@ -200,24 +200,40 @@ exports.getReadNotifications = async (req, res) => {
 exports.getNotificationsByType = async (req, res) => {
   try {
     const id = req.user?.id;
-        if (!id) {
-            return res.status(404).json({
-                message: 'Id not found'
-            })
-        }
-        dayjs.extend(relativeTime);
-    const { type } = req.params;
-    const where = { type, ...buildWhereClause(req) };
+    if (!id) {
+      return res.status(401).json({ message: 'Id not found' });
+    }
 
-    const validStatuses = ['allNotifications','pregnancyUpdates', 'healthReminders', 'walletAlerts', 'hospitalNotifications'];
-    if (!validStatuses.includes(type)) {
+    dayjs.extend(relativeTime);
+
+    const mother = await MotherUpdate.findOne({ where: { motherId: id } });
+
+    if (!mother) {
+      return res.status(404).json({ message: "Mother update not found" });
+    }
+
+    const currentWeek = mother.currentPregnancyWeek;
+    const currentDay = mother.currentPregnancyWeek * 7;
+
+    const { type } = req.params;
+
+    const validTypes = ['allNotifications', 'pregnancyUpdates', 'healthReminders', 'walletAlerts', 'hospitalNotifications'];
+    if (!validTypes.includes(type)) {
       return res.status(400).json({
-        message: `Invalid status. Must be one of: ${validStatuses.join(', ')}`
+        message: `Invalid type. Must be one of: ${validTypes.join(', ')}`
       });
     }
 
     const { page = 1, limit = 20 } = req.query;
     const offset = (parseInt(page) - 1) * parseInt(limit);
+
+    const where = {
+      [Op.or]: [{ week: currentWeek }, { dayNumber: currentDay }]
+    };
+
+    if (type !== 'allNotifications') {
+      where.type = type;
+    }
 
     const { count, rows } = await motherNotification.findAndCountAll({
       where,
@@ -226,16 +242,21 @@ exports.getNotificationsByType = async (req, res) => {
       offset
     });
 
+    const result = rows.map(item => ({
+      ...item.toJSON(),
+      time: dayjs(item.createdAt).fromNow(),
+    }));
+
     res.status(200).json({
-      message: `Notifications with type '${type}' retrieved successfully`,
+      message: `Notifications retrieved successfully`,
       total: count,
       page: parseInt(page),
       totalPages: Math.ceil(count / parseInt(limit)),
-      data: rows
+      data: result
     });
   } catch (error) {
     res.status(500).json({
-      message: 'Error fetching notifications by status',
+      message: 'Error fetching notifications',
       error: error.message
     });
   }
