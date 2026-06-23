@@ -12,6 +12,8 @@ const { Op } = require("sequelize");
 const jwt = require('jsonwebtoken');
 const passport = require("passport");
 const redisClient = require('../config/redis')
+const fs = require('fs')
+const cloudinary  = require('../config/cloudinary.js')
 
 
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
@@ -78,15 +80,32 @@ exports.createHospital = async (req, res) => {
             });
         }
 
-        let result;
-        if (req.file) {
-        result = await cloudinary.uploader.upload(req.file.path);
-        fs.unlinkSync(req.file.path);
+       const logoPaths = req.files?.hospitalLogo?.map((img) => img.path) || [];
+        const docPaths = req.files?.verificationDocuments?.map((img) => img.path) || [];;
+        console.log('logoPaths: ', logoPaths);
+        console.log('docPaths: ', docPaths);
+
+        const hospitalLogo = [];
+        const hospitalLogoPublicIds = [];
+
+        const verificationDocuments = [];
+        const verificationDocumentPublicIds = [];
+
+        for (const path of logoPaths) {
+            const result = await cloudinary.uploader.upload(path)
+            console.log('results: ',result);
+            
+            hospitalLogo.push(result.secure_url);
+            hospitalLogoPublicIds.push(result.public_id);
+            fs.unlinkSync(path)
         }
-        let rest;
-        if (req.file) {
-        rest = await cloudinary.uploader.upload(req.file.path);
-        fs.unlinkSync(req.file.path);
+        for (const path of docPaths) {
+            const rest = await cloudinary.uploader.upload(path)
+            console.log('rests: ',rest);;
+            
+            verificationDocuments.push(rest.secure_url);
+            verificationDocumentPublicIds.push(rest.public_id);
+            fs.unlinkSync(path)
         }
 
         const salt = await bcrypt.genSalt(10);
@@ -100,14 +119,18 @@ exports.createHospital = async (req, res) => {
             phoneNumber: `+234${phoneNumber}`,
             password: hashedPassword,
             address,
-            ...(result ? { hospitalLogo: result.secure_url, hospitalLogoPublicId: result.public_id } : {}),
-            ...(rest ? { verificationDocuments: rest.secure_url, verificationDocumentsPublicId: rest.public_id } : {}),
+            hospitalLogo: hospitalLogo[0] || null,
+            hospitalLogoPublicId: hospitalLogoPublicIds[0] || null,
+            verificationDocuments: verificationDocuments[0] || null,
+            verificationDocumentPublicId: verificationDocumentPublicIds[0] || null,
             otp: OTP,
             otpExpiresAt: expiresAt,
             isVerified: false,
             deliveryFee,
             medicalLicenseNumber
         });
+
+        console.log("hospital:", hospital)
 
         const emailOptions = {
             email: hospital.email,

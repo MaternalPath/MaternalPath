@@ -16,7 +16,7 @@ const fs = require("fs");
 const cloudinary = require('../config/cloudinary');
 
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
-
+console.log('redirectUrl:', process.env.googleCallback)
 // Strategy definition
 passport.use(
   new GoogleStrategy(
