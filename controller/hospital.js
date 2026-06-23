@@ -570,7 +570,7 @@ exports.getHospitalProfile = async (req, res) => {
             });
         }
 
-        const logo = hospita?.hospitalLogo
+        const logo = hospital?.hospitalLogo
         const document = hospital?.verificationDocuments
 
         res.status(200).json({
