@@ -39,7 +39,7 @@ exports.pregnancyTracker = async (req, res, next) => {
       trimester: mother.trimester,
       week: mother.currentPregnancyWeek,
     };
-    const due = {
+    const duly = {
       estimatedDueDate: mother.estimatedDueDate,
       daysUntilDelivery: daysLeft
     }
@@ -122,7 +122,7 @@ exports.pregnancyTracker = async (req, res, next) => {
       });
       res.status(200).json({
         metrix,
-        due,
+        duly,
         perTrimester,
         firsttrim,
         tip
@@ -133,6 +133,7 @@ exports.pregnancyTracker = async (req, res, next) => {
       });
       res.status(200).json({
         metrix,
+        duly,
         perTrimester,
         secondtrim,
         tip
@@ -143,6 +144,7 @@ exports.pregnancyTracker = async (req, res, next) => {
       });
       res.status(200).json({
         metrix,
+        duly,
         perTrimester,
         thirdtrim,
         tip,
