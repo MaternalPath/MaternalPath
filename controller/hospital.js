@@ -1,4 +1,4 @@
-const { Hospital, Mother } = require('../models');
+const { Hospital, Mother, sequelize } = require('../models');
 const bcrypt = require('bcrypt');
 const { sendBrevoEmail } = require('../utils/brevo');
 const sendMail = require("../utils/nodemailer");
@@ -453,9 +453,10 @@ exports.changePassword = async(req, res)=>{
     }
 };
 
-exports.getHospitalMothers = async (req, res) => {
+exports.getAllHospitalMothers = async (req, res) => {
     try {
         const { id } = req.user;
+        const { search } = req.query;
 
         const hospital = await Hospital.findByPk(id);
         if (!hospital) {
@@ -464,8 +465,22 @@ exports.getHospitalMothers = async (req, res) => {
             });
         }
 
+        const whereClause = { hospitalId: id };
+
+        // If search query is provided, search by fullName or phoneNumber
+        if (search?.trim()) {
+            const trimmedSearch = search.trim();
+            whereClause[Op.or] = [
+                sequelize.where(
+                    sequelize.fn('CONCAT', sequelize.col('firstName'), ' ', sequelize.col('lastName')),
+                    { [Op.like]: `%${trimmedSearch}%` }
+                ),
+                { phoneNumber: { [Op.like]: `%${trimmedSearch}%` } }
+            ];
+        }
+
         const mothers = await Mother.findAll({
-            where: { hospitalId: id },
+            where: whereClause,
             attributes: {
                 exclude: ['password', 'otp', 'otpExpiresAt']
             },
@@ -660,7 +675,7 @@ exports.updateHospitalProfile = async(req, res, next) => {
             })
         }
 
-        const { hospitalName, phoneNumber, address, deliveryFee } = req.body;
+        const { hospitalLogo, hospitalName, phoneNumber, address, deliveryFee } = req.body;
 
         const logoPath = req.file
             ? `/uploads/hospitals/${req.file.filename}` 
