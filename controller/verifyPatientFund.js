@@ -260,7 +260,3 @@ exports.rejectVerificationRequest = async (req, res) => {
     });
   }
 };
-
-exports.getVerificationHistory = async (req, res) => {
-  
-}

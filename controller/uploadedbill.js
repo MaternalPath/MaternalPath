@@ -260,9 +260,7 @@ exports.uploadBill = async (req, res) => {
     }
 };
 
-/**
- * Moves workflow from 'uploadedBill' to 'customerReview'
- */
+
 exports.customerReview = async (req, res) => {
     try {
         const { billId } = req.params;
@@ -316,9 +314,7 @@ exports.customerReview = async (req, res) => {
     }
 };
 
-/**
- * Moves workflow from 'customerReview' to 'fundValidation'
- */
+
 exports.validateFunds = async (req, res) => {
     try {
         const { billId } = req.params;
@@ -390,9 +386,7 @@ exports.validateFunds = async (req, res) => {
     }
 };
 
-/**
- * Moves workflow from 'fundValidation' to 'finalApproval'
- */
+
 exports.finalApproval = async (req, res) => {
     try {
         const { billId } = req.params;
@@ -444,9 +438,7 @@ exports.finalApproval = async (req, res) => {
     }
 };
 
-/**
- * Get the current status (workflow stage + system validation) of a single bill
- */
+
 exports.getBillStatus = async (req, res) => {
     try {
         const { billId } = req.params;
@@ -491,9 +483,7 @@ exports.getBillStatus = async (req, res) => {
     }
 };
 
-/**
- * Generate a bill summary object, picking the fields named by the billSummary enum value
- */
+
 exports.getBillSummary = async (req, res) => {
     try {
         const { billId } = req.params;
