@@ -120,8 +120,9 @@ exports.createHospital = async (req, res) => {
             hospitalName: hospital.hospitalName,
             email: hospital.email,
             phoneNumber: hospital.phoneNumber,
+            // otp: hospital.OTP
         }
-
+        // console.log(OTP)
         res.status(201).json({
             message: 'Hospital created successfully. Please check your email for OTP',
             data
@@ -453,7 +454,7 @@ exports.changePassword = async(req, res)=>{
     }
 };
 
-exports.getAllHospitalMothers = async (req, res) => {
+exports.getHospitalMothers = async (req, res) => {
     try {
         const { id } = req.user;
         const { search } = req.query;
@@ -487,6 +488,12 @@ exports.getAllHospitalMothers = async (req, res) => {
             order: [['createdAt', 'DESC']]
         });
 
+        if (mothers.length === 0) {
+            return res.status(404).json({
+                message: 'No mothers found for this hospital'
+            });
+        }
+
         res.status(200).json({
             message: 'Mothers retrieved successfully',
             count: mothers.length,
@@ -500,40 +507,40 @@ exports.getAllHospitalMothers = async (req, res) => {
 };
 
 
-exports.getHospitalMother = async (req, res) => {
-  try {
-    const hospitalId = req.user?.id;
-    const { motherId } = req.params;
+// exports.getHospitalMother = async (req, res) => {
+//   try {
+//     const hospitalId = req.user?.id;
+//     const { motherId } = req.params;
 
-    if (!motherId) {
-      return res.status(400).json({ message: 'Mother ID is required' });
-    }
+//     if (!motherId) {
+//       return res.status(400).json({ message: 'Mother ID is required' });
+//     }
 
-    const mother = await Mother.findOne({
-      where: { id: motherId, id:hospitalId }
-    });
+//     const mother = await Mother.findOne({
+//       where: { id: motherId, id:hospitalId }
+//     });
 
-    // ,
-    //   attributes: { exclude: ['password', 'otp', 'otpExpiresAt'] },
-    //   include: [
-    //     { model: Hospital, attributes: ['hospitalName'], required: false }
-    //   ]
+//     // ,
+//     //   attributes: { exclude: ['password', 'otp', 'otpExpiresAt'] },
+//     //   include: [
+//     //     { model: Hospital, attributes: ['hospitalName'], required: false }
+//     //   ]
 
-    // console.log("mother: ", mother);
+//     // console.log("mother: ", mother);
 
-    if (!mother) {
-      return res.status(404).json({ message: 'Mother not found for this hospital' });
-    }
+//     if (!mother) {
+//       return res.status(404).json({ message: 'Mother not found for this hospital' });
+//     }
 
-    res.status(200).json({
-      message: 'Mother retrieved successfully',
-      data: mother
-    });
-  } catch (error) {
-    console.error('getHospitalMother error:', error);
-    res.status(500).json({ message: 'Error retrieving mother' }); // don't leak error.message
-  }
-};
+//     res.status(200).json({
+//       message: 'Mother retrieved successfully',
+//       data: mother
+//     });
+//   } catch (error) {
+//     console.error('getHospitalMother error:', error);
+//     res.status(500).json({ message: 'Error retrieving mother' }); // don't leak error.message
+//   }
+// };
 
 
 exports.getHospitalProfile = async (req, res) => {
@@ -722,5 +729,39 @@ exports.logout = async (req, res, next) => {
     }
 }
 
+exports.deleteAccount = async (req, res, next) => {
+    try {
+        const { id } = req.user;
+        const { password } = req.body;
 
+        const hospital = await Hospital.findByPk(id);
+        if (!hospital) {
+            return res.status(404).json({
+                message: 'Hospital not found'
+            });
+        }
+
+        const passwordMatch = await bcrypt.compare(password, hospital.password);
+        if (!passwordMatch) {
+            return res.status(400).json({
+                message: 'Invalid password. Account deletion failed.'
+            });
+        }
+
+        // Clear Redis session
+        redisClient.del(`hospital_${id}`);
+
+        // Delete the hospital account (cascades to related records)
+        await hospital.destroy();
+
+        res.status(200).json({
+            message: 'Hospital account deleted successfully'
+        });
+    } catch (error) {
+        next({
+            message: error.message,
+            statusCode: 500
+        });
+    }
+};
 
