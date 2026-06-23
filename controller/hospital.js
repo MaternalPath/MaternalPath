@@ -69,12 +69,11 @@ passport.deserializeUser((token, done) => {
 exports.createHospital = async (req, res) => {
     try {
         const { hospitalName, email, phoneNumber, password, address,  deliveryFee, medicalLicenseNumber } = req.body;
-        const hospitalLogo = req.files?.hospitalLogo?.[0]
-            ? `/uploads/hospitals/${req.files.hospitalLogo[0].filename}`
-            : null;
-        const verificationDocuments = req.files?.verificationDocuments
-            ? req.files.verificationDocuments.map((file) => `/uploads/hospitals/${file.filename}`)
-            : [];
+
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+        const OTP = otpGenerator.generate(6, { upperCaseAlphabets: false, lowerCaseAlphabets: false, specialChars: false });
+        const expiresAt = new Date(Date.now() + 10 * 60000);
 
         const emailExists = await Hospital.findOne({ where: { email: email.toLowerCase() } }); 
          console.log(emailExists)
@@ -84,21 +83,16 @@ exports.createHospital = async (req, res) => {
             });
         }
 
-        let result;
-        if (req.file) {
-        result = await cloudinary.uploader.upload(req.file.path);
-        fs.unlinkSync(req.file.path);
+        let logoResult;
+        if (req.files?.hospitalLogo?.[0]) {
+        result = await cloudinary.uploader.upload(req.file.hospitalLogo[0]);
+        fs.unlinkSync(req.file.hospitalLogo[0].path);
         }
-        let rest;
-        if (req.file) {
-        rest = await cloudinary.uploader.upload(req.file.path);
-        fs.unlinkSync(req.file.path);
+        let docsResult;
+        if (req.files?.verificationDocuments?.[0]) {
+        docsResult = await cloudinary.uploader.upload(req.files.verificationDocuments[0].path);
+        fs.unlinkSync(req.files.verificationDocuments[0].path);
         }
-
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
-        const OTP = otpGenerator.generate(6, { upperCaseAlphabets: false, lowerCaseAlphabets: false, specialChars: false });
-        const expiresAt = new Date(Date.now() + 10 * 60000);
 
         const hospital = await Hospital.create({
             hospitalName,
@@ -106,8 +100,8 @@ exports.createHospital = async (req, res) => {
             phoneNumber: `+234${phoneNumber}`,
             password: hashedPassword,
             address,
-            ...(result ? { hospitalLogo: result.secure_url, hospitalLogoPublicId: result.public_id } : {}),
-            ...(rest ? { verificationDocuments: rest.secure_url, verificationDocumentsPublicId: rest.public_id } : {}),
+            ...(logoResult ? { hospitalLogo: logoResult.secure_url, hospitalLogoPublicId: logoResult.public_id } : {}),
+            ...(docsResult ? { verificationDocuments: docsResult.secure_url, verificationDocumentPublicId: docsResult.public_id } : {}),
             otp: OTP,
             otpExpiresAt: expiresAt,
             isVerified: false,
@@ -575,9 +569,9 @@ exports.getHospitalProfile = async (req, res) => {
 
         res.status(200).json({
             message: 'Hospital profile retrieved successfully',
-            data: hospital,
+            data: [hospital,
             logo,
-            document
+            document]
         });
     } catch (error) {
         res.status(500).json({
