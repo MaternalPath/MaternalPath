@@ -49,7 +49,15 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: true
     },
+    hospitalLogoPublicId: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
     verificationDocuments: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    verificationDocumentPublicId: {
       type: DataTypes.STRING,
       allowNull: true
     },
