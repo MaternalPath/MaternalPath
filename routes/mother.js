@@ -687,7 +687,7 @@ router.post('/logout', logout)
  *         description: Redirect to Google OAuth page
  */
 
-router.get('/collect', passport.authenticate('google', {scope: ['profile', 'email']}))
+router.get('/collect', passport.authenticate("google-mother", {scope: ['profile', 'email']}))
 
 /**
  * @swagger
@@ -702,7 +702,7 @@ router.get('/collect', passport.authenticate('google', {scope: ['profile', 'emai
  *         description: Redirects to /api/v1/mother/loginsuccess on success or /api/v1/mother/loginfailed on failure
  */
 
-router.get('/googleSignUp', passport.authenticate('google', {
+router.get('/googleSignUp', passport.authenticate("google-mother", {
     successRedirect: '/api/v1/mother/loginsuccess', 
 
                        
