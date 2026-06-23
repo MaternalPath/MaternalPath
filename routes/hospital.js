@@ -20,6 +20,7 @@ const {
 } = require('../controller/hospital');
 const { hospitalRegisterValidator, hospitalLoginValidator, changePasswordValidator } = require('../middlewares/hospitalValidator');
 const { Authentication } = require('../middlewares/auth');
+const upload = require('../middlewares/multer');
 
 const uploadDirectory = path.join(__dirname, '..', 'uploads', 'hospitals');
 fs.mkdirSync(uploadDirectory, { recursive: true });
@@ -46,13 +47,6 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-const upload = multer({
-  storage,
-  fileFilter,
-  limits: {
-    fileSize: 5 * 1024 * 1024
-  }
-});
 
 const router = express.Router();
 
@@ -128,10 +122,10 @@ const router = express.Router();
  *       500:
  *         description: Internal server error
  */
-router.post('/register',upload.fields([
-        { name: 'hospitalLogo', maxCount: 1 },
-        { name: 'verificationDocuments', maxCount: 5 }
-    ]), hospitalRegisterValidator, createHospital);
+router.post('/register', upload.fields([
+    { name: 'hospitalLogo', maxCount: 1 },
+    { name: 'verificationDocuments', maxCount: 1 }
+]), hospitalRegisterValidator, createHospital);
 
     /**
  * @swagger
