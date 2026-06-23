@@ -255,6 +255,28 @@ exports.updateValidation = (req, res, next) => {
         "string.empty": "Blood type is required",
         "any.required": "Blood type is required",
       }),
+
+    trimester: Joi.number()
+    .integer()
+    .valid(1, 2, 3)
+    .required()
+    .messages({
+      "number.base": "Trimester must be a number",
+      "any.only": "Trimester must be 1, 2, or 3",
+      "any.required": "Trimester is required",
+    }),
+
+  currentPregnancyWeek: Joi.number()
+    .integer()
+    .min(1)
+    .max(42)
+    .required()
+    .messages({
+      "number.base": "Pregnancy week must be a number",
+      "number.min": "Pregnancy week cannot be less than 1",
+      "number.max": "Pregnancy week cannot be more than 42",
+      "any.required": "Current pregnancy week is required",
+    }),
     existingHealthConditions: joi
       .string()
       .trim()
