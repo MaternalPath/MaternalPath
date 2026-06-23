@@ -19,11 +19,12 @@ const cloudinary  = require('../config/cloudinary.js')
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 
 passport.use(
+    "google-hospital",
   new GoogleStrategy(
     {
       clientID: process.env.clientId,
       clientSecret: process.env.clientSecret,
-      callbackURL: process.env.googleCallback,
+      callbackURL: process.env.hospitalCallback,
       scope: ["profile", "email"],
       passReqToCallback: true,
     },

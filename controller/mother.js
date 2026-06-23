@@ -16,20 +16,21 @@ const fs = require("fs");
 const cloudinary = require('../config/cloudinary');
 
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
-console.log('redirectUrl:', process.env.googleCallback)
+console.log('redirectUrl:', process.env.motherCallback)
 // Strategy definition
 passport.use(
+  "google-mother",
   new GoogleStrategy(
     {
       clientID: process.env.clientId,
       clientSecret: process.env.clientSecret,
-      callbackURL: process.env.googleCallback,
+      callbackURL: process.env.MotherCallback,
       scope: ["profile", "email"],
       passReqToCallback: true,
     },
     async function (request, accessToken, refreshToken, profile, done) {
-      console.log("i am profile:", profile);
-      console.log("email:", profile._json.email);
+      console.log("my profile:", profile);
+      console.log("my email:", profile._json.email);
       const checkUser = await Mother.findOne({
         where: { email: profile._json.email },
       }); // sequelize uses "where"
