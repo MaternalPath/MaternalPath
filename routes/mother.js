@@ -383,7 +383,7 @@ router.post('/reset-password', resetPassword);
  *                 type: string
  *                 format: date
  *                 example: "2026-12-01"
- *                 description: Used to auto-calculate trimester, currentPregnancyWeek and daysUntilDueDate.
+ *                 description: Used to calculate daysUntilDueDate.
  *               hospitalId:
  *                 type: string
  *                 example: "3f4d73a0-b228-4691-b848-3e2dcab195a3"
@@ -402,10 +402,18 @@ router.post('/reset-password', resetPassword);
  *               allergies:
  *                 type: string
  *                 example: Penicillin
+ *               trimester:
+ *                 type: integer
+ *                 example: 2
+ *                 description: Must be provided by the client. 1 = first, 2 = second, 3 = third trimester.
+ *               currentPregnancyWeek:
+ *                 type: integer
+ *                 example: 20
+ *                 description: Must be provided by the client.
  *               savingsGoalAmount:
  *                 type: number
  *                 example: 500000
- *                 description: Must be greater than or equal to the selected hospital's delivery fee.
+ *                 description: If lower than hospital delivery fee, the hospital delivery fee is used instead.
  *               weeklyContribution:
  *                 type: number
  *                 example: 10000
@@ -513,16 +521,6 @@ router.post('/reset-password', resetPassword);
  *                     isUpdated:
  *                       type: boolean
  *                       example: true
- *       400:
- *         description: Bad request - savings goal below hospital delivery fee
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: savings goal should be higher or equal to Hospital delivery cost
  *       401:
  *         description: Unauthorized - token not found or invalid
  *         content:
