@@ -515,6 +515,8 @@ exports.updateMother = async (req, res, next) => {
       emergencyContactName,
       emergencyContactNumber,
       allergies,
+      trimester,
+      currentPregnancyWeek,
       savingsGoalAmount,
       weeklyContribution,
       linkedPaymentMethod,
@@ -570,29 +572,20 @@ exports.updateMother = async (req, res, next) => {
     }else{
       price = hospital.deliveryFee
     }
-    let trim
-
-    if (diffInWeeks  <= 12 ) {
-      trim = 1
-    }else if (diffInWeeks  <= 26) {
-      trim = 2
-    }else{
-      trim = 3
-    }
 
     const data = {
       motherId: mother.id,
       ...(result ? { image: result.secure_url, imagePublicId: result.public_id } : {}),
 
       estimatedDueDate: estimatedDueDate ?? MotherUpdate.estimatedDueDate,
-      trimester: trim ?? MotherUpdate.trimester,
+      trimester: trimester ?? MotherUpdate.trimester,
       bloodType: bloodType ?? MotherUpdate.bloodType,
       dateOfBirth: dateOfBirth ?? MotherUpdate.dateOfBirth,
       address: address ?? MotherUpdate.address,
       existingHealthConditions:
         existingHealthConditions ?? MotherUpdate.existingHealthConditions,
       currentPregnancyWeek:
-        diffInWeeks ?? MotherUpdate.currentPregnancyWeek,
+        currentPregnancyWeek ?? MotherUpdate.currentPregnancyWeek,
       emergencyContactName: emergencyContactName ?? MotherUpdate.emergencyContactName,
       emergencyContactNumber: emergencyContactNumber ?? MotherUpdate.emergencyContactNumber,
       allergies: allergies ?? MotherUpdate.allergies,

@@ -353,8 +353,7 @@ router.post('/reset-password', resetPassword);
  *     summary: Update mother profile
  *     description: >
  *       Updates the authenticated mother's profile including an optional image upload.
- *       `currentPregnancyWeek` and `trimester` are calculated automatically from
- *       `estimatedDueDate` and do not need to be supplied in the request.
+ *       `trimester` and `currentPregnancyWeek` are auto-calculated from `estimatedDueDate`.
  *       `savingsGoalAmount` must be greater than or equal to the selected hospital's delivery fee.
  *     security:
  *       - bearerAuth: []
@@ -389,7 +388,7 @@ router.post('/reset-password', resetPassword);
  *                 type: string
  *                 format: date
  *                 example: "2026-12-01"
- *                 description: Must be a future date (not today). Used to calculate pregnancy week, trimester, and days until due date.
+ *                 description: Used to auto-calculate trimester and currentPregnancyWeek.
  *               hospitalId:
  *                 type: string
  *                 example: "3f4d73a0-b228-4691-b848-3e2dcab195a3"
@@ -446,7 +445,11 @@ router.post('/reset-password', resetPassword);
  *                     trimester:
  *                       type: integer
  *                       example: 2
- *                       description: Calculated automatically from estimatedDueDate. 1 = first, 2 = second, 3 = third.
+ *                       description: Auto-calculated. 1 = first, 2 = second, 3 = third trimester.
+ *                     currentPregnancyWeek:
+ *                       type: integer
+ *                       example: 20
+ *                       description: Auto-calculated from estimatedDueDate.
  *                     bloodType:
  *                       type: string
  *                       example: O+
@@ -460,10 +463,6 @@ router.post('/reset-password', resetPassword);
  *                     existingHealthConditions:
  *                       type: string
  *                       example: None
- *                     currentPregnancyWeek:
- *                       type: integer
- *                       example: 20
- *                       description: Calculated automatically from estimatedDueDate.
  *                     emergencyContactName:
  *                       type: string
  *                       example: John Doe
@@ -499,8 +498,7 @@ router.post('/reset-password', resetPassword);
  *                       example: 150000
  *                     pregnancyProgress:
  *                       type: number
- *                       example: 62.5
- *                       description: Calculated as (currentBalance / 40) * 100.
+ *                       example: 37.5
  *                     daysUntilDueDate:
  *                       type: integer
  *                       example: 140
@@ -523,7 +521,7 @@ router.post('/reset-password', resetPassword);
  *                       type: boolean
  *                       example: true
  *       400:
- *         description: Bad request
+ *         description: Bad request - savings goal below hospital delivery fee
  *         content:
  *           application/json:
  *             schema:
