@@ -13,6 +13,8 @@ const jwt = require('jsonwebtoken');
 const passport = require("passport");
 const redisClient = require('../config/redis')
 
+const cloudinary = require('../config/cloudinary')
+
 
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 
