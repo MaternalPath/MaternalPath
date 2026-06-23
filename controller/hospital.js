@@ -84,6 +84,17 @@ exports.createHospital = async (req, res) => {
             });
         }
 
+        let result;
+        if (req.file) {
+        result = await cloudinary.uploader.upload(req.file.path);
+        fs.unlinkSync(req.file.path);
+        }
+        let rest;
+        if (req.file) {
+        rest = await cloudinary.uploader.upload(req.file.path);
+        fs.unlinkSync(req.file.path);
+        }
+
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
         const OTP = otpGenerator.generate(6, { upperCaseAlphabets: false, lowerCaseAlphabets: false, specialChars: false });
@@ -95,8 +106,8 @@ exports.createHospital = async (req, res) => {
             phoneNumber: `+234${phoneNumber}`,
             password: hashedPassword,
             address,
-            hospitalLogo,
-            verificationDocuments: JSON.stringify(verificationDocuments),
+            ...(result ? { hospitalLogo: result.secure_url, hospitalLogoPublicId: result.public_id } : {}),
+            ...(rest ? { verificationDocuments: rest.secure_url, verificationDocumentsPublicId: rest.public_id } : {}),
             otp: OTP,
             otpExpiresAt: expiresAt,
             isVerified: false,
@@ -559,9 +570,14 @@ exports.getHospitalProfile = async (req, res) => {
             });
         }
 
+        const logo = hospita?.hospitalLogo
+        const document = hospital?.verificationDocuments
+
         res.status(200).json({
             message: 'Hospital profile retrieved successfully',
-            data: hospital
+            data: hospital,
+            logo,
+            document
         });
     } catch (error) {
         res.status(500).json({

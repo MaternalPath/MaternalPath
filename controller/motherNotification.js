@@ -88,7 +88,6 @@ exports.markAsRead = async (req, res) => {
 };
 
 
-
 exports.markAsUnread = async (req, res) => {
   try {
     const { id } = req.params;
@@ -311,48 +310,3 @@ exports.getNotificationCount = async (req, res) => {
   }
 };
 
-// exports.createSystemNotification = async (req, res) => {
-//   try {
-//     const { title, message, type, status, metadata } = req.body;
-
-//     // Validation
-//     if (!title || !title.trim()) {
-//       return res.status(400).json({ message: 'Title is required' });
-//     }
-//     if (!message || !message.trim()) {
-//       return res.status(400).json({ message: 'Message is required' });
-//     }
-
-//     // Get all hospital IDs
-//     const mothers = await Mother.findAll({ attributes: ['id'] });
-
-//     if (mothers.length === 0) {
-//       return res.status(404).json({ message: 'No hospitals found to notify' });
-//     }
-
-//     // Create a notification for each hospital
-//     const notificationData = mothers.map(hospital => ({
-//       hospitalId: hospital.id,
-//       title: title.trim(),
-//       message: message.trim(),
-//       type: type || 'system_notification',
-//       status: status || 'info',
-//       isRead: false,
-//       metadata: metadata || null,
-//       createdAt: new Date(),
-//       updatedAt: new Date()
-//     }));
-
-//     await motherNotification.bulkCreate(notificationData);
-
-//     res.status(201).json({
-//       message: `System notification sent to ${mothers.length} hospitals successfully`,
-//       count: mothers.length
-//     });
-//   } catch (error) {
-//     res.status(500).json({
-//       message: 'Error creating system notification',
-//       error: error.message
-//     });
-//   }
-// };
