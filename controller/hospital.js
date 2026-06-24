@@ -587,6 +587,7 @@ exports.getHospitalProfile = async (req, res) => {
                 message: 'Hospital not found'
             });
         }
+        console.log('hospitals:', hospital)
 
         const logo = hospital?.hospitalLogo
         const document = hospital?.verificationDocuments
