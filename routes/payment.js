@@ -57,7 +57,7 @@ const router = express.Router();
 
 router.post('/initialize/card', initializeCardCharge);
 
-router.post('/initiate', Authentication, makePayment)
+router.post('/initiate', Authentication, initiatePayment)
 
 /**
  * @swagger
