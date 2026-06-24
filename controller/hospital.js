@@ -33,7 +33,7 @@ passport.use(
       console.log("email:", profile._json.email);
       const checkUser = await Mother.findOne({
         where: { email: profile._json.email },
-      }); // sequelize uses "where"
+      }); 
       let token;
 
       if (checkUser) {
@@ -141,7 +141,7 @@ exports.createHospital = async (req, res) => {
 
         if (process.env.NODE_ENV === "production") {
       await sendBrevoEmail(emailOptions);
-    } else {
+    } else { 
       await sendMail(emailOptions);
     }
 

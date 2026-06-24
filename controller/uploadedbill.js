@@ -534,11 +534,8 @@ exports.getBillSummary = async (req, res) => {
     }
 };
 
-/**
- * Run a system validation check against a bill.
- * validationType must be one of: patienceIdMatched, fileUploadedProgress,
- * billingVerification, requiredFieldComplete
- */
+
+
 exports.runSystemValidation = async (req, res) => {
     try {
         const { billId } = req.params;
@@ -668,11 +665,11 @@ exports.getUploadedBillDashboard = async (req, res) => {
 
         // Calculate percentages - avoid divide by zero
         const verifiedPercentage = totalUploadedBills > 0 
-           ? Math.round((totalVerifiedBills / totalUploadedBills) * 100 * 10) / 10 
+           ? Math.round((totalVerifiedBills / Verified) * 100 * 10) / 10 
             : 0;
 
         const pendingPercentage = totalUploadedBills > 0 
-           ? Math.round((totalPendingBills / totalUploadedBills) * 100 * 10) / 10 
+           ? Math.round((totalPendingBills / Pending) * 100 * 10) / 10 
             : 0;
 
         const byStage = WORKFLOW_STAGES.reduce((acc, stage) => {

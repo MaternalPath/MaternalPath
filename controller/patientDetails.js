@@ -11,6 +11,8 @@ exports.getPatientDetails = async (req, res, next) => {
                 'firstName',
                 'lastName',
                 'email',
+                'dueDate',
+                'trimester',
                 'phoneNumber',
                 'hospitalId'
             ],
