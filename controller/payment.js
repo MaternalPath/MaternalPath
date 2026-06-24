@@ -56,12 +56,12 @@ exports.initiatePayment = async (req, res, next) => {
     }
 
     const payload = {
-      amount: amount,
+      amount:Number(amount) ,
       customer: {
         email: mother.email,
         name: name
       },
-      redirect_url: 'http://localhost:2245/api/v1/payment/initialize',
+      redirect_url: "https://goal.com",
       currency: 'NGN',
       reference: "reference"
     };
