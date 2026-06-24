@@ -662,8 +662,8 @@ exports.getUploadedBillDashboard = async (req, res) => {
         });
 
         const totalUploadedBills = bills.length;
-        const totalVerifiedBills = bills.filter((b) => b.verificationStatus === 'Verified').length;
-        const totalPendingBills = bills.filter((b) => b.verificationStatus === 'Pending').length;
+        const totalVerifiedBills = bills.filter((b) => b.verificationWorkFlow === 'Verified').length;
+        const totalPendingBills = bills.filter((b) => b.verificationWorkFlow !== 'Pending').length;
         const totalDeliveryCost = bills.reduce((sum, b) => sum + (Number(b.amount) || 0), 0);
 
         // Calculate percentages - avoid divide by zero
@@ -700,64 +700,6 @@ exports.getUploadedBillDashboard = async (req, res) => {
     }
 };
 
-
-
-
-// exports.getUploadedBillRecords = async (req, res) => {
-//     try {
-//         // const { id: hospitalId } = req.user;
-//         // const { page = 1, limit = 10, status, search } = req.query;
-        
-//         // const offset = (page - 1) * limit;
-//         // const whereClause = { hospitalId };
-
-//         // Optional filters
-//         if (status) {
-//             whereClause.verificationStatus = status; // 'Verified', 'Pending', etc
-//         }
-
-//         if (search) {
-//             whereClause[Op.or] = [
-//                 { billId: { [Op.iLike]: `%${search}%` } },
-//                 { patientName: { [Op.iLike]: `%${search}%` } }
-//             ];
-//         }
-
-//         const { count, rows } = await uploadedBill.findAndCountAll({
-//             where: whereClause,
-//             order: [['createdAt', 'DESC']],
-//             limit: parseInt(limit),
-//             offset: parseInt(offset),
-
-//             attributes: [
-//                 'billId',
-//                 'billNumber',
-//                 'patientName', 
-//                 'deliveryType',
-//                 'billAmount',
-//                 'uploadedDate',
-//                 'verificationStatus',
-//                 'paymentStatus'
-//             ]
-//         });
-
-//         res.status(200).json({
-//             message: 'Bill records retrieved successfully',
-//             data: {
-//                 totalRecords: count,
-//                 currentPage: parseInt(page),
-//                 totalPages: Math.ceil(count / limit),
-//                 records: rows
-//             }
-//         });
-
-//     } catch (error) {
-//         console.log(error);
-//         res.status(500).json({
-//             message: error.message
-//         });
-//     }
-// };
 
 
 
@@ -814,8 +756,9 @@ exports.getUploadedBillRecords = async (req, res) => {
 
         const whereClause = { hospitalId };
 
-        if (status) {
-            whereClause.verificationStatus = status;
+        // Fix: use verificationWorkFlow (not verificationStatus which doesn't exist)
+        if (status && ['uploadedBill', 'customerReview', 'fundValidation', 'finalApproval'].includes(status)) {
+            whereClause.verificationWorkFlow = status;
         }
 
         const { count, rows } = await uploadedBill.findAndCountAll({
@@ -825,13 +768,23 @@ exports.getUploadedBillRecords = async (req, res) => {
             offset: parseInt(offset)
         });
 
+        const formattedRecords = rows.map(record => ({
+            billId: record.billId || record.id,
+            patientName: record.fullName,
+            category: record.category,
+            billAmount: record.amount,
+            verificationStatus: record.verificationWorkFlow,
+            paymentStatus: record.verificationWorkFlow === 'finalApproval' ? 'Paid' : 'Unpaid',
+            uploadedDate: record.billingDate || record.createdAt
+        }));
+
         res.status(200).json({
             message: 'Uploaded Bills records fetched successfully',
             data: {
                 totalRecords: count,
                 currentPage: parseInt(page),
                 totalPages: Math.ceil(count / parseInt(limit)),
-                records: rows
+                records: formattedRecords
             }
         });
 
