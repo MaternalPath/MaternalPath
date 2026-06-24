@@ -27,7 +27,7 @@ exports.getNotifications = async (req, res, next) => {
         const mother = await MotherUpdate.findOne({
             where: {
                 motherId: id
-            }
+            }, attributes: { exclude: ['time'] }
             });
 
             if (!mother) {
@@ -38,15 +38,14 @@ exports.getNotifications = async (req, res, next) => {
             }
         const currentWeek = await mother.currentPregnancyWeek;
         const currentDay = await mother.currentPregnancyWeek * 7;
-        console.log(currentDay)
         const notifications = await motherNotification.findAll({
         where: {
                 [Op.or]: [{ week: currentWeek }, { dayNumber: currentDay }],
-              }});
+              }, attributes: { exclude: ['time'] }});
 
         const result = notifications.map(item => ({
         ...item.toJSON(),
-        time: dayjs(item.createdAt).fromNow(),
+        // time: dayjs(item.createdAt).fromNow(),
         }));
  
          res.status(200).json({
@@ -238,12 +237,12 @@ exports.getNotificationsByType = async (req, res) => {
       where,
       order: [['createdAt', 'DESC']],
       limit: parseInt(limit),
-      offset
+      offset, attributes: { exclude: ['time'] }
     });
 
     const result = rows.map(item => ({
       ...item.toJSON(),
-      time: dayjs(item.createdAt).fromNow(),
+      // time: dayjs(item.createdAt).fromNow(),
     }));
 
     res.status(200).json({
