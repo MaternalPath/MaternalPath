@@ -63,8 +63,9 @@ exports.initiatePayment = async (req, res, next) => {
       },
       redirect_url: 'http://localhost:2245/api/v1/payment/initialize',
       currency: 'NGN',
-      reference: reference
+      reference: "reference"
     };
+    console.log("olaaaaaaaaaaa: ",payload)
 
     const { data } = await axios.post('https://api.korapay.com/merchant/api/v1/charges/initialize', payload, {
             headers: {
