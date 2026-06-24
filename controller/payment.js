@@ -67,15 +67,28 @@ exports.initiatePayment = async (req, res, next) => {
     };
     console.log("olaaaaaaaaaaa: ",payload)
 
-    const { data } = await axios.post('https://api.korapay.com/merchant/api/v1/charges/initialize', payload, {
-            headers: {
-                Authorization:  `Bearer sk_test_FwPUuT2okEYyzv6Zya96BFMHLrXxKEKaKtHAtfjH`
-            }
-        });
+    //const { data } = await axios.post('https://api.korapay.com/merchant/api/v1/charges/initialize', payload, {
+        //     headers: {
+        //         Authorization:  `Bearer sk_test_FwPUuT2okEYyzv6Zya96BFMHLrXxKEKaKtHAtfjH`
+        //     }
+        // });
         console.log("olaa : ",payload)
         console.log("olaa3 : ",reference)
-
-    const motherBalance = await payment.create({
+const sk = process.env.KORA_SK
+    console.log("sk key : ",sk)
+    const { data } = await axios.post(
+  "https://api.korapay.com/merchant/api/v1/charges/initialize",
+  payload,
+  {
+    headers: {
+      Authorization: `Bearer ${sk}`,
+      "Content-Type": "application/json",
+      Accept: "application/json"
+    }
+  }
+);
+    
+        const motherBalance = await payment.create({
       amount: amount,
       reference: data.data.reference,
       motherId: id
