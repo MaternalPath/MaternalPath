@@ -68,9 +68,11 @@ exports.initiatePayment = async (req, res, next) => {
 
     const { data } = await axios.post('https://api.korapay.com/merchant/api/v1/charges/initialize', payload, {
             headers: {
-                Authorization:  `Bearer ${process.env.KORA_SK}`
+                Authorization:  `Bearer sk_test_FwPUuT2okEYyzv6Zya96BFMHLrXxKEKaKtHAtfjH`
             }
         });
+        console.log("olaa : ",payload)
+        console.log("olaa3 : ",reference)
 
     const motherBalance = await payment.create({
       amount: amount,
@@ -89,8 +91,11 @@ exports.initiatePayment = async (req, res, next) => {
       data
     })
   } catch (error) {
-    console.error('Payment error:', error.response?.status, error.response?.data || error.message);
-    
+    console.log('Payment error1:', error.response?.status, error.response?.data || error.message);
+        console.log('Payment error2:', error.response?.status);
+            console.log('Payment error3:',  error.message);
+
+
     if (error.response?.status === 403) {
       return next({
         message: 'Kora API authentication failed. Please check your API key.',
