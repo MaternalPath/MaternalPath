@@ -63,7 +63,7 @@ exports.initiatePayment = async (req, res, next) => {
       },
       redirect_url: "https://goal.com",
       currency: 'NGN',
-      reference: "reference"
+      reference: reference
     };
     console.log("olaaaaaaaaaaa: ",payload)
 
