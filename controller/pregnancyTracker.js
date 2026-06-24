@@ -34,13 +34,16 @@ exports.pregnancyTracker = async (req, res, next) => {
     const tip = await pregnancyTip.findOne({
       where: { week: currentWeek },
     });
+    const progress = (mother.currentPregnancyWeek * 100) / 40;
     console.log(tip);
     const metrix = {
       trimester: mother.trimester,
       week: mother.currentPregnancyWeek,
       estimatedDueDate: mother.estimatedDueDate,
-      daysUntilDelivery: daysLeft
+      daysUntilDelivery: daysLeft,
+      pregnancyProgress: progress+'%'
     };
+
     const currentweek = mother.currentPregnancyWeek;
     const firsttrim = [
       [
