@@ -11,8 +11,6 @@ exports.getPatientDetails = async (req, res, next) => {
                 'firstName',
                 'lastName',
                 'email',
-                'dueDate',
-                'trimester',
                 'phoneNumber',
                 'hospitalId'
             ],
@@ -31,21 +29,12 @@ exports.getPatientDetails = async (req, res, next) => {
             });
         }
 
-        // Get the latest MotherUpdate for pregnancy data
-        const latestUpdate = await MotherUpdate.findOne({
-            where: { motherId },
-            attributes: ['currentPregnancyWeek', 'estimatedDueDate'],
-            order: [['createdAt', 'DESC']]
-        });
-
         const response = {
             id: mother.id,
             fullName: `${mother.firstName} ${mother.lastName}`,
             phoneNumber: mother.phoneNumber,
             email: mother.email,
             maternalId: mother.maternalId || null,
-            pregnancyWeek: latestUpdate?.currentPregnancyWeek || null,
-            expectedDeliveryDate: latestUpdate?.estimatedDueDate || null,
             preferredHospital: mother.Hospital?.hospitalName || null
         };
 
