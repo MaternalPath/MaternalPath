@@ -1,4 +1,4 @@
-const { Hospital, Mother, sequelize } = require('../models');
+const { Hospital, Mother, sequelize, MotherUpdate } = require('../models');
 const bcrypt = require('bcrypt');
 const { sendBrevoEmail } = require('../utils/brevo');
 const sendMail = require("../utils/nodemailer");
@@ -517,16 +517,30 @@ exports.getHospitalMothers = async (req, res) => {
             order: [['createdAt', 'DESC']]
         });
 
+        const motherData = await MotherUpdate.findAll({
+            attributes: [
+                'id',
+                'estimatedDueDate',
+                'trimester',
+                'currentPregnancyWeek', 
+                'estimatedDueDate'
+            ]})
+
         if (mothers.length === 0) {
             return res.status(404).json({
                 message: 'No mothers found for this hospital'
             });
         }
 
+        const data= {
+            mothers,
+            motherData
+        }
+
         res.status(200).json({
             message: 'Mothers retrieved successfully',
             count: mothers.length,
-            data: mothers
+            data
         });
     } catch (error) {
         res.status(500).json({

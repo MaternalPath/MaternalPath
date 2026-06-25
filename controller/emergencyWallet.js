@@ -48,6 +48,12 @@ const payments = await payment.findAll({
     status: "successful"
   }
 });
+const paymentRecord = await payment.findOne({
+  where: {
+    motherId: req.user.id,
+    status: "successful"
+  }
+});
 
 const today = new Date();
 today.setHours(0, 0, 0, 0);
@@ -69,19 +75,23 @@ const progress = (mother.currentPregnancyWeek * 100) / 40;
             });
         }
 
+        const balance = walletRecord.currentBalance += Number(paymentRecord.amount)
+
         const total = 285000 * 100 / 400000;
         const decimal = Math.floor(total);
-        console.log(total, decimal);
 
         const savingsProgress =
-            mother.savingsGoalAmount > 0
+            walletRecord.currentBalance > 0
                 ? (walletRecord.currentBalance * 100) / mother.savingsGoalAmount
                 : 0;
-
+          console.log("savings Progress:", savingsProgress);
+          
         let preparedness = ""
     
         if (savingsProgress <= 0) {
-            preparedness = 'low Preparedness'
+            preparedness = 'very low Preparedness'
+        }else if (savingsProgress <= 20) {
+          preparedness = 'low Preparedness'
         }else if (savingsProgress <= 60) {
             preparedness = 'average Preparedness'
         }else if (savingsProgress <= 95) {
@@ -101,7 +111,7 @@ const progress = (mother.currentPregnancyWeek * 100) / 40;
         
         payments.forEach((payment) => {
           const month = dayjs(payment.createdAt).format("MMMM");
-          monthlySavings[month] += Number(payment.amount)
+          // monthlySavings[month] += Number(payment.amount)
         
           if (!monthlySavings[month]) {
             monthlySavings[month] = 0;
@@ -111,7 +121,7 @@ const progress = (mother.currentPregnancyWeek * 100) / 40;
         });
 
         const remainingWeek = 40 - mother.currentPregnancyWeek
-        const contribution = walletRecord.amount;
+        const contribution = payments.amount;
 
         const savings = mother.savingsGoalAmount / remainingWeek
 
@@ -133,12 +143,11 @@ const info = {
     week: mother.currentPregnancyWeek,
     estimatedDueDate: mother.estimatedDueDate,
     preferredHospital: mother.selectedHospital,
-    currentBalance: walletRecord.currentBalance,
+    currentBalance: balance,
     savingsGoal: mother.savingsGoalAmount,
-    savingsProgress,
+    savingsProgress: savingsProgress+'%',
     remainingAmountNeeded:  remainingAmount,
     daysUntilDueDate,
-    pregnancyProgress: progress+'%',
     preparedness
 };
 

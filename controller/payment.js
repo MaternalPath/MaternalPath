@@ -61,7 +61,7 @@ exports.initiatePayment = async (req, res, next) => {
         email: mother.email,
         name: name
       },
-      redirect_url: "https://goal.com",
+      redirect_url: "https://maternal-path-fe.vercel.app/fundsSuccess",
       currency: 'NGN',
       reference: reference
     };
@@ -221,7 +221,7 @@ exports.verifyPayment = async (req, res, next) => {
 
     if (data.status === true && data.data.status === "success") {
       paymentRecord.status = "successful";
-      walletRec.dataValues.currentBalance += paymentRecord.dataValues.amount;
+      walletRec.currentBalance += Number(paymentRecord.amount);
       await walletRec.save();
       await paymentRecord.save();
 
