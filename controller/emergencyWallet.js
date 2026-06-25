@@ -76,23 +76,22 @@ const progress = (mother.currentPregnancyWeek * 100) / 40;
         }
 
         const balance = walletRecord.currentBalance += Number(paymentRecord.amount)
-//         console.log("balance:", balance)
-//         console.log("payment.amount:", payments.amount);
-// console.log("currentBalance:", walletRecord.currentBalance);
 
         const total = 285000 * 100 / 400000;
         const decimal = Math.floor(total);
-        console.log(total, decimal);
 
         const savingsProgress =
             walletRecord.currentBalance > 0
                 ? (walletRecord.currentBalance * 100) / mother.savingsGoalAmount
                 : 0;
-
+          console.log("savings Progress:", savingsProgress);
+          
         let preparedness = ""
     
         if (savingsProgress <= 0) {
-            preparedness = 'low Preparedness'
+            preparedness = 'very low Preparedness'
+        }else if (savingsProgress <= 20) {
+          preparedness = 'low Preparedness'
         }else if (savingsProgress <= 60) {
             preparedness = 'average Preparedness'
         }else if (savingsProgress <= 95) {
@@ -146,10 +145,9 @@ const info = {
     preferredHospital: mother.selectedHospital,
     currentBalance: balance,
     savingsGoal: mother.savingsGoalAmount,
-    savingsProgress,
+    savingsProgress: savingsProgress+'%',
     remainingAmountNeeded:  remainingAmount,
     daysUntilDueDate,
-    pregnancyProgress: progress+'%',
     preparedness
 };
 
