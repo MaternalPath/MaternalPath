@@ -113,6 +113,13 @@ exports.createMother = async (req, res, next) => {
       specialChars: false,
     });
 
+    const maternalId = otpGenerator.generate(4, {
+      digits: true,
+      upperCaseAlphabets: false,
+      lowerCaseAlphabets: false,
+      specialChars: false
+    })
+
     const expiresAt = new Date(Date.now() + 10 * 60000);
 
     const salt = await bcrypt.genSalt(10);
@@ -125,6 +132,7 @@ exports.createMother = async (req, res, next) => {
       phoneNumber: `+234${phoneNumber}`,
       password: hashedPassword,
       hospitalId,
+      maternalId: maternalId,
       otp: OTP,
       otpExpiresAt: expiresAt,
     });
@@ -151,6 +159,7 @@ exports.createMother = async (req, res, next) => {
       email: mother.email,
       phoneNumber: mother.phoneNumber,
       hospitalId: mother.hospitalId,
+      maternalId: maternalId
     };
 
     res.status(201).json({

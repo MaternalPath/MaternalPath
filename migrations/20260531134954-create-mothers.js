@@ -18,6 +18,11 @@ module.exports = {
               onDelete: "CASCADE",
               onUpdate: "CASCADE",
              },
+             maternalId: {
+            type: Sequelize.STRING,
+            allowNull: false,
+            unique: true
+              },
             firstName: {
                 type: Sequelize.STRING,
                 allowNull: false

@@ -33,7 +33,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     maternalId: {
       type: DataTypes.STRING,
-      allowNull: true,
+      allowNull: false,
       unique: true
     },
     firstName: { type: DataTypes.STRING, allowNull: false },

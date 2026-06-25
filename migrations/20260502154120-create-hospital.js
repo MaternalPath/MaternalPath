@@ -34,7 +34,15 @@ module.exports = {
       type: Sequelize.STRING,
       allowNull: true
     },
+    hospitalLogoPublicId: {
+      type: Sequelize.STRING,
+      allowNull: true
+    },
     verificationDocuments: {
+      type: Sequelize.STRING,
+      allowNull: true
+    },
+    verificationDocumentPublicId: {
       type: Sequelize.STRING,
       allowNull: true
     },
