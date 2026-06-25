@@ -221,7 +221,7 @@ exports.verifyPayment = async (req, res, next) => {
 
     if (data.status === true && data.data.status === "success") {
       paymentRecord.status = "successful";
-      walletRec.dataValues.currentBalance += paymentRecord.dataValues.amount;
+      walletRec.currentBalance += Number(paymentRecord.amount);
       await walletRec.save();
       await paymentRecord.save();
 
