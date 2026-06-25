@@ -796,11 +796,8 @@ exports.deleteAccount = async (req, res, next) => {
                 message: 'Invalid password. Account deletion failed.'
             });
         }
-
-        // Clear Redis session
         redisClient.del(`hospital_${id}`);
 
-        // Delete the hospital account (cascades to related records)
         await hospital.destroy();
 
         res.status(200).json({

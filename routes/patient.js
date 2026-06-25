@@ -55,12 +55,9 @@ const router = express.Router();
  *                 pregnancyWeek:
  *                   type: integer
  *                   example: 24
- *                 dueDate:
+ *                 expectedDateOfDeelivery:
  *                   type: string
  *                   example: "2026-10-12"
- *                 trimester:
- *                   type: string
- *                   example: First trimester
  *                 preferredHospital:
  *                   type: string
  *                   example: Lagos University Hospital
