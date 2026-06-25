@@ -659,17 +659,17 @@ exports.getUploadedBillDashboard = async (req, res) => {
         });
 
         const totalUploadedBills = bills.length;
-        const totalVerifiedBills = bills.filter((b) => b.verificationWorkFlow === 'Verified').length;
-        const totalPendingBills = bills.filter((b) => b.verificationWorkFlow !== 'Pending').length;
+        const totalVerifiedBills = bills.filter((b) => b.verificationWorkFlow === 'finalApproval').length;
+        const totalPendingBills = bills.filter((b) => b.verificationWorkFlow !== 'finalApproval').length;
         const totalDeliveryCost = bills.reduce((sum, b) => sum + (Number(b.amount) || 0), 0);
 
         // Calculate percentages - avoid divide by zero
         const verifiedPercentage = totalUploadedBills > 0 
-           ? Math.round((totalVerifiedBills / Verified) * 100 * 10) / 10 
+           ? Math.round((totalVerifiedBills / totalUploadedBills) * 100 * 10) / 10 
             : 0;
 
         const pendingPercentage = totalUploadedBills > 0 
-           ? Math.round((totalPendingBills / Pending) * 100 * 10) / 10 
+           ? Math.round((totalPendingBills / totalUploadedBills) * 100 * 10) / 10 
             : 0;
 
         const byStage = WORKFLOW_STAGES.reduce((acc, stage) => {
