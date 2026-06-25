@@ -563,7 +563,7 @@ exports.updateMother = async (req, res, next) => {
     const timeDiff = targetDate - today;
     const daysLeft = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
 
-    const progress = (walletRecord.currentBalance * 100) / 40;
+    // const progress = (walletRecord.currentBalance * 100) / 40;
 
     // const diffInWeeks = Math.floor(daysLeft / 7);
 
@@ -613,7 +613,7 @@ exports.updateMother = async (req, res, next) => {
       hospitalAddress: hospital.address,
       hospitalContact: hospital.phoneNumber,
       estimatedDeliveryCost: hospital.deliveryFee,
-      pregnancyProgress: progress,
+      // pregnancyProgress: progress,
       daysUntilDueDate: daysLeft,
     };
 
