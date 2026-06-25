@@ -505,16 +505,16 @@ exports.updateMother = async (req, res, next) => {
         message: "Mother not found",
       });
     }
-    const walletRecord = await wallet.findOne({
-            where: { motherId: id }
-        });
+    // const walletRecord = await wallet.findOne({
+    //         where: { motherId: id }
+    //     });
 
-        if (!walletRecord) {
-            return next({
-                statusCode: 404,
-                message: "Wallet record not found"
-            });
-        }
+    //     if (!walletRecord) {
+    //         return next({
+    //             statusCode: 404,
+    //             message: "Wallet record not found"
+    //         });
+    //     }
 
     const {
       firstName,
