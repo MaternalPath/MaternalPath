@@ -329,9 +329,8 @@ exports.updateValidation = (req, res, next) => {
       "string.max": "Allergies cannot exceed 255 characters.",
       "any.required": "Allergies is required.",
     }),
-    savingsGoalAmount: joi.number().positive().required().messages({
+    savingsGoalAmount: joi.number().required().messages({
       "number.base": "Savings goal amount must be a number.",
-      "number.positive": "Savings goal amount must be greater than 0.",
       "any.required": "Savings goal amount is required.",
     }),
 
