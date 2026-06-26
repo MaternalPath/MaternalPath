@@ -14,6 +14,9 @@ const { Op } = require("sequelize");
 const passport = require("passport");
 const fs = require("fs");
 const cloudinary = require('../config/cloudinary');
+const dayjs = require("dayjs");
+const relativeTime = require("dayjs/plugin/relativeTime")
+dayjs.extend(relativeTime)
 
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 console.log('redirectUrl:', process.env.motherCallback)
@@ -511,6 +514,12 @@ exports.updateMother = async (req, res, next) => {
         status: "successful"
       }
     });
+    const payments = await payment.findAll({
+      where: {
+        motherId: req.user.id,
+        status: "successful"
+      }
+    });
     const walletRecord = await wallet.findOne({
             where: { motherId: id }
         });
@@ -582,7 +591,7 @@ exports.updateMother = async (req, res, next) => {
           monthlySavings[month] = 0;
         }
         
-        paymentRecord.forEach((payment) => {
+        payments.forEach((payment) => {
           const month = dayjs(payment.createdAt).format("MMMM");
         
           if (!monthlySavings[month]) {
