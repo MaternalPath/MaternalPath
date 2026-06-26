@@ -579,31 +579,6 @@ exports.updateMother = async (req, res, next) => {
     //  const progress = (walletRecord.currentBalance * 100) / 40;
      const progress = 0;
 
-    // const diffInWeeks = Math.floor(daysLeft / 7);
-    // const balance = walletRecord.currentBalance += Number(paymentRecord.amount)
-
-    // const monthlySavings = {};
-        
-    //     for (let i = 0; i < 12; i++) {
-    //       const month = dayjs().month(i).format("MMMM");
-    //       monthlySavings[month] = 0;
-    //     }
-        
-    //     payments.forEach((payment) => {
-    //       const month = dayjs(payment.createdAt).format("MMMM");
-        
-    //       if (!monthlySavings[month]) {
-    //         monthlySavings[month] = 0;
-    //       }
-        
-    //       monthlySavings[month] += Number(payment.amount);
-    //     });
-
-    // const totalSavings = Object.values(monthlySavings).reduce(
-    //       (sum, amount) => sum + amount,
-    //       0
-    //     );
-
     const details = {
       firstName: firstName ?? mother.firstName,
       lastName: lastName ?? mother.lastName,
@@ -657,7 +632,6 @@ exports.updateMother = async (req, res, next) => {
     if (mother.isUpdated === false) {
       await MotherUpdate.create(data);
       await mother.update(details);
-      // currentBalance: balance
     } else {
       await MotherUpdate.update(data, {
         where: {
@@ -669,7 +643,6 @@ exports.updateMother = async (req, res, next) => {
           id: mother.id,
         },
       });
-      // currentBalance: totalSavings,
     }
 
     res.status(200).json({
@@ -703,6 +676,40 @@ exports.getMotherProfile = async (req, res, next) => {
         statusCode: 404,
       });
     }
+    const payments = await payment.findAll({
+  where: {
+    motherId: req.user.id,
+    status: "successful"
+  }
+});
+const paymentRecord = await payment.findOne({
+  where: {
+    motherId: req.user.id,
+    status: "successful"
+  }
+});
+
+    const monthlySavings = {};
+        
+        for (let i = 0; i < 12; i++) {
+          const month = dayjs().month(i).format("MMMM");
+          monthlySavings[month] = 0;
+        }
+        
+        payments.forEach((payment) => {
+          const month = dayjs(payment.createdAt).format("MMMM");
+        
+          if (!monthlySavings[month]) {
+            monthlySavings[month] = 0;
+          }
+        
+          monthlySavings[month] += Number(payment.amount);
+        });
+
+        const totalSavings = Object.values(monthlySavings).reduce(
+          (sum, amount) => sum + amount,
+          0
+        );
 
     const remainingAmountNeeded =
       mother.savingsGoalAmount - wallet.currentBalance;
@@ -720,7 +727,8 @@ exports.getMotherProfile = async (req, res, next) => {
         data: [mother,
         mom,
         img,
-        remainingAmountNeeded,]
+        remainingAmountNeeded,
+      currentBalance = totalSavings,]
       });
     }
   } catch (error) {
