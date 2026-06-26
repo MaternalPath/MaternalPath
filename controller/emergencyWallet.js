@@ -74,8 +74,16 @@ const progress = (mother.currentPregnancyWeek * 100) / 40;
                 message: "Wallet record not found"
             });
         }
+        if (data.status === true && data.data.status === "success") {
+      walletRec.currentBalance += Number(paymentRecord.amount);
+      await walletRec.save();
+      await paymentRecord.save();
 
-        const balance = walletRecord.currentBalance += Number(paymentRecord.amount)
+      const balance = walletRec.currentBalance;
+      const goals = MotherUpdate.savingsGoalAmount;
+      const remainingAmountNeeded = goals - balance;
+
+    }
 
         const total = 285000 * 100 / 400000;
         const decimal = Math.floor(total);
