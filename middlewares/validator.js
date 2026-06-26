@@ -334,9 +334,8 @@ exports.updateValidation = (req, res, next) => {
       "any.required": "Savings goal amount is required.",
     }),
 
-    weeklyContribution: joi.number().positive().required().messages({
+    weeklyContribution: joi.number().required().messages({
       "number.base": "Weekly contribution must be a number.",
-      "number.positive": "Weekly contribution must be greater than 0.",
       "any.required": "Weekly contribution is required.",
     }),
 
