@@ -227,7 +227,7 @@ exports.verifyPayment = async (req, res, next) => {
       await paymentRecord.save();
       await transactionHistory.save();
 
-      const balance = walletRec.currentBalance;
+      const balance = walletRec.currentBalance += payment.amount;
       const goals = MotherUpdate.savingsGoalAmount;
       const remainingAmountNeeded = goals - balance;
 
