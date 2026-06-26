@@ -222,8 +222,10 @@ exports.verifyPayment = async (req, res, next) => {
     if (data.status === true && data.data.status === "success") {
       paymentRecord.status = "successful";
       walletRec.currentBalance += Number(paymentRecord.amount);
+      transactionHistory.status = "Completed";
       await walletRec.save();
       await paymentRecord.save();
+      await transactionHistory.save();
 
       const balance = walletRec.currentBalance;
       const goals = MotherUpdate.savingsGoalAmount;
@@ -237,9 +239,6 @@ exports.verifyPayment = async (req, res, next) => {
       });
     }
 
-    if (data.status === true && data.data.status === "success") {
-      transactionHistory.status = "Completed";
-    }
   } catch (error) {
     console.error('Payment verification error:', error.response?.status, error.response?.data || error.message);
     
