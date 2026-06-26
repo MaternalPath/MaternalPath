@@ -18,12 +18,12 @@ exports.emergencyWallet = async (req, res, next) => {
             where: { motherId: id }
         });
 
-        // if (!history) {
-        //     return next({
-        //         statusCode: 404,
-        //         message: "Mother record not found"
-        //     });
-        // } 
+        if (!history) {
+            return next({
+                statusCode: 404,
+                message: "Mother record not found"
+            });
+        } 
 
         const mother = await MotherUpdate.findOne({
             where: { motherId: id }

@@ -575,6 +575,11 @@ exports.updateMother = async (req, res, next) => {
     // const diffInWeeks = Math.floor(daysLeft / 7);
     const balance = walletRecord.currentBalance += Number(paymentRecord.amount)
 
+    const totalSavings = Object.values(monthlySavings).reduce(
+          (sum, amount) => sum + amount,
+          0
+        );
+
     const details = {
       firstName: firstName ?? mother.firstName,
       lastName: lastName ?? mother.lastName,
@@ -615,7 +620,7 @@ exports.updateMother = async (req, res, next) => {
       weeklyContribution: weeklyContribution ?? MotherUpdate.weeklyContribution,
       linkedPaymentMethod:
         linkedPaymentMethod ?? MotherUpdate.linkedPaymentMethod,
-        currentBalance: balance,
+        currentBalance: totalSavings,
       hospitalId: selectedHospitalId,
 
       selectedHospital: hospital.hospitalName,
