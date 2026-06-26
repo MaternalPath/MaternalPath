@@ -25,51 +25,51 @@ module.exports = {
               },
             dateOfBirth: {
                 type: Sequelize.STRING,
-                allowNull: false
+                allowNull: true
               },
             estimatedDueDate: {
                 type: Sequelize.DATEONLY,
-                allowNull: false
+                allowNull: true
               },
             trimester: {
                 type: Sequelize.STRING,
-                allowNull: false
+                allowNull: true
               },
             bloodType: {
                 type: Sequelize.STRING,
-                allowNull: false
+                allowNull: true
               },
             existingHealthConditions: {
                 type: Sequelize.STRING,
-                allowNull: false
+                allowNull: true
               },
             allergies: {
                 type: Sequelize.STRING,
-                allowNull: false
+                allowNull: true
               },
             currentPregnancyWeek: {
                 type: Sequelize.INTEGER,
-                allowNull: false
+                allowNull: true
              },
             pregnancyProgress: {
                 type: Sequelize.INTEGER,
-                allowNull: false
+                allowNull: true
              },
             daysUntilDueDate: {
                 type: Sequelize.INTEGER,
-                allowNull: false
+                allowNull: true
              },
             emergencyContactName: {
                 type: Sequelize.STRING,
-                allowNull: false
+                allowNull: true
              },
             emergencyContactNumber: {
                 type: Sequelize.STRING,
-                allowNull: false
+                allowNull: true
              },
             selectedHospital: {
                 type: Sequelize.STRING,
-                allowNull: false
+                allowNull: true
              },
             hospitalAddress: {
                 type: Sequelize.STRING
@@ -82,19 +82,19 @@ module.exports = {
              },
             savingsGoalAmount: {
                 type: Sequelize.STRING,
-                allowNull: false
+                allowNull: true
              },
             address: {
                 type: Sequelize.STRING,
-                allowNull: false
+                allowNull: true
              },
             weeklyContribution: {
                 type: Sequelize.STRING,
-                allowNull: false
+                allowNull: true
              },
             linkedPaymentMethod: {
                 type: Sequelize.STRING,
-                allowNull: false
+                allowNull: true
              },
             createdAt: {
                 type: Sequelize.DATE,
