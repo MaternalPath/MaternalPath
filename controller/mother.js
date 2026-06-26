@@ -711,11 +711,11 @@ const paymentRecord = await payment.findOne({
           0
         );
 
-    const remainingAmountNeeded =
-      mother.savingsGoalAmount - wallet.currentBalance;
     const info = {"firstName": mother.firstName, "lastName": mother.lastName, "email": mother.email,  "phoneNumber": mother.phoneNumber};
     const img = mom?.image;
     const currentBalance  = totalSavings;
+    const remainingAmountNeeded =
+      mother.savingsGoalAmount - currentBalance;
 
     if (mother.isUpdated === false) {
       return res.status(200).json({
