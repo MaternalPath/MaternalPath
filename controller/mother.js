@@ -715,6 +715,7 @@ const paymentRecord = await payment.findOne({
       mother.savingsGoalAmount - wallet.currentBalance;
     const info = {"firstName": mother.firstName, "lastName": mother.lastName, "email": mother.email,  "phoneNumber": mother.phoneNumber};
     const img = mom?.image;
+    const currentBalance  = totalSavings;
 
     if (mother.isUpdated === false) {
       return res.status(200).json({
@@ -728,7 +729,7 @@ const paymentRecord = await payment.findOne({
         mom,
         img,
         remainingAmountNeeded,
-      currentBalance = totalSavings,]
+      currentBalance]
       });
     }
   } catch (error) {
