@@ -715,7 +715,7 @@ const paymentRecord = await payment.findOne({
     const img = mom?.image;
     const currentBalance  = totalSavings;
     
-    const data = {"currentBalance": totalSavings}
+    const dat = {"currentBalance": totalSavings}
     if (mother.isUpdated === false) {
       return res.status(200).json({
         message: "Please Update your profile",
@@ -727,7 +727,7 @@ const paymentRecord = await payment.findOne({
         data: [mother,
         mom,
         img,
-        data]
+        dat]
       });
     }
   } catch (error) {
