@@ -717,7 +717,7 @@ const paymentRecord = await payment.findOne({
     const remainingAmountNeeded =
     mom.savingsGoalAmount - currentBalance;
     
-    const data = {"currentBalance": totalSavings, "remainingAmountNeeded": remainingAmountNeeded}
+    const data = {"currentBalance": totalSavings}
     if (mother.isUpdated === false) {
       return res.status(200).json({
         message: "Please Update your profile",
@@ -729,7 +729,6 @@ const paymentRecord = await payment.findOne({
         data: [mother,
         mom,
         img,
-        remainingAmountNeeded,
         data]
       });
     }
