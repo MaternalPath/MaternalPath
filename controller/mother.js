@@ -556,7 +556,6 @@ exports.updateMother = async (req, res, next) => {
       where: { id: selectedHospitalId },
       attributes: ["hospitalName", "address", "phoneNumber", "deliveryFee"],
     });
-    console.log("selectedHospitalId:", hospital);
 
     if (!hospital) {
       return next({
@@ -572,7 +571,6 @@ exports.updateMother = async (req, res, next) => {
     }
 
     const today = new Date();
-    //today.setHours(0, 0, 0, 0);
 
     const targetDate = new Date(estimatedDueDate);
     const timeDiff = targetDate - today;
@@ -646,7 +644,7 @@ exports.updateMother = async (req, res, next) => {
       weeklyContribution: weeklyContribution ?? MotherUpdate.weeklyContribution,
       linkedPaymentMethod:
         linkedPaymentMethod ?? MotherUpdate.linkedPaymentMethod,
-        currentBalance: totalSavings,
+        currentBalance: balance ?? totalSavings,
       hospitalId: selectedHospitalId,
 
       selectedHospital: hospital.hospitalName,
