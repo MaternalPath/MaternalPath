@@ -74,16 +74,8 @@ const progress = (mother.currentPregnancyWeek * 100) / 40;
                 message: "Wallet record not found"
             });
         }
-        if (data.status === true && data.data.status === "success") {
-      walletRec.currentBalance += Number(paymentRecord.amount);
-      await walletRec.save();
-      await paymentRecord.save();
 
-      const balance = walletRec.currentBalance;
-      const goals = MotherUpdate.savingsGoalAmount;
-      const remainingAmountNeeded = goals - balance;
-
-    }
+        // const balance = walletRecord.currentBalance += Number(paymentRecord.amount)
 
         const total = 285000 * 100 / 400000;
         const decimal = Math.floor(total);
@@ -119,7 +111,6 @@ const progress = (mother.currentPregnancyWeek * 100) / 40;
         
         payments.forEach((payment) => {
           const month = dayjs(payment.createdAt).format("MMMM");
-          // monthlySavings[month] += Number(payment.amount)
         
           if (!monthlySavings[month]) {
             monthlySavings[month] = 0;
@@ -127,6 +118,11 @@ const progress = (mother.currentPregnancyWeek * 100) / 40;
         
           monthlySavings[month] += Number(payment.amount);
         });
+
+        const totalSavings = Object.values(monthlySavings).reduce(
+          (sum, amount) => sum + amount,
+          0
+        );
 
         const remainingWeek = 40 - mother.currentPregnancyWeek
         const contribution = payments.amount;
@@ -151,7 +147,7 @@ const info = {
     week: mother.currentPregnancyWeek,
     estimatedDueDate: mother.estimatedDueDate,
     preferredHospital: mother.selectedHospital,
-    currentBalance: balance,
+    currentBalance: totalSavings,
     savingsGoal: mother.savingsGoalAmount,
     savingsProgress: savingsProgress+'%',
     remainingAmountNeeded:  remainingAmount,
