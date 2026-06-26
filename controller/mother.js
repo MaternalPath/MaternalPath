@@ -575,6 +575,23 @@ exports.updateMother = async (req, res, next) => {
     // const diffInWeeks = Math.floor(daysLeft / 7);
     const balance = walletRecord.currentBalance += Number(paymentRecord.amount)
 
+    const monthlySavings = {};
+        
+        for (let i = 0; i < 12; i++) {
+          const month = dayjs().month(i).format("MMMM");
+          monthlySavings[month] = 0;
+        }
+        
+        paymentRecord.forEach((payment) => {
+          const month = dayjs(payment.createdAt).format("MMMM");
+        
+          if (!monthlySavings[month]) {
+            monthlySavings[month] = 0;
+          }
+        
+          monthlySavings[month] += Number(payment.amount);
+        });
+
     const totalSavings = Object.values(monthlySavings).reduce(
           (sum, amount) => sum + amount,
           0
