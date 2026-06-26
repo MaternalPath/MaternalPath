@@ -197,7 +197,7 @@ exports.verifyPayment = async (req, res, next) => {
         statusCode: 404,
       });
     }
-    const history = await transactionHistory.findAll({
+    const history = await transactionHistory.findOne({
             where: { motherId: paymentRecord.dataValues.motherId }
         });
 
