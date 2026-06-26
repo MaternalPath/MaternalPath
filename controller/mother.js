@@ -1,4 +1,4 @@
-const { Mother, Hospital, wallet, MotherUpdate } = require("../models");
+const { Mother, Hospital, wallet, MotherUpdate, payment } = require("../models");
 const bcrypt = require("bcrypt");
 const { sendBrevoEmail } = require("../utils/brevo");
 const sendMail = require("../utils/nodemailer");
@@ -505,16 +505,22 @@ exports.updateMother = async (req, res, next) => {
         message: "Mother not found",
       });
     }
-    // const walletRecord = await wallet.findOne({
-    //         where: { motherId: id }
-    //     });
+    const paymentRecord = await payment.findOne({
+      where: {
+        motherId: req.user.id,
+        status: "successful"
+      }
+    });
+    const walletRecord = await wallet.findOne({
+            where: { motherId: id }
+        });
 
-    //     if (!walletRecord) {
-    //         return next({
-    //             statusCode: 404,
-    //             message: "Wallet record not found"
-    //         });
-    //     }
+        if (!walletRecord) {
+            return next({
+                statusCode: 404,
+                message: "Wallet record not found"
+            });
+        }
 
     const {
       firstName,
@@ -567,6 +573,7 @@ exports.updateMother = async (req, res, next) => {
      const progress = 0;
 
     // const diffInWeeks = Math.floor(daysLeft / 7);
+    const balance = walletRecord.currentBalance += Number(paymentRecord.amount)
 
     const details = {
       firstName: firstName ?? mother.firstName,
@@ -608,6 +615,7 @@ exports.updateMother = async (req, res, next) => {
       weeklyContribution: weeklyContribution ?? MotherUpdate.weeklyContribution,
       linkedPaymentMethod:
         linkedPaymentMethod ?? MotherUpdate.linkedPaymentMethod,
+        currentBalance: balance,
       hospitalId: selectedHospitalId,
 
       selectedHospital: hospital.hospitalName,
