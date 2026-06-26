@@ -714,8 +714,6 @@ const paymentRecord = await payment.findOne({
     const info = {"firstName": mother.firstName, "lastName": mother.lastName, "email": mother.email,  "phoneNumber": mother.phoneNumber};
     const img = mom?.image;
     const currentBalance  = totalSavings;
-    const remainingAmountNeeded =
-    mom.savingsGoalAmount - currentBalance;
     
     const data = {"currentBalance": totalSavings}
     if (mother.isUpdated === false) {
