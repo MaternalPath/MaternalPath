@@ -644,7 +644,6 @@ exports.updateMother = async (req, res, next) => {
       weeklyContribution: weeklyContribution ?? MotherUpdate.weeklyContribution,
       linkedPaymentMethod:
         linkedPaymentMethod ?? MotherUpdate.linkedPaymentMethod,
-        currentBalance: balance ?? totalSavings,
       hospitalId: selectedHospitalId,
 
       selectedHospital: hospital.hospitalName,
@@ -658,6 +657,7 @@ exports.updateMother = async (req, res, next) => {
     if (mother.isUpdated === false) {
       await MotherUpdate.create(data);
       await mother.update(details);
+      currentBalance: balance
     } else {
       await MotherUpdate.update(data, {
         where: {
@@ -669,6 +669,7 @@ exports.updateMother = async (req, res, next) => {
           id: mother.id,
         },
       });
+      currentBalance: totalSavings,
     }
 
     res.status(200).json({
