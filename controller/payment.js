@@ -197,6 +197,16 @@ exports.verifyPayment = async (req, res, next) => {
         statusCode: 404,
       });
     }
+    const history = await transactionHistory.findAll({
+            where: { motherId: paymentRecord.dataValues.motherId }
+        });
+
+        if (!history) {
+            return next({
+                statusCode: 404,
+                message: "Mother record not found"
+            });
+        } 
 
     const { data } = await axios.get(
       `https://api.korapay.com/merchant/api/v1/charges/${reference}`,
@@ -222,10 +232,10 @@ exports.verifyPayment = async (req, res, next) => {
     if (data.status === true && data.data.status === "success") {
       paymentRecord.status = "successful";
       walletRec.currentBalance += Number(paymentRecord.amount);
-      transactionHistory.status = "Completed";
+      history.status = "Completed";
       await walletRec.save();
       await paymentRecord.save();
-      await transactionHistory.save();
+      await history.save();
 
       const balance = walletRec.currentBalance += payment.amount;
       const goals = MotherUpdate.savingsGoalAmount;
