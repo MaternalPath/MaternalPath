@@ -14,7 +14,7 @@ exports.emergencyWallet = async (req, res, next) => {
             });
         }
 
-        const history = await transactionHistory.findOne({
+        const history = await transactionHistory.findAll({
             where: { motherId: id }
         });
 
