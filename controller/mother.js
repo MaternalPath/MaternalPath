@@ -580,29 +580,29 @@ exports.updateMother = async (req, res, next) => {
      const progress = 0;
 
     // const diffInWeeks = Math.floor(daysLeft / 7);
-    const balance = walletRecord.currentBalance += Number(paymentRecord.amount)
+    // const balance = walletRecord.currentBalance += Number(paymentRecord.amount)
 
-    const monthlySavings = {};
+    // const monthlySavings = {};
         
-        for (let i = 0; i < 12; i++) {
-          const month = dayjs().month(i).format("MMMM");
-          monthlySavings[month] = 0;
-        }
+    //     for (let i = 0; i < 12; i++) {
+    //       const month = dayjs().month(i).format("MMMM");
+    //       monthlySavings[month] = 0;
+    //     }
         
-        payments.forEach((payment) => {
-          const month = dayjs(payment.createdAt).format("MMMM");
+    //     payments.forEach((payment) => {
+    //       const month = dayjs(payment.createdAt).format("MMMM");
         
-          if (!monthlySavings[month]) {
-            monthlySavings[month] = 0;
-          }
+    //       if (!monthlySavings[month]) {
+    //         monthlySavings[month] = 0;
+    //       }
         
-          monthlySavings[month] += Number(payment.amount);
-        });
+    //       monthlySavings[month] += Number(payment.amount);
+    //     });
 
-    const totalSavings = Object.values(monthlySavings).reduce(
-          (sum, amount) => sum + amount,
-          0
-        );
+    // const totalSavings = Object.values(monthlySavings).reduce(
+    //       (sum, amount) => sum + amount,
+    //       0
+    //     );
 
     const details = {
       firstName: firstName ?? mother.firstName,
@@ -657,7 +657,7 @@ exports.updateMother = async (req, res, next) => {
     if (mother.isUpdated === false) {
       await MotherUpdate.create(data);
       await mother.update(details);
-      currentBalance: balance
+      // currentBalance: balance
     } else {
       await MotherUpdate.update(data, {
         where: {
@@ -669,7 +669,7 @@ exports.updateMother = async (req, res, next) => {
           id: mother.id,
         },
       });
-      currentBalance: totalSavings,
+      // currentBalance: totalSavings,
     }
 
     res.status(200).json({
