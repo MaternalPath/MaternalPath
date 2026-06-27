@@ -19,8 +19,7 @@ module.exports = {
         onUpdate: 'CASCADE',
       },
       amount: {
-        type: Sequelize.INTEGER,
-        allowNull: false
+        type: Sequelize.INTEGER
       },
       currentBalance: {
         type: Sequelize.INTEGER

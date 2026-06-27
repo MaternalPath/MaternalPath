@@ -40,9 +40,9 @@ exports.initiatePayment = async (req, res, next) => {
 
     const reference = otpGenerator.generate(10, {
       digits: true,
-      upperCaseAlphabets: false,
-      lowerCaseAlphabets: false,
-      specialChars: false,
+      upperCaseAlphabets: true,
+      lowerCaseAlphabets: true,
+      specialChars: true,
     });
 
     const name = mother.firstName + ' ' + mother.lastName;
@@ -176,82 +176,107 @@ const sk = process.env.KORA_SK
 exports.verifyPayment = async (req, res, next) => {
   try {
     const koraKey = process.env.KORA_SK?.trim();
-    
-    if (!koraKey) {
-      console.error('KORA_SK is not configured in environment variables');
-      return next({
-        message: 'Payment service is not properly configured',
-        statusCode: 500
-      });
-    }
 
-    const { reference } = req.query;
-    const paymentRecord = await payment.findOne({ where: { reference } });
-    const walletRec = await wallet.findOne({
-      where: { motherId: paymentRecord.dataValues.motherId },
-    });
-
-    if (!walletRec) {
-      return next({
-        message: `No wallet found`,
-        statusCode: 404,
-      });
-    }
-    const history = await transactionHistory.findOne({
-            where: { motherId: paymentRecord.dataValues.motherId }
-        });
-
-        if (!history) {
-            return next({
-                statusCode: 404,
-                message: "Mother record not found"
-            });
-        } 
-
-    const { data } = await axios.get(
-      `https://api.korapay.com/merchant/api/v1/charges/${reference}`,
-      {
-        headers: {
-          Authorization: `Bearer ${koraKey}`,
-        },
-      },
-    );
-
-    console.log(data);
-
-    if (data.status === true && data.data.status === "processing") {
-      paymentRecord.status = "processing";
-      await paymentRecord.save();
-      return res.status(200).json({
-        message: "Payment is still processing",
-      });
-    }
-
-    console.log(walletRec.currentBalance);
-
-    if (data.status === true && data.data.status === "success") {
-  paymentRecord.status = "successful";
-
-  walletRec.currentBalance += Number(paymentRecord.amount);
-
-  const history = await transactionHistory.findOne({
-    where: { motherId: paymentRecord.motherId }
+if (!koraKey) {
+  console.error("KORA_SK is not configured in environment variables");
+  return next({
+    message: "Payment service is not properly configured",
+    statusCode: 500,
   });
+}
 
-  if (history) {
-    history.status = "Completed";
-    await history.save();
+const { reference } = req.query;
+
+if (!reference) {
+  return next({
+    message: "Payment reference is required",
+    statusCode: 400,
+  });
+}
+
+const paymentRecord = await payment.findOne({
+  where: { reference },
+});
+
+if (!paymentRecord) {
+  return next({
+    message: "Payment record not found",
+    statusCode: 404,
+  });
+}
+
+const walletRec = await wallet.findOne({
+  where: { motherId: paymentRecord.motherId },
+});
+
+if (!walletRec) {
+  return next({
+    message: "No wallet found",
+    statusCode: 404,
+  });
+}
+
+const history = await transactionHistory.findOne({
+  where: {
+    motherId: paymentRecord.motherId,
+    // preferably also reference if column exists
+    // reference
+  },
+});
+
+const { data } = await axios.get(
+  `https://api.korapay.com/merchant/api/v1/charges/${reference}`,
+  {
+    headers: {
+      Authorization: `Bearer ${koraKey}`,
+    },
   }
+);
 
-  await walletRec.save();
+console.log("Kora verify response:", JSON.stringify(data, null, 2));
+
+const paymentStatus = data?.data?.status?.toLowerCase();
+
+if (
+  paymentStatus === "processing" ||
+  paymentStatus === "pending"
+) {
+  paymentRecord.status = "pending";
   await paymentRecord.save();
 
+  return res.status(200).json({
+    message: "Payment is still processing",
+  });
+}
+
+if (
+  paymentStatus === "success" ||
+  paymentStatus === "successful" ||
+  paymentStatus === "completed"
+) {
+  // VERY IMPORTANT: prevent double credit
+  if (paymentRecord.status !== "successful") {
+    paymentRecord.status = "successful";
+
+    walletRec.currentBalance =
+      Number(walletRec.currentBalance || 0) +
+      Number(paymentRecord.amount || 0);
+
+    await walletRec.save();
+    await paymentRecord.save();
+
+    if (history) {
+      history.status = "Completed";
+      await history.save();
+    }
+  }
+
   const mother = await MotherUpdate.findOne({
-    where: { motherId: paymentRecord.motherId }
+    where: { motherId: paymentRecord.motherId },
   });
 
-  const balance = walletRec.currentBalance;
-  const goals = mother?.savingsGoalAmount || 0;
+  const balance = Number(walletRec.currentBalance || 0);
+  const goals = Number(mother?.savingsGoalAmount || 0);
   const remainingAmountNeeded = goals - balance;
 
   return res.status(200).json({
@@ -261,6 +286,24 @@ exports.verifyPayment = async (req, res, next) => {
     remainingAmount: remainingAmountNeeded,
   });
 }
+
+if (paymentStatus === "failed") {
+  paymentRecord.status = "failed";
+  await paymentRecord.save();
+
+  if (history) {
+    history.status = "Failed";
+    await history.save();
+  }
+
+  return res.status(400).json({
+    message: "Payment failed",
+  });
+}
+
+return res.status(400).json({
+  message: `Unknown payment status: ${paymentStatus}`,
+});
 
   } catch (error) {
     console.error('Payment verification error:', error.response?.status, error.response?.data || error.message);
