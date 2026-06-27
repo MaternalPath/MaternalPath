@@ -21,7 +21,7 @@ exports.emergencyWallet = async (req, res, next) => {
         if (!history) {
             return next({
                 statusCode: 404,
-                message: "Mother record not found"
+                message: "Mother History not found"
             });
         } 
 
@@ -29,6 +29,7 @@ exports.emergencyWallet = async (req, res, next) => {
             where: { motherId: id }
         });
 
+        
     const walletRecord = await wallet.findOne({
             where: { motherId: id }
         });
@@ -40,7 +41,6 @@ if (!mother) {
     });
 }
 
-console.log("mother:", mother);
 
 const payments = await payment.findAll({
   where: {

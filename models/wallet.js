@@ -33,6 +33,10 @@ module.exports = (sequelize, DataTypes) => {
       onDelete: 'CASCADE',
       onUpdate: 'CASCADE',
     },
+    amount: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0
+    },
     currentBalance: {
       type: DataTypes.INTEGER,
       defaultValue: 0
