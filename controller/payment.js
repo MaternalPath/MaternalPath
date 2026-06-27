@@ -61,7 +61,7 @@ exports.initiatePayment = async (req, res, next) => {
         email: mother.email,
         name: name
       },
-      redirect_url: "/fundsSuccess",
+      redirect_url: "https://maternal-path-fe.vercel.app/fundsSuccess",
       currency: 'NGN',
       reference: reference
     };
