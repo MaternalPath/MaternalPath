@@ -230,24 +230,37 @@ exports.verifyPayment = async (req, res, next) => {
     console.log(walletRec.currentBalance);
 
     if (data.status === true && data.data.status === "success") {
-      paymentRecord.status = "successful";
-      walletRec.currentBalance += Number(paymentRecord.amount);
-      history.status = "Completed";
-      await walletRec.save();
-      await paymentRecord.save();
-      await history.save();
+  paymentRecord.status = "successful";
 
-      const balance = walletRec.currentBalance += payment.amount;
-      const goals = MotherUpdate.savingsGoalAmount;
-      const remainingAmountNeeded = goals - balance;
+  walletRec.currentBalance += Number(paymentRecord.amount);
 
-      return res.status(200).json({
-        message: "Payment successful",
-        balance,
-        goals,
-        remainingAmount: remainingAmountNeeded,
-      });
-    }
+  const history = await transactionHistory.findOne({
+    where: { motherId: paymentRecord.motherId }
+  });
+
+  if (history) {
+    history.status = "Completed";
+    await history.save();
+  }
+
+  await walletRec.save();
+  await paymentRecord.save();
+
+  const mother = await MotherUpdate.findOne({
+    where: { motherId: paymentRecord.motherId }
+  });
+
+  const balance = walletRec.currentBalance;
+  const goals = mother?.savingsGoalAmount || 0;
+  const remainingAmountNeeded = goals - balance;
+
+  return res.status(200).json({
+    message: "Payment successful",
+    balance,
+    goals,
+    remainingAmount: remainingAmountNeeded,
+  });
+}
 
   } catch (error) {
     console.error('Payment verification error:', error.response?.status, error.response?.data || error.message);
