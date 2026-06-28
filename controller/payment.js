@@ -293,11 +293,10 @@ if (!walletRec) {
 
   if (event === 'charge.success') {
     paymentRecord.status = "Completed",
+    history.status = "Completed";
     walletRec.currentBalance = Number(walletRec.currentBalance || 0) + Number(paymentRecord.amount || 0)
     await walletRec.save();
     await paymentRecord.save();
-
-    history.status = "Completed";
     await history.save();
     
 } else if (event === 'charge.failed') {
