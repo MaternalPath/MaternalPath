@@ -45,13 +45,13 @@ if (!mother) {
 const payments = await payment.findAll({
   where: {
     motherId: req.user.id,
-    status: "successful"
+    status: "Completed"
   }
 });
 const paymentRecord = await payment.findOne({
   where: {
     motherId: req.user.id,
-    status: "successful"
+    status: "Completed"
   }
 });
 
