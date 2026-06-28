@@ -14,11 +14,11 @@ exports.emergencyWallet = async (req, res, next) => {
             });
         }
 
-        const history = await transactionHistory.findAll({
+        const history = await payment.findAll({
             where: { motherId: id }
         });
 
-        if (!history) {
+        if (history.length === 0) {
             return next({
                 statusCode: 404,
                 message: "Mother History not found"
@@ -116,11 +116,11 @@ const progress = (mother.currentPregnancyWeek * 100) / 40;
             monthlySavings[month] = 0;
           }
         
-          monthlySavings[month] += Number(payment.amount);
+          monthlySavings[month] += Number(paymentRecord.amount);
         });
 
-        const totalSavings = Object.values(monthlySavings).reduce(
-          (sum, amount) => sum + amount,
+        const totalSavings = payments.reduce(
+          (sum, amount) => sum + Number(payment.amount || 0),
           0
         );
 
@@ -147,7 +147,7 @@ const info = {
     week: mother.currentPregnancyWeek,
     estimatedDueDate: mother.estimatedDueDate,
     preferredHospital: mother.selectedHospital,
-    currentBalance: totalSavings,
+    currentBalance: walletRecord.currentBalance,
     savingsGoal: mother.savingsGoalAmount,
     savingsProgress: savingsProgress+'%',
     remainingAmountNeeded:  remainingAmount,
