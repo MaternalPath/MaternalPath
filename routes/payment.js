@@ -1,6 +1,6 @@
 const express = require('express');
 const { Authentication } = require('../middlewares/auth');
-const { initiatePayment, verifyPayment, monthlyGoals, makePayment } = require('../controller/payment');
+const { initiatePayment, verifyPayment, monthlyGoals, makePayment, webhook } = require('../controller/payment');
 const { initializeCardCharge } = require('../controller/cardPayment');
 const router = express.Router();
 
@@ -123,6 +123,8 @@ router.get('/payment', verifyPayment)
  */
 
 router.get('/history', Authentication,monthlyGoals)
+
+router.post('/webhook', webhook)
 
 
 module.exports = router
