@@ -84,6 +84,7 @@ const sk = process.env.KORA_SK
         const motherBalance = await payment.create({
       amount: amount,
       reference: data.data.reference,
+      date: new Date(),
       motherId: id
     });
 
@@ -269,15 +270,7 @@ exports.webhook = async (req, res, next) => {
   if (!paymentRecord ) return res.status(404).json({
     message: "NO payment record found"
   });
-  
-    const history = await transactionHistory.findOne({
-      where: { motherId: paymentRecord.motherId}
-    })
-    if (!history) {
-      return next({
-        message: "No history found"
-      })
-    }
+    
 
   const walletRec = await wallet.findOne({
   where: { motherId: paymentRecord.motherId },
@@ -293,19 +286,14 @@ if (!walletRec) {
 
   if (event === 'charge.success') {
     paymentRecord.status = "Completed",
-    history.status = "Completed",
-    walletRec.currentBalance = Number(walletRec.currentBalance || 0) += Number(paymentRecord.amount || 0)
+    walletRec.currentBalance = Number(walletRec.currentBalance || 0) + Number(paymentRecord.amount || 0)
     await walletRec.save();
     await paymentRecord.save();
-    await history.save();
     
 } else if (event === 'charge.failed') {
     paymentRecord.status = "Failed",
     await paymentRecord.save();
 
-
-    history.status = "Failed";
-    await history.save();
     
 };
 
