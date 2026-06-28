@@ -44,7 +44,8 @@ module.exports = (sequelize, DataTypes) => {
     status: {
       type: DataTypes.STRING,
       allowNull: false,
-      defaultValue: 'Completed'
+      enum: ['Pending','Completed', 'Failed'],
+      defaultValue: 'Pending'
     },
     createdAt: {
         type: DataTypes.DATE,

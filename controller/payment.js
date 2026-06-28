@@ -10,6 +10,7 @@ const dayjs = require("dayjs");
 const axios = require("axios");
 const { Op } = require("sequelize");
 const { where } = require("sequelize");
+const crypto = require("crypto");
 
 const getPaymentApiUrl = () => {
   const baseUrl = process.env.PAYMENT_API?.trim() || 'https://api.korapay.com/merchant/api/v1';
@@ -256,112 +257,69 @@ if (
   }
 };
 
-exports.startPaymentVerification = () => {
-  const koraKey = process.env.KORA_SK?.trim();
-
-  if (!koraKey) {
-    console.log("KORA_SK is not configured.");
-    return;
-  }
-
-  // Check every 10 seconds
-  setInterval(async () => {
+exports.webhook = async (req, res, next) => {
     try {
-      const pendingPayments = await payment.findAll({
-        where: {
-          status: {
-            [Op.in]: ["pending", "processing"],
-          },
-        },
-      });
-
-      if (!pendingPayments.length) return;
-
-      for (const paymentRecord of pendingPayments) {
-        try {
-          const { data } = await axios.get(
-            `https://api.korapay.com/merchant/api/v1/charges/${paymentRecord.reference}`,
-            {
-              headers: {
-                Authorization: `Bearer ${koraKey}`,
-              },
-            }
-          );
-
-          if (!data.status) continue;
-
-          // Still processing
-          if (data.data.status === "processing") {
-            if (paymentRecord.status !== "processing") {
-              paymentRecord.status = "processing";
-              await paymentRecord.save();
-            }
-            continue;
-          }
-
-          // Failed
-          if (
-            ["failed", "cancelled", "expired", "abandoned"].includes(
-              data.data.status
-            )
-          ) {
-            paymentRecord.status = "failed";
-            await paymentRecord.save();
-            continue;
-          }
-
-          // Successful
-          if (data.data.status === "success") {
-            // Prevent duplicate credit
-            if (paymentRecord.status === "successful") {
-              continue;
-            }
-
-            // Update wallet
-            await wallet.increment(
-              {
-                currentBalance: Number(paymentRecord.amount),
-              },
-              {
-                where: {
-                  motherId: paymentRecord.motherId,
-                },
-              }
-            );
-
-            // Update payment
-            paymentRecord.status = "successful";
-            await paymentRecord.save();
-
-            // Update transaction history
-            const history = await transactionHistory.findOne({
-              where: {
-                motherId: paymentRecord.motherId,
-                status: "Pending",
-              },
-              order: [["createdAt", "DESC"]],
-            });
-
-            if (history) {
-              history.status = "Completed";
-              await history.save();
-            }
-
-            console.log(
-              `Payment ${paymentRecord.reference} verified successfully`
-            );
-          }
-        } catch (err) {
-          console.log(
-            `Verification failed for ${paymentRecord.reference}:`,
-            err.response?.data || err.message
-          );
-        }
-      }
-    } catch (err) {
-      console.log(err);
+  const { event, data } = req.body;
+  const hash = crypto.createHmac("sha256", process.env.KORA_SK).update(JSON.stringify(data)).digest("hex");
+  const signature = req.headers["x-korapay-signature"];
+  if (hash !== signature) return res.status(401).json({
+    message: "Invalid webhook signature"
+  });
+  const paymentRecord = await payment.findOne({where:{reference: data.reference}})
+  if (!paymentRecord ) return res.status(404).json({
+    message: "NO payment record found"
+  });
+  
+    const history = await transactionHistory.findOne({
+      where: { motherId: paymentRecord.motherId}
+    })
+    if (!history) {
+      return next({
+        message: "No history found"
+      })
     }
-  }, 10000); // Every 10 seconds
+
+  const walletRec = await wallet.findOne({
+  where: { motherId: paymentRecord.motherId },
+});
+
+if (!walletRec) {
+  return next({
+    message: "No wallet found",
+    statusCode: 404,
+  });
+}
+
+
+  if (event === 'charge.success') {
+    paymentRecord.status = "Completed",
+    walletRec.currentBalance = Number(walletRec.currentBalance || 0) + Number(paymentRecord.amount || 0)
+    await walletRec.save();
+    await paymentRecord.save();
+
+    history.status = "Completed";
+    await history.save();
+    
+} else if (event === 'charge.failed') {
+    paymentRecord.status = "Failed",
+    await paymentRecord.save();
+
+
+    history.status = "Failed";
+    await history.save();
+    
+};
+
+  res.status(200).json({
+    success: true,
+    status: "successful",
+    message: 'Payment verified successfully'
+  })
+} catch (error) {
+    console.log(error.message)
+    next(error)
+}
+
 };
 
 exports.monthlyGoals = async (req, res, next) => {
