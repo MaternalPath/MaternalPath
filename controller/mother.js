@@ -649,6 +649,7 @@ exports.updateMother = async (req, res, next) => {
       message: "Mother updated successfully",
       data,
       details,
+      currentBalance: walletRecord.currentBalance
     });
   } catch (error) {
     next({
