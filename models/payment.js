@@ -33,6 +33,15 @@ module.exports = (sequelize, DataTypes) => {
       onDelete: 'CASCADE',
       onUpdate: 'CASCADE',
     },
+    transactionType: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      defaultValue: "Contribution"
+    },
+    date: {
+      type: DataTypes.DATE,
+      allowNull: false,
+    },
     amount: {
       type: DataTypes.INTEGER,
       allowNull: false
@@ -40,6 +49,11 @@ module.exports = (sequelize, DataTypes) => {
     reference: {
       type: DataTypes.STRING,
       allowNull: false
+    },
+    description: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      defaultValue: "monthly savings deposit"
     },
     status: {
       type: DataTypes.STRING,
