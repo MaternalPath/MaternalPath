@@ -18,13 +18,6 @@ exports.emergencyWallet = async (req, res, next) => {
             where: { motherId: id }
         });
 
-        if (!history) {
-            return next({
-                statusCode: 404,
-                message: "Mother History not found"
-            });
-        } 
-
         const mother = await MotherUpdate.findOne({
             where: { motherId: id }
         });
@@ -52,7 +45,8 @@ const paymentRecord = await payment.findOne({
   where: {
     motherId: req.user.id,
     status: "Completed"
-  }
+  },
+  order: [["createdAt", "DESC"]]
 });
 
 const today = new Date();
@@ -105,29 +99,28 @@ const progress = (mother.currentPregnancyWeek * 100) / 40;
         const monthlySavings = {};
         const signupMonth = dayjs(mother.createdAt).month();
 
-        for (let i = signupMonth; i = 12; i++) {
+        for (let i = signupMonth; i < 12; i++) {
           const month = dayjs().month(i).format("MMMM");
           monthlySavings[month] = 0;
         }
         
-        payments.forEach((paymentRecord) => {
-        const month = dayjs(paymentRecord.createdAt).format("MMMM");
+        payments.forEach((payment) => {
+        const month = dayjs(payment.createdAt).format("MMMM");
 
-        if (!(month in monthlySavings)) {
-          monthlySavings[month] = 0;
+        if (month in monthlySavings) {
+            monthlySavings[month] += Number(payment.amount || 0);
         }
-
-        monthlySavings[month] += Number(paymentRecord.amount || 0);
-      });
+    });
+    
 
         const totalSavings = payments.reduce(
           (sum, amount) => sum + Number(payment.amount || 0),
           0
         );
-
+        
         const remainingWeek = 40 - mother.currentPregnancyWeek
         const contribution = payments.amount;
-
+        
         const savings = Math.round(mother.savingsGoalAmount / remainingWeek)
 
         let response = ""
@@ -139,8 +132,8 @@ const progress = (mother.currentPregnancyWeek * 100) / 40;
         } else {
             response = "At your current pace, you'll not reach your goal"
         }
-
-        const data = {"WeeklyContributionRecommendation": `Saving ${savings} weekly can help you reach your goal before delivery`, "Current weekly contribution": `${paymentRecord.amount} per week`, "Weeks Remaining until Due Date": `${remainingWeek} weeks`,  "On Track": response};
+        const latestPayment = paymentRecord ? paymentRecord.amount : 0;
+        const data = {"WeeklyContributionRecommendation": `Saving ${savings} weekly can help you reach your goal before delivery`, "Current weekly contribution": `${latestPayment} per week`, "Weeks Remaining until Due Date": `${remainingWeek} weeks`,  "On Track": response};
         
 
 const info = {
