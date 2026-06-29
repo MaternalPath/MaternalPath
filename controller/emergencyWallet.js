@@ -18,7 +18,7 @@ exports.emergencyWallet = async (req, res, next) => {
             where: { motherId: id }
         });
 
-        if (history.length === 0) {
+        if (!history) {
             return next({
                 statusCode: 404,
                 message: "Mother History not found"
