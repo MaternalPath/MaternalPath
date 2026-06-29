@@ -289,6 +289,20 @@ if (!walletRec) {
     walletRec.currentBalance = Number(walletRec.currentBalance || 0) + Number(paymentRecord.amount || 0)
     await walletRec.save();
     await paymentRecord.save();
+    for (let i = 0; i < 12; i++) {
+              const month = dayjs().month(i).format("MMMM");
+              monthlySavings[month] = 0;
+            }
+            
+            payments.forEach((payment) => {
+              const month = dayjs(payment.createdAt).format("MMMM");
+            
+              if (!monthlySavings[month]) {
+                monthlySavings[month] = 0;
+              }
+            
+              monthlySavings[month] += Number(paymentRecord.amount);
+            });
     
 } else if (event === 'charge.failed') {
     paymentRecord.status = "Failed",

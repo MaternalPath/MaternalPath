@@ -35,7 +35,7 @@ exports.pregnancyTracker = async (req, res, next) => {
       where: { week: currentWeek },
     });
     const progress = (mother.currentPregnancyWeek * 100) / 40;
-    console.log(tip);
+    
     const metrix = {
       trimester: mother.trimester,
       week: mother.currentPregnancyWeek,
