@@ -41,16 +41,16 @@ exports.getNotifications = async (req, res, next) => {
         const notifications = await motherNotification.findAll({
         where: {
                 [Op.or]: [{ week: currentWeek }, { dayNumber: currentDay }],
-              }, attributes: { exclude: ['time'] }});
+              }, attributes: { exclude: ['time', 'createdAt', 'updatedAt', 'hospitalId','motherId'] }});
 
-        const result = notifications.map(item => ({
-        ...item.toJSON(),
-        // time: dayjs(item.createdAt).fromNow(),
-        }));
+        // const result = notifications.map(item => ({
+        // ...item.toJSON(),
+        // // time: dayjs(item.createdAt).fromNow(),
+        // }));
  
          res.status(200).json({
             message: 'All notifications',
-            data: result
+            data: notifications
           })
         
     } catch (error) {
@@ -66,7 +66,7 @@ exports.markAsRead = async (req, res) => {
     const { id } = req.params;
     const where = { id, ...buildWhereClause(req) };
 
-    const notification = await motherNotification.findOne({ where });
+    const notification = await motherNotification.findOne({ where,  exclude: ['time', 'createdAt', 'updatedAt', 'hospitalId','motherId'] });
     if (!notification) {
       return res.status(404).json({ message: 'Notification not found' });
     }
