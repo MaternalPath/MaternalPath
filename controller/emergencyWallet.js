@@ -82,7 +82,7 @@ const progress = (mother.currentPregnancyWeek * 100) / 40;
 
         const savingsProgress =
             walletRecord.currentBalance > 0
-                ? (walletRecord.currentBalance * 100) / mother.savingsGoalAmount
+                ? Math.ceil((walletRecord.currentBalance * 100) / mother.savingsGoalAmount)
                 : 0;
           console.log("savings Progress:", savingsProgress);
           
@@ -103,21 +103,22 @@ const progress = (mother.currentPregnancyWeek * 100) / 40;
         const remainingAmount =  mother.savingsGoalAmount - walletRecord.currentBalance;
 
         const monthlySavings = {};
-        
-        for (let i = 0; i < 12; i++) {
+        const signupMonth = dayjs(mother.createdAt).month();
+
+        for (let i = signupMonth; i = 12; i++) {
           const month = dayjs().month(i).format("MMMM");
           monthlySavings[month] = 0;
         }
         
-        payments.forEach((payment) => {
-          const month = dayjs(payment.createdAt).format("MMMM");
-        
-          if (!monthlySavings[month]) {
-            monthlySavings[month] = 0;
-          }
-        
-          monthlySavings[month] += Number(paymentRecord.amount);
-        });
+        payments.forEach((paymentRecord) => {
+        const month = dayjs(paymentRecord.createdAt).format("MMMM");
+
+        if (!(month in monthlySavings)) {
+          monthlySavings[month] = 0;
+        }
+
+        monthlySavings[month] += Number(paymentRecord.amount || 0);
+      });
 
         const totalSavings = payments.reduce(
           (sum, amount) => sum + Number(payment.amount || 0),
@@ -127,7 +128,7 @@ const progress = (mother.currentPregnancyWeek * 100) / 40;
         const remainingWeek = 40 - mother.currentPregnancyWeek
         const contribution = payments.amount;
 
-        const savings = mother.savingsGoalAmount / remainingWeek
+        const savings = Math.round(mother.savingsGoalAmount / remainingWeek)
 
         let response = ""
 
@@ -139,7 +140,7 @@ const progress = (mother.currentPregnancyWeek * 100) / 40;
             response = "At your current pace, you'll not reach your goal"
         }
 
-        const data = {"WeeklyContributionRecommendation": `Saving ${savings} weekly can help you reach your goal before delivery`, "Current weekly contribution": `${contribution} per week`, "Weeks Remaining until Due Date": `${remainingWeek} weeks`,  "On Track": response};
+        const data = {"WeeklyContributionRecommendation": `Saving ${savings} weekly can help you reach your goal before delivery`, "Current weekly contribution": `${paymentRecord.amount} per week`, "Weeks Remaining until Due Date": `${remainingWeek} weeks`,  "On Track": response};
         
 
 const info = {
@@ -149,7 +150,7 @@ const info = {
     preferredHospital: mother.selectedHospital,
     currentBalance: walletRecord.currentBalance,
     savingsGoal: mother.savingsGoalAmount,
-    savingsProgress: savingsProgress+'%',
+    savingsProgress: Math.ceil(savingsProgress)+'%',
     remainingAmountNeeded:  remainingAmount,
     daysUntilDueDate,
     preparedness
