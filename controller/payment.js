@@ -23,7 +23,6 @@ exports.initiatePayment = async (req, res, next) => {
     
     const koraKey = process.env.KORA_SK?.trim();
     if (!koraKey) {
-      console.error('KORA_SK is not configured in environment variables');
       return next({
         message: 'Payment service is not properly configured',
         statusCode: 500
@@ -39,13 +38,13 @@ exports.initiatePayment = async (req, res, next) => {
         statusCode: 404
       })
     }
+    const generateReference = () => {
+  const timestamp = Date.now();
+  const random = Math.random().toString(36).substring(2, 8);
 
-    const reference = otpGenerator.generate(10, {
-      digits: true,
-      upperCaseAlphabets: true,
-      lowerCaseAlphabets: true,
-      specialChars: true,
-    });
+  return `PAY_${timestamp}_${random}`;
+};
+
 
     const name = mother.firstName + ' ' + mother.lastName;
     const { amount } = req.body;
@@ -59,16 +58,17 @@ exports.initiatePayment = async (req, res, next) => {
 
     const payload = {
       amount:Number(amount) ,
-      customer: {
-        email: mother.email,
-        name: name
-      },
       redirect_url: "https://maternal-path-fe.vercel.app/fundsSuccess",
       currency: 'NGN',
-      reference: reference
+      reference: generateReference(),
+      customer: {
+        name: name,
+        email: mother.email,
+      },
+      notification_url:"https://maternalpath.onrender.com/api/v1/payment/webhook"
     };
 const sk = process.env.KORA_SK
-
+    console.log("payload: ",JSON.stringify(payload, null, 2));
     const { data } = await axios.post(
   "https://api.korapay.com/merchant/api/v1/charges/initialize",
   payload,
@@ -80,6 +80,7 @@ const sk = process.env.KORA_SK
     }
   }
 );
+
     
         const motherBalance = await payment.create({
       amount: amount,
@@ -88,18 +89,12 @@ const sk = process.env.KORA_SK
       motherId: id
     });
 
-    const transactions = await transactionHistory.create({
-      amount: amount,
-      date: new Date(),
-      motherId: id,
-    })
 
     res.status(200).json({
       message: "Payment initiated successfully",
       data
     })
   } catch (error) {
-
     next({
       message: error.message || 'Payment initialization failed',
       statusCode: error.response?.status || 500
@@ -170,17 +165,6 @@ console.log("Kora verify response:", JSON.stringify(data, null, 2));
 
 const paymentStatus = data?.data?.status?.toLowerCase();
 
-// if (
-//   paymentStatus === "processing" ||
-//   paymentStatus === "pending"
-// ) {
-//   paymentRecord.status = "pending";
-//   await paymentRecord.save();
-
-//   return res.status(200).json({
-//     message: "Payment is still processing",
-//   });
-// }
 
 if (
   paymentStatus === "true" ||
@@ -289,20 +273,6 @@ if (!walletRec) {
     walletRec.currentBalance = Number(walletRec.currentBalance || 0) + Number(paymentRecord.amount || 0)
     await walletRec.save();
     await paymentRecord.save();
-    for (let i = 0; i < 12; i++) {
-              const month = dayjs().month(i).format("MMMM");
-              monthlySavings[month] = 0;
-            }
-            
-            payments.forEach((payment) => {
-              const month = dayjs(payment.createdAt).format("MMMM");
-            
-              if (!monthlySavings[month]) {
-                monthlySavings[month] = 0;
-              }
-            
-              monthlySavings[month] += Number(paymentRecord.amount);
-            });
     
 } else if (event === 'charge.failed') {
     paymentRecord.status = "Failed",
