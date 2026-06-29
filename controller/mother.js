@@ -592,11 +592,11 @@ exports.updateMother = async (req, res, next) => {
     let price;
     
     if (save < delivery) {
-      price = hospital.deliveryFee
+      price = delivery
     }else if (save > delivery) {
-      price = savingsGoalAmount
+      price = save
     }else{
-      price = hospital.deliveryFee
+      price = delivery
     }
 
     const data = {
