@@ -88,19 +88,19 @@ const currentDay = mother.currentPregnancyWeek * 7;
                 attributes: { exclude: ['id', 'hospitalId', 'motherId', 'dayNumber', 'week', 'time'] }
         });
 
-        const result = notifications.map(item => ({
-        ...item.toJSON(),
-        time: dayjs(item.createdAt).fromNow(),
-        }));
+        // const result = notifications.map(item => ({
+        // ...item.toJSON(),
+        // time: dayjs(item.createdAt).fromNow(),
+        // }));
 
-        result: JSON.parse
+        // result: JSON.parse
 
 res.status(200).json({
     message: "Dashboard retrieved successfully",
     info,
     data,
     reminder: reminder || "No reminder available.",
-    theWeeksFocus: result
+    theWeeksFocus: notifications
 });
     } catch (error) {
         next({
