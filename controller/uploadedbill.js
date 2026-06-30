@@ -148,7 +148,10 @@ exports.uploadBill = async (req, res) => {
             category,
             amount,
             billingDate,
-            dueDate
+            dueDate,
+            accountNumber,
+            bankName,
+            accountName
         } = req.body;
 
       
@@ -178,7 +181,7 @@ exports.uploadBill = async (req, res) => {
         }
 
         // Required field validation (systemValidation: requiredFieldComplete)
-        const requiredFields = { referenceNumber, amount, category, billingDate, dueDate };
+        const requiredFields = { referenceNumber, amount, category, billingDate, dueDate, accountNumber, bankName, accountName };
         const missingFields = Object.keys(requiredFields).filter(
             (field) => requiredFields[field] === undefined || requiredFields[field] === null || requiredFields[field] === ''
         );
@@ -241,6 +244,9 @@ exports.uploadBill = async (req, res) => {
             systemValidation: 'fileUploadedProgress',
             billSummary: 'patienceName',
             documentUpload,
+            accountNumber,
+            bankName,
+            accountName,
             billNumber: generateBillNumber()
         });
         await bill.save();

@@ -88,6 +88,9 @@ const router = express.Router();
  *               - dueDate
  *               - documentUpload
  *               - billNumber
+ *               - accountNumber
+ *               - bankName
+ *               - accountName
  *             properties:
  *               fullName:
  *                 type: string
@@ -120,6 +123,15 @@ const router = express.Router();
  *                 type: string
  *                 format: date
  *                 example: "2026-06-30"
+ *               accountNumber:
+ *                 type: string
+ *                 example: "0123456789"
+ *               bankName:
+ *                 type: string
+ *                 example: "GTBank"
+ *               accountName:
+ *                 type: string
+ *                 example: "Ada Okafor"
  *               documentUpload:
  *                 type: string
  *                 format: binary
