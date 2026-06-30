@@ -1,5 +1,5 @@
 const express = require('express');
-const { createMother, verifyEmail, resendOTP, verifyResetOTP, resetPassword, updateMother, getMotherProfile, logout, loginMother, forgotPassword, getHospitals } = require('../controller/mother');
+const { createMother, verifyEmail, resendOTP, verifyResetOTP, resetPassword, updateMother, getMotherProfile, logout, loginMother, forgotPassword, getHospitals, verifyBillOTP } = require('../controller/mother');
 const { registerValidator, loginValidator, updateValidation } = require('../middlewares/validator');
 const passport = require('passport');
 const upload = require('../middlewares/multer');
@@ -657,6 +657,69 @@ router.get('/getHospitals', Authentication, getHospitals);
  */
 
 router.post('/logout', logout)
+
+/**
+ * @swagger
+ * /api/v1/mother/verifyOTP:
+ *   post:
+ *     summary: Verify bill payment OTP
+ *     tags: [Mother]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - otp
+ *             properties:
+ *               otp:
+ *                 type: string
+ *                 example: "123456"
+ *     responses:
+ *       200:
+ *         description: OTP verified successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: OTP verified successfully
+ *       400:
+ *         description: Invalid or expired OTP
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Invalid OTP
+ *       401:
+ *         description: Unauthorized - token not found or invalid
+ *       404:
+ *         description: Mother or bill record not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   examples:
+ *                     motherNotFound:
+ *                       value: Mother not found
+ *                     billNotFound:
+ *                       value: bill not found
+ *       500:
+ *         description: Internal server error
+ */
+
+router.post('/verifyOTP',Authentication, verifyBillOTP)
 
 /**
  * @swagger
