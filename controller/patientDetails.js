@@ -100,8 +100,8 @@ exports.getPatientDashboard = async (req, res, next) => {
         });
 
         // 3. Wallet calculations
-        const savingsGoal = Number(motherUpdate.savingsGoalAmount) || 0;
-        const currentSavings = Number(walletRecord.currentBalance) || 0;
+        const savingsGoal = Number(motherUpdate?.savingsGoalAmount) || 0;
+        const currentSavings = Number(walletRecord?.currentBalance) || 0;
         const remainingAmount = savingsGoal - currentSavings;
         const savingsProgress = savingsGoal > 0 
             ? Math.round((currentSavings / savingsGoal) * 1000) / 10 
