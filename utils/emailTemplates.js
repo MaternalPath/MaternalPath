@@ -214,3 +214,101 @@ exports.resetPasswordSuccessfulTemplate = (name)=> {
 
     `
 }
+
+exports.billTemplate = (name, amount, billNumber, category, dueDate, status, OTP)=> {
+    return `
+    html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MATERNALPATH Bill Notification</title>
+    <style>
+        @media screen and (max-width: 600px) {
+            .content { padding: 20px !important; }
+            .bill-amount { font-size: 28px !important; }
+        }
+    </style>
+</head>
+<body style="margin: 0; padding: 0; background-color: #f9fafb; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+    <center>
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f9fafb;">
+            <tr>
+                <td align="center" style="padding: 40px 10px;">
+                    <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 500px; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
+                        
+                        <!-- Header -->
+                        <tr>
+                            <td align="center" style="padding: 30px 20px 10px 20px;">
+                                <h1 style="margin: 0; color: #00d2ff; font-size: 28px; font-weight: 800; letter-spacing: -1px;">
+                                    MATERNALPATH
+                                </h1>
+                            </td>
+                        </tr>
+
+                        <!-- Main Content -->
+                        <tr>
+                            <td class="content" style="padding: 30px 40px; text-align: center; color: #1f2937;">
+                                <h2 style="margin: 0 0 16px; font-size: 22px; font-weight: 700;">
+                                    Hello, ${name}
+                                </h2>
+
+                                <p style="font-size: 16px; line-height: 1.5; margin: 0 0 24px; color: #4b5563;">
+                                    A new hospital bill has been added to your account. Please review the details below.
+                                </p>
+
+                                <!-- Bill Amount Box -->
+                                <div style="background-color: #f3f4f6; border-radius: 12px; padding: 20px; margin: 20px 0;">
+                                    <span class="bill-amount" style="font-size: 36px; font-weight: bold; color: #111827; display: block;">
+                                        ₦${amount},
+                                        ${OTP}
+                                    </span>
+                                    <span style="font-size: 14px; color: #6b7280;">
+                                        Total Bill Amount
+                                    </span>
+                                </div>
+
+                                <!-- Bill Details -->
+                                <table width="100%" style="margin-top: 20px; font-size: 14px; color: #374151;">
+                                    <tr>
+                                        <td style="padding: 8px; font-weight: bold;">Bill Number:</td>
+                                        <td style="padding: 8px;">${billNumber}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px; font-weight: bold;">Category:</td>
+                                        <td style="padding: 8px;">${category}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px; font-weight: bold;">Due Date:</td>
+                                        <td style="padding: 8px;">${dueDate}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px; font-weight: bold;">Status:</td>
+                                        <td style="padding: 8px;">${status}</td>
+                                    </tr>
+                                </table>
+
+                                <p style="font-size: 14px; color: #9ca3af; margin-top: 24px;">
+                                    Kindly ensure payment is made before the due date to avoid delays in care.
+                                </p>
+                            </td>
+                        </tr>
+
+                        <!-- Footer -->
+                        <tr>
+                            <td align="center" style="padding: 20px; background-color: #ffffff; border-top: 1px solid #f3f4f6; font-size: 12px; color: #9ca3af;">
+                                <p style="margin: 0;">
+                                    &copy; 2026 MATERNALPATH. Supporting safe motherhood through better financial planning.
+                                </p>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </center>
+</body>
+</html>
+`
+}

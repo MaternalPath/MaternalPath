@@ -1,4 +1,4 @@
-const { Mother, Hospital, wallet, MotherUpdate, payment } = require("../models");
+const { Mother, Hospital, wallet, MotherUpdate, payment, adminBillVerify } = require("../models");
 const bcrypt = require("bcrypt");
 const { sendBrevoEmail } = require("../utils/brevo");
 const sendMail = require("../utils/nodemailer");
@@ -769,6 +769,66 @@ exports.getHospitals = async (req, res, next) => {
     });
   }
 };
+
+exports.verifyBillOTP = async (req, res, next) => {
+  try {
+    const id = req.user?.id;
+    console.log("id: ", id)
+
+    if (!id) {
+      return next({
+        message: 'User not found'
+      })
+    }
+    const { otp } = req.body;
+
+    const mother = await Mother.findOne({
+      where: { id: id },
+    });
+
+    if (!mother) {
+      return next({
+        message: "Mother not found",
+        statusCode: 404,
+      });
+    }
+    
+    const adminVerify = await adminBillVerify.findOne({
+      where: {motherId: id}
+    })
+    if (!adminVerify) {
+      return next({
+        message: "bill not found",
+        statusCode: 404,
+      });
+    }
+
+    if (new Date() > mother.otpExpiresAt || adminVerify.otp !== otp) {
+      return next({
+        message: "Invalid OTP",
+        statusCode: 400,
+      });
+    }
+
+    mother.otp = null;
+    mother.otpExpiresAt = null;
+    adminVerify.otp = null;
+    adminVerify.otpExpiresAt = null;
+    adminVerify.isVerified = true;
+
+    await mother.save();
+    await adminVerify.save();
+
+    res.status(200).json({
+      message: "OTP verified successfully",
+    });
+  } catch (error) {
+    next({
+      message: error.message,
+      statusCode: 500
+    })
+  }
+}
 
 exports.logout = async (req, res, next) => {
   try {

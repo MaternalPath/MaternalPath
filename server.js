@@ -48,6 +48,7 @@ app.use('/api/v1/bill', uploadedBillRouter);
 app.use('/api/v1/payment', paymentRouter);
 app.use('/api/v1', trimesterRouter);
 app.use('/api/v1', billRouter);
+app.use('/api/v1', billRouter)
 app.use('/api/v1/hospital', hospitalDashBoardRouter);
 app.use('/api/v1/hospital', verifyPatientFundRouter);
 app.use('/api/v1', patientRouter);

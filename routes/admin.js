@@ -1,6 +1,6 @@
 const express = require('express');
 const { registerValidator } = require('../middlewares/validator');
-const { createAdmin, loginAdmin, verifyEmail, resendOTP, forgotPassword, getMothers, getMother, getHospital, getHospitals, logout, verifyResetOTP, resetPassword } = require('../controller/admin');
+const { createAdmin, loginAdmin, verifyEmail, resendOTP, forgotPassword, getMothers, getMother, getHospital, getHospitals, logout, verifyResetOTP, resetPassword, allHospitalsBill, HospitalBill, sendOTP } = require('../controller/admin');
 const { Authentication, checkAdmin } = require('../middlewares/auth');
 const router = express.Router();
 
@@ -467,6 +467,123 @@ router.get('/getHospitals', checkAdmin, getHospitals);
  */
 
 router.get('/getHospital', getHospital);
+
+/**
+ * @swagger
+ * /api/v1/admin/uploadedBill:
+ *   get:
+ *     tags:
+ *       - Admin
+ *     summary: Get all uploaded bills
+ *     description: Retrieves all uploaded hospital bills (admin only)
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: All bills fetched successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: All bills fetched succesfully
+ *                 bills:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *       401:
+ *         description: Unauthorized - token not found or invalid
+ *       403:
+ *         description: Unauthorised - admin access only
+ *       500:
+ *         description: Internal server error
+ */
+
+router.get('/uploadedBill', checkAdmin, allHospitalsBill)
+
+/**
+ * @swagger
+ * /api/v1/admin/hospitalBill/{hospitalId}:
+ *   get:
+ *     tags:
+ *       - Admin
+ *     summary: Get bills for a specific hospital
+ *     description: Retrieves all uploaded bills belonging to a specific hospital
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: hospitalId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The hospital ID
+ *     responses:
+ *       200:
+ *         description: Hospital bills fetched successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Hospitals bills fetched succesfully
+ *                 bills:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *       400:
+ *         description: Hospital ID is required
+ *       401:
+ *         description: Unauthorized - token not found or invalid
+ *       404:
+ *         description: Admin not found
+ *       500:
+ *         description: Internal server error
+ */
+
+router.get('/hospitalBill/:hospitalId', checkAdmin, HospitalBill)
+
+/**
+ * @swagger
+ * /api/v1/admin/send-otp/{motherId}:
+ *   get:
+ *     tags:
+ *       - Admin
+ *     summary: Send bill verification OTP
+ *     description: Sends a bill verification OTP to a mother via email
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: motherId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The mother ID
+ *     responses:
+ *       200:
+ *         description: OTP sent successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: OTP sent succesfully
+ *       401:
+ *         description: Unauthorized - token not found or invalid
+ *       404:
+ *         description: Admin or Mother not found
+ *       500:
+ *         description: Internal server error
+ */
+
+router.get('/send-otp/:motherId', checkAdmin, sendOTP)
 
 /**
  * @swagger
