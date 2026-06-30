@@ -547,43 +547,43 @@ router.get('/uploadedBill', checkAdmin, allHospitalsBill)
 
 router.get('/hospitalBill/:hospitalId', checkAdmin, HospitalBill)
 
-/**
- * @swagger
- * /api/v1/admin/send-otp/{motherId}:
- *   get:
- *     tags:
- *       - Admin
- *     summary: Send bill verification OTP
- *     description: Sends a bill verification OTP to a mother via email
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: motherId
- *         required: true
- *         schema:
- *           type: string
- *         description: The mother ID
- *     responses:
- *       200:
- *         description: OTP sent successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: OTP sent succesfully
- *       401:
- *         description: Unauthorized - token not found or invalid
- *       404:
- *         description: Admin or Mother not found
- *       500:
- *         description: Internal server error
- */
+// /**
+//  * @swagger
+//  * /api/v1/admin/send-otp/{motherId}:
+//  *   get:
+//  *     tags:
+//  *       - Admin
+//  *     summary: Send bill verification OTP
+//  *     description: Sends a bill verification OTP to a mother via email
+//  *     security:
+//  *       - bearerAuth: []
+//  *     parameters:
+//  *       - in: path
+//  *         name: motherId
+//  *         required: true
+//  *         schema:
+//  *           type: string
+//  *         description: The mother ID
+//  *     responses:
+//  *       200:
+//  *         description: OTP sent successfully
+//  *         content:
+//  *           application/json:
+//  *             schema:
+//  *               type: object
+//  *               properties:
+//  *                 message:
+//  *                   type: string
+//  *                   example: OTP sent succesfully
+//  *       401:
+//  *         description: Unauthorized - token not found or invalid
+//  *       404:
+//  *         description: Admin or Mother not found
+//  *       500:
+//  *         description: Internal server error
+//  */
 
-router.get('/send-otp/:motherId', checkAdmin, sendOTP)
+// router.get('/send-otp/:motherId', checkAdmin, sendOTP)
 
 /**
  * @swagger
