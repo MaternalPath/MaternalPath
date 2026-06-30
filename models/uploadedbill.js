@@ -56,7 +56,19 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       values: ['patienceName', 'category', 'date', 'totalAmount']
     },
-    documentUpload: DataTypes.STRING
+    documentUpload: DataTypes.STRING,
+    accountNumber: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    bankName: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    accountName: {
+      type: DataTypes.STRING,
+      allowNull: false
+    }
   }, {
     sequelize,
     modelName: 'uploadedBill',
