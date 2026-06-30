@@ -14,8 +14,9 @@ exports.emergencyWallet = async (req, res, next) => {
             });
         }
 
-        const history = await payment.findAll({
-            where: { motherId: id }
+        const historyRecord = await payment.findAll({
+            where: { motherId: id },
+            order: [['createdAt', 'DESC']]
         });
 
         const mother = await MotherUpdate.findOne({
@@ -38,13 +39,13 @@ if (!mother) {
 const payments = await payment.findAll({
   where: {
     motherId: req.user.id,
-    status: "Completed"
+    status: ["Completed","successful"]
   }
 });
 const paymentRecord = await payment.findOne({
   where: {
     motherId: req.user.id,
-    status: "Completed"
+    status: ["Completed","successful"]
   },
   order: [["createdAt", "DESC"]]
 });
@@ -78,7 +79,6 @@ const progress = (mother.currentPregnancyWeek * 100) / 40;
             walletRecord.currentBalance > 0
                 ? Math.ceil((walletRecord.currentBalance * 100) / mother.savingsGoalAmount)
                 : 0;
-          console.log("savings Progress:", savingsProgress);
           
         let preparedness = ""
     
@@ -122,32 +122,39 @@ const progress = (mother.currentPregnancyWeek * 100) / 40;
         const contribution = payments.amount;
         
         const savings = Math.round(mother.savingsGoalAmount / remainingWeek)
+        const currentBalance =walletRecord.currentBalance;
+        const savingsGoalAmount =mother.savingsGoalAmount;
+        const half = Number(savingsGoalAmount)/2;
+        const week = mother.currentPregnancyWeek;
+        const progres = (currentBalance / savingsGoalAmount) * 100;
+        const pregnancyProgress = (week / 40) * 100;
 
-        let response = ""
+        let response;
 
-        if (contribution > savings) {
-            response = "At your current pace, you'll exceed your goal"
-        } else if (contribution === savings) {
-            response = "At your current pace, you'll reach 100% of your goal"
-        } else {
-            response = "At your current pace, you'll not reach your goal"
-        }
+        if (progres > pregnancyProgress) {
+            response = "At your current pace, you'll exceed your goal";
+          } else if (progres === pregnancyProgress) {
+              response = "At your current pace, you'll reach 100% of your goal";
+          } else {
+              response = "At your current pace, you'll not reach your goal";
+          }
         const latestPayment = paymentRecord ? paymentRecord.amount : 0;
         const data = {"WeeklyContributionRecommendation": `Saving ${savings} weekly can help you reach your goal before delivery`, "Current weekly contribution": `${latestPayment} per week`, "Weeks Remaining until Due Date": `${remainingWeek} weeks`,  "On Track": response};
         
 
 const info = {
     trimester: mother.trimester,
-    week: mother.currentPregnancyWeek,
+    week,
     estimatedDueDate: mother.estimatedDueDate,
     preferredHospital: mother.selectedHospital,
-    currentBalance: walletRecord.currentBalance,
-    savingsGoal: mother.savingsGoalAmount,
+    currentBalance,
+    savingsGoal: savingsGoalAmount,
     savingsProgress: Math.ceil(savingsProgress)+'%',
     remainingAmountNeeded:  remainingAmount,
     daysUntilDueDate,
     preparedness
 };
+const history = historyRecord.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
 res.status(200).json({
     message: "Emergency Wallet",

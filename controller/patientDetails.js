@@ -52,7 +52,7 @@ exports.getPatientDetails = async (req, res, next) => {
 exports.getPatientDashboard = async (req, res, next) => {
     try {
         const motherId = req.user?.id;
-
+        
         if (!motherId) {
             return res.status(401).json({
                 message: "Invalid or missing user ID",
@@ -65,6 +65,7 @@ exports.getPatientDashboard = async (req, res, next) => {
             order: [['createdAt', 'DESC']]
         });
 
+        console.log("motherUpdate: ", motherUpdate);
         if (!motherUpdate) {
             return res.status(404).json({
                 message: "Patient record not found"
@@ -78,7 +79,7 @@ exports.getPatientDashboard = async (req, res, next) => {
 
         // 3. Wallet calculations
         const savingsGoal = Number(motherUpdate.savingsGoalAmount) || 0;
-        const currentSavings = Number(walletRecord?.currentBalance) || 0;
+        const currentSavings = Number(walletRecord.currentBalance) || 0;
         const remainingAmount = savingsGoal - currentSavings;
         const savingsProgress = savingsGoal > 0 
             ? Math.round((currentSavings / savingsGoal) * 1000) / 10 
