@@ -1,4 +1,4 @@
-const { Mother, Hospital, wallet, MotherUpdate, payment, adminBillVerify } = require("../models");
+const { Mother, Hospital, wallet, MotherUpdate, payment, adminBillVerify,billsAndVerification } = require("../models");
 const bcrypt = require("bcrypt");
 const { sendBrevoEmail } = require("../utils/brevo");
 const sendMail = require("../utils/nodemailer");
@@ -796,9 +796,18 @@ exports.verifyBillOTP = async (req, res, next) => {
     const adminVerify = await adminBillVerify.findOne({
       where: {motherId: id}
     })
+    const billVerify = await billsAndVerification.findOne({
+      where: {motherId: id}
+    })
     if (!adminVerify) {
       return next({
         message: "bill not found",
+        statusCode: 404,
+      });
+    }
+    if (!billVerify) {
+      return next({
+        message: "verify bill not found",
         statusCode: 404,
       });
     }
@@ -815,9 +824,12 @@ exports.verifyBillOTP = async (req, res, next) => {
     adminVerify.otp = null;
     adminVerify.otpExpiresAt = null;
     adminVerify.isVerified = true;
+    billVerify.status = "pendingReview";
+    billVerify.action = "view";
 
     await mother.save();
     await adminVerify.save();
+    await billVerify.save();
 
     res.status(200).json({
       message: "OTP verified successfully",
