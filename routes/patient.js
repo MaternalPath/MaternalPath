@@ -74,15 +74,18 @@ router.get('/patients/:motherId', Authentication, getPatientDetails);
  * @swagger
  * /api/v1/patient/dashboard/{motherId}:
  *   get:
- *     summary: Get patient's dashboard with wallet summary, pregnancy info, and recent bills
+ *     summary: Get a patient's dashboard
  *     tags: [Patients]
  *     security:
  *       - bearerAuth: []
  *     description: |
- *       Returns a patient's dashboard containing:
- *       - **wallet**: savings goal, current savings, remaining amount, savings progress percentage
- *       - **pregnancy**: pregnancy details and latest fund verification status
- *       - **recentBills**: recent uploaded bills
+ *       Returns a patient's dashboard for an authenticated hospital.
+ *       Only the hospital assigned to the mother can access this endpoint.
+ *
+ *       Response contains:
+ *       - **wallet**: savings goal, current savings, remaining balance, savings progress
+ *       - **pregnancy**: pregnancy details and verification status
+ *       - **recentBills**: latest uploaded bills
  *
  *     parameters:
  *       - in: path
@@ -90,7 +93,7 @@ router.get('/patients/:motherId', Authentication, getPatientDetails);
  *         required: true
  *         schema:
  *           type: string
- *         description: Unique mother ID
+ *         description: UUID of the mother
  *         example: 5168da15-ad51-457b-9c51-fb105185f87e
  *
  *     responses:
@@ -175,15 +178,22 @@ router.get('/patients/:motherId', Authentication, getPatientDetails);
  *                         type: string
  *                         example: finalApproval
  *
+ *       400:
+ *         description: Invalid or missing mother ID
+ *
  *       401:
- *         description: Invalid or missing user ID
+ *         description: Missing or invalid authentication token
+ *
+ *       403:
+ *         description: Unauthorized hospital access
  *
  *       404:
- *         description: Patient record not found
+ *         description: Mother or patient record not found
  *
  *       500:
  *         description: Internal server error
  */
+
 
 router.get('/patient/dashboard/:motherId', Authentication, getPatientDashboard);
 
