@@ -51,12 +51,21 @@ exports.getPatientDetails = async (req, res, next) => {
 
 exports.getPatientDashboard = async (req, res, next) => {
     try {
-        const motherId = req.user?.id;
+        const { motherId } = req.params;
         
         if (!motherId) {
-            return res.status(401).json({
+            return res.status(400).json({
                 message: "Invalid or missing user ID",
             });
+        }
+
+        const mother = await Mother.findOne({
+            where: {id: motherId}
+        })
+        if (!mother) {
+            return next({
+                message: 'Mother not found'
+            })
         }
 
         // 1. Fixed: Use motherId, not patientId. Use consistent variable name
@@ -87,7 +96,7 @@ exports.getPatientDashboard = async (req, res, next) => {
 
         // 4. Get last verification record
         const lastVerification = await verifyPatientFund.findOne({
-            where: { maternalId: motherId },
+            where: { maternalId: mother.maternalId },
             attributes: ['status', 'verifiedAt', 'notes', 'readiness'],
             order: [['createdAt', 'DESC']]
         });
@@ -114,6 +123,7 @@ exports.getPatientDashboard = async (req, res, next) => {
             remainingAmount: remainingAmount > 0 ? remainingAmount : 0,
             savingsProgress: savingsProgress + '%'
         };
+        console.log("walletSummary:", walletSummary)
 
         const pregnancySummary = {
             currentWeek: motherUpdate.currentPregnancyWeek, // fixed

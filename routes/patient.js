@@ -72,17 +72,27 @@ router.get('/patients/:motherId', Authentication, getPatientDetails);
 
 /**
  * @swagger
- * /api/v1/patient/dashboard:
+ * /api/v1/patient/dashboard/{motherId}:
  *   get:
  *     summary: Get patient's dashboard with wallet summary, pregnancy info, and recent bills
  *     tags: [Patients]
  *     security:
  *       - bearerAuth: []
  *     description: |
- *       Returns the authenticated patient's dashboard containing:
+ *       Returns a patient's dashboard containing:
  *       - **wallet**: savings goal, current savings, remaining amount, savings progress percentage
- *       - **pregnancy**: current week, expected delivery date, preferred hospital, last verification status
- *       - **recentBills**: recent bill records showing what the money from her balance was used for
+ *       - **pregnancy**: pregnancy details and latest fund verification status
+ *       - **recentBills**: recent uploaded bills
+ *
+ *     parameters:
+ *       - in: path
+ *         name: motherId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Unique mother ID
+ *         example: 5168da15-ad51-457b-9c51-fb105185f87e
+ *
  *     responses:
  *       200:
  *         description: Patient dashboard retrieved successfully
@@ -94,6 +104,7 @@ router.get('/patients/:motherId', Authentication, getPatientDetails);
  *                 message:
  *                   type: string
  *                   example: Patient dashboard retrieved successfully
+ *
  *                 wallet:
  *                   type: object
  *                   properties:
@@ -109,6 +120,7 @@ router.get('/patients/:motherId', Authentication, getPatientDetails);
  *                     savingsProgress:
  *                       type: string
  *                       example: "37.5%"
+ *
  *                 pregnancy:
  *                   type: object
  *                   properties:
@@ -117,6 +129,7 @@ router.get('/patients/:motherId', Authentication, getPatientDetails);
  *                       example: 20
  *                     expectedDelivery:
  *                       type: string
+ *                       format: date
  *                       example: "2026-12-01"
  *                     preferredHospital:
  *                       type: string
@@ -135,6 +148,7 @@ router.get('/patients/:motherId', Authentication, getPatientDetails);
  *                         readiness:
  *                           type: string
  *                           example: Moderate Preparedness
+ *
  *                 recentBills:
  *                   type: array
  *                   items:
@@ -142,10 +156,10 @@ router.get('/patients/:motherId', Authentication, getPatientDetails);
  *                     properties:
  *                       billNumber:
  *                         type: string
- *                         example: "BL-123456"
+ *                         example: BL-123456
  *                       category:
  *                         type: string
- *                         example: "Antenatal Care"
+ *                         example: Antenatal Care
  *                       amount:
  *                         type: number
  *                         example: 75000
@@ -159,14 +173,18 @@ router.get('/patients/:motherId', Authentication, getPatientDetails);
  *                         example: "2026-06-30"
  *                       status:
  *                         type: string
- *                         example: "finalApproval"
+ *                         example: finalApproval
+ *
  *       401:
- *         description: Missing or invalid authentication token
+ *         description: Invalid or missing user ID
+ *
  *       404:
- *         description: Mother record not found
+ *         description: Patient record not found
+ *
  *       500:
  *         description: Internal server error
  */
-router.get('/patient/dashboard', Authentication, getPatientDashboard);
+
+router.get('/patient/dashboard/:motherId', Authentication, getPatientDashboard);
 
 module.exports = router;
