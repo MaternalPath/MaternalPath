@@ -1,4 +1,4 @@
-const { verifyPatientFund, Mother, Hospital, MotherUpdate } = require('../models');
+const { verifyPatientFund, Mother, Hospital, MotherUpdate, wallet } = require('../models');
 const { Op } = require('sequelize');
 
 /**
@@ -64,6 +64,10 @@ exports.createVerificationRequest = async (req, res) => {
       : new Date();
     const savingsGoal = motherUpdate ? parseInt(motherUpdate.savingsGoalAmount) || 100000 : 100000;
 
+    const walletRecord = await wallet.findOne({ where: { motherId: mother.id } });
+    const currentBalance = walletRecord ? (walletRecord.currentBalance || 0) : 0;
+    const goalPercentage = savingsGoal > 0 ? Math.min(Math.round((currentBalance * 100) / savingsGoal), 100) : 0;
+
     // Create the verification request
     const verification = await verifyPatientFund.create({
       patientName: `${mother.firstName} ${mother.lastName}`,
@@ -72,9 +76,9 @@ exports.createVerificationRequest = async (req, res) => {
       hospitalName: hospital.hospitalName,
       pregnancyWeek,
       dueDate,
-      walletBalance: 0,
+      walletBalance: currentBalance,
       savingsGoal,
-      goalPercentage: 0,
+      goalPercentage: goalPercentage,
       status: 'Pending',
       readiness: 'Just Started',
       notes: notes || null
@@ -120,12 +124,47 @@ exports.getVerificationRequests = async (req, res) => {
       ]
     });
 
+    for (const record of rows) {
+      const walletRecord = await wallet.findOne({ where: { motherId: record.maternalId } });
+      const motherUpdate = await MotherUpdate.findOne({
+        where: { motherId: record.maternalId },
+        order: [['createdAt', 'DESC']]
+      });
+      
+      const currentBalance = walletRecord ? (walletRecord.currentBalance || 0) : 0;
+      const savingsGoal = motherUpdate ? (parseInt(motherUpdate.savingsGoalAmount) || 100000) : 100000;
+      const goalPercentage = savingsGoal > 0 ? Math.min(Math.round((currentBalance * 100) / savingsGoal), 100) : 0;
+      
+      if (record.walletBalance !== currentBalance || record.savingsGoal !== savingsGoal || record.goalPercentage !== goalPercentage) {
+        record.walletBalance = currentBalance;
+        record.savingsGoal = savingsGoal;
+        record.goalPercentage = goalPercentage;
+        await record.save();
+      }
+    }
+
+    const formattedRows = rows.map(record => {
+      let authorizationStatus = 'Pending';
+      if (record.status === 'Approved') {
+        authorizationStatus = 'Verified';
+      } else if (record.status === 'Rejected') {
+        authorizationStatus = 'Rejected';
+      }
+
+      return {
+        ...record.toJSON(),
+        amountRequested: record.savingsGoal,
+        authorizationStatus,
+        hospitalStatus: record.hospitalName
+      };
+    });
+
     res.status(200).json({
       message: 'Verification requests retrieved successfully',
       total: count,
       page: parseInt(page),
       totalPages: Math.ceil(count / parseInt(limit)),
-      data: rows
+      data: formattedRows
     });
   } catch (error) {
     res.status(500).json({
@@ -162,9 +201,38 @@ exports.getVerificationRequest = async (req, res) => {
       });
     }
 
+    const walletRecord = await wallet.findOne({ where: { motherId: verification.maternalId } });
+    const motherUpdate = await MotherUpdate.findOne({
+      where: { motherId: verification.maternalId },
+      order: [['createdAt', 'DESC']]
+    });
+    
+    const currentBalance = walletRecord ? (walletRecord.currentBalance || 0) : 0;
+    const savingsGoal = motherUpdate ? (parseInt(motherUpdate.savingsGoalAmount) || 100000) : 100000;
+    const goalPercentage = savingsGoal > 0 ? Math.min(Math.round((currentBalance * 100) / savingsGoal), 100) : 0;
+    
+    if (verification.walletBalance !== currentBalance || verification.savingsGoal !== savingsGoal || verification.goalPercentage !== goalPercentage) {
+      verification.walletBalance = currentBalance;
+      verification.savingsGoal = savingsGoal;
+      verification.goalPercentage = goalPercentage;
+      await verification.save();
+    }
+
+    let authorizationStatus = 'Pending';
+    if (verification.status === 'Approved') {
+      authorizationStatus = 'Verified';
+    } else if (verification.status === 'Rejected') {
+      authorizationStatus = 'Rejected';
+    }
+
     res.status(200).json({
       message: 'Verification request retrieved successfully',
-      data: verification
+      data: {
+        ...verification.toJSON(),
+        amountRequested: verification.savingsGoal,
+        authorizationStatus,
+        hospitalStatus: verification.hospitalName
+      }
     });
   } catch (error) {
     res.status(500).json({

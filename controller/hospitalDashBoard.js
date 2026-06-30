@@ -302,6 +302,12 @@ exports.searchMothers = async (req, res) => {
       }
     });
 
+    if (!mother) {
+      return res.status(404).json({
+        message: 'Mother not found'
+      });
+    }
+
     const walletRecord = await wallet.findOne({
       where: { motherId: mother.id },
       order: [['createdAt', 'DESC']]
@@ -313,17 +319,16 @@ exports.searchMothers = async (req, res) => {
       })
     }
 
-    if (!mother) {
-      return res.status(404).json({
-        message: 'Mother not found'
-      });
-    }
-
     // 2. Get latest pregnancy update
     const motherUpdate = await MotherUpdate.findOne({
       where: { motherId: mother.id },
       order: [['createdAt', 'DESC']] 
     });
+
+    // Calculate actual current wallet balance and savings goal
+    const currentBalance = walletRecord ? (walletRecord.currentBalance || 0) : 0;
+    const savingsGoal = motherUpdate ? (parseInt(motherUpdate.savingsGoalAmount) || 100000) : 100000;
+    const goalPercentage = savingsGoal > 0 ? Math.min(Math.round((currentBalance * 100) / savingsGoal), 100) : 0;
 
     // 3. Get or create verification fund
     let verificationFund = await verifyPatientFund.findOne({
@@ -340,35 +345,31 @@ exports.searchMothers = async (req, res) => {
         hospitalName: hospital ? hospital.hospitalName : '',
         pregnancyWeek: motherUpdate.currentPregnancyWeek || 0,
         dueDate: motherUpdate.estimatedDueDate ? new Date(motherUpdate.estimatedDueDate) : new Date(),
-        walletBalance: walletRecord.currentBalance || 0,
-        savingsGoal: parseInt(motherUpdate.savingsGoalAmount) || 100000,
-        goalPercentage: motherUpdate.goalPercentage || 100,
+        walletBalance: currentBalance,
+        savingsGoal: savingsGoal,
+        goalPercentage: goalPercentage,
         status: 'Pending',
         readiness: 'Just Started'
       });
+    } else if (verificationFund) {
+      // Sync verificationFund record with actual current wallet and savings goal values
+      verificationFund.walletBalance = currentBalance;
+      verificationFund.savingsGoal = savingsGoal;
+      verificationFund.goalPercentage = goalPercentage;
+      if (motherUpdate) {
+        verificationFund.pregnancyWeek = motherUpdate.currentPregnancyWeek || verificationFund.pregnancyWeek;
+        if (motherUpdate.estimatedDueDate) {
+          verificationFund.dueDate = new Date(motherUpdate.estimatedDueDate);
+        }
+      }
+      await verificationFund.save();
     }
-
-    // 4. Calculate wallet balance from payments
-    const payments = await payment.findAll({
-      where: { motherId: mother.id },
-      attributes: ['amount', 'status']
-    });
-
-    const totalPaid = payments
-      .filter(p => p.status === 'successful' || p.status === 'completed')
-      .reduce((sum, p) => sum + (parseInt(p.amount) || 0), 0);
-
-    const deliverySavingsGoal = verificationFund?.savingsGoal || (motherUpdate ? parseInt(motherUpdate.savingsGoalAmount) || 100000 : 100000);
-    const walletBalance = verificationFund?.walletBalance ?? totalPaid;
-    const readinessPercentage = deliverySavingsGoal > 0
-      ? Math.min(Math.round((walletBalance / deliverySavingsGoal) * 100), 100)
-      : 0;
 
     // 5. Determine eligibility
     let status = 'Not eligible';
-    if (readinessPercentage >= 100) {
+    if (goalPercentage >= 100) {
       status = 'Fully eligible';
-    } else if (readinessPercentage >= 50) {
+    } else if (goalPercentage >= 50) {
       status = 'Partially eligible';
     }
 
@@ -384,10 +385,10 @@ exports.searchMothers = async (req, res) => {
       patientId: mother.id,
       pregnancyStage,
       pregnancyWeek,
-      walletBalance,
-      deliverySavingsGoal,
+      walletBalance: currentBalance,
+      deliverySavingsGoal: savingsGoal,
       preferredHospital: hospitalData?.hospitalName || 'N/A',
-      readinessPercentage,
+      readinessPercentage: goalPercentage,
       status
     });
   } catch (error) {
