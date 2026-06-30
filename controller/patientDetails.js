@@ -51,6 +51,13 @@ exports.getPatientDetails = async (req, res, next) => {
 
 exports.getPatientDashboard = async (req, res, next) => {
     try {
+        const id = req.user?.id;
+
+        if (!id) {
+            return next({
+                message: 'Hospital not found'
+            })
+        }
         const { motherId } = req.params;
         
         if (!motherId) {
@@ -62,6 +69,12 @@ exports.getPatientDashboard = async (req, res, next) => {
         const mother = await Mother.findOne({
             where: {id: motherId}
         })
+        if (id !== mother.hospitalId) {
+            return next({
+                message: 'Unauthorised',
+                statusCode: 402
+            })
+        }
         if (!mother) {
             return next({
                 message: 'Mother not found'
