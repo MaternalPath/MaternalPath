@@ -570,6 +570,93 @@ exports.HospitalBill = async (req, res, next) => {
 //     }
 // }
 
+exports.payout = async (req, res, next) => {
+    try {
+        const id = req.user.id;
+
+        const user = await Admin.findOne({ where: { id } });
+
+        if (!user) {
+            return next({
+                message: "Admin not found",
+                statusCode: 404
+            });
+        }
+
+        const {hospitalId} = req.params;
+
+        if (!hospitalId) {
+            return next({
+                message: "Hospital ID is required",
+                statusCode: 400
+            });
+        }
+
+        const bill = await uploadedBill.findOne({
+            where: { hospitalId }
+        });
+
+        if (!bill) {
+            return next({
+                message: "Bill not found",
+                statusCode: 404
+            });
+        }
+
+        const hospital = await Hospital.findOne({
+            where: { id: hospitalId }
+        });
+
+        if (!hospital) {
+            return next({
+                message: "Hospital not found",
+                statusCode: 404
+            });
+        }
+
+        const generateReference = () => {
+            const timestamp = Date.now();
+            const random = Math.random().toString(36).substring(2, 8);
+            return `PAY_${timestamp}_${random}`;
+        };
+
+        const payload = {
+            reference: generateReference(),
+            destination: {
+                type: "bank_account",
+                amount: bill.amount,
+                currency: "NGN",
+                narration: "Test Transfer Payment",
+                bank_account: {
+                    bank: bill.bankName,
+                    account: bill.accountNumber
+                },
+                customer: {
+                    name: bill.accountName,
+                    email: hospital.email
+                }
+            }
+        };
+
+        // const remove = Number(bill.amount) - Number(payload.destination.amount)
+
+        // const amount = {
+        //     amount: remove };
+        // await bill.save(amount)
+
+        res.status(200).json({
+            message: "Payment sent successfully",
+            payload
+        });
+
+    } catch (error) {
+        next({
+            message: error.message,
+            statusCode: 500
+        });
+    }
+};
+
 exports.logout = async (req, res, next) => {
     try {
         const id = req.user?.id;

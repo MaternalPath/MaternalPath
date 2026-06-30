@@ -1,6 +1,6 @@
 const express = require('express');
 const { registerValidator } = require('../middlewares/validator');
-const { createAdmin, loginAdmin, verifyEmail, resendOTP, forgotPassword, getMothers, getMother, getHospital, getHospitals, logout, verifyResetOTP, resetPassword, allHospitalsBill, HospitalBill, sendOTP } = require('../controller/admin');
+const { createAdmin, loginAdmin, verifyEmail, resendOTP, forgotPassword, getMothers, getMother, getHospital, getHospitals, logout, verifyResetOTP, resetPassword, allHospitalsBill, HospitalBill, sendOTP, payout } = require('../controller/admin');
 const { Authentication, checkAdmin } = require('../middlewares/auth');
 const router = express.Router();
 
@@ -609,5 +609,115 @@ router.get('/hospitalBill/:hospitalId', checkAdmin, HospitalBill)
  */
 
 router.post('/logOut', logout)
+
+/**
+ * @swagger
+ * /api/v1/admin/initiate/{hospitalId}:
+ *   post:
+ *     tags:
+ *       - Admin
+ *     summary: Initiate hospital payout
+ *     description: |
+ *       Allows an authenticated admin to initiate a payout to a hospital
+ *       using the hospital's uploaded bill details.
+ *       
+ *       The system:
+ *       - Validates the admin
+ *       - Checks the hospital exists
+ *       - Retrieves the hospital bill
+ *       - Generates a payout reference
+ *       - Creates payout payload for transfer
+ *
+ *     security:
+ *       - bearerAuth: []
+ *
+ *     parameters:
+ *       - in: path
+ *         name: hospitalId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Unique hospital ID
+ *         example: e3c33171-1fbc-473b-8ef9-0064ce870cef
+ *
+ *     responses:
+ *       200:
+ *         description: Payment payload generated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Payment sent successfully
+ *                 payload:
+ *                   type: object
+ *                   properties:
+ *                     reference:
+ *                       type: string
+ *                       example: PAY_1751293838293_ab12cd
+ *                     destination:
+ *                       type: object
+ *                       properties:
+ *                         type:
+ *                           type: string
+ *                           example: bank_account
+ *                         amount:
+ *                           type: number
+ *                           example: 50000
+ *                         currency:
+ *                           type: string
+ *                           example: NGN
+ *                         narration:
+ *                           type: string
+ *                           example: Test Transfer Payment
+ *                         bank_account:
+ *                           type: object
+ *                           properties:
+ *                             bank:
+ *                               type: string
+ *                               example: Access Bank
+ *                             account:
+ *                               type: string
+ *                               example: 0123456789
+ *                         customer:
+ *                           type: object
+ *                           properties:
+ *                             name:
+ *                               type: string
+ *                               example: St Mary Hospital
+ *                             email:
+ *                               type: string
+ *                               example: hospital@example.com
+ *
+ *       400:
+ *         description: Hospital ID is required
+ *
+ *       401:
+ *         description: Unauthorized - Invalid or missing token
+ *
+ *       404:
+ *         description: Resource not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   examples:
+ *                     adminNotFound:
+ *                       value: Admin not found
+ *                     billNotFound:
+ *                       value: Bill not found
+ *                     hospitalNotFound:
+ *                       value: Hospital not found
+ *
+ *       500:
+ *         description: Internal server error
+ */
+
+router.post('/initiate/:hospitalId', checkAdmin, payout)
 
 module.exports = router
