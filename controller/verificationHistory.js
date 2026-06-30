@@ -1,7 +1,7 @@
-const { verifyPatientFund, Mother } = require('../models');
+const { verifyPatientFund, Mother, wallet, MotherUpdate } = require('../models');
 const { Op } = require('sequelize');
 
-const generateverificationNumber = () => {
+const generateVerificationNumber = () => {
   const randomNumber = Math.floor(1000 + Math.random() * 9000);
   return `VER-${randomNumber}`;
 };
@@ -65,6 +65,7 @@ exports.getVerificationRecords = async (req, res, next) => {
         const { count, rows } = await verifyPatientFund.findAndCountAll({
             where: whereClause,
             attributes: [
+                'maternalId',
                 'patientName',
                 'pregnancyWeek',
                 'hospitalName',
@@ -77,6 +78,25 @@ exports.getVerificationRecords = async (req, res, next) => {
             limit: Number(limit),
             offset: Number(offset)
         });
+
+        for (const record of rows) {
+            const walletRecord = await wallet.findOne({ where: { motherId: record.maternalId } });
+            const motherUpdate = await MotherUpdate.findOne({
+                where: { motherId: record.maternalId },
+                order: [['createdAt', 'DESC']]
+            });
+            
+            const currentBalance = walletRecord ? (walletRecord.currentBalance || 0) : 0;
+            const savingsGoal = motherUpdate ? (parseInt(motherUpdate.savingsGoalAmount) || 100000) : 100000;
+            const goalPercentage = savingsGoal > 0 ? Math.min(Math.round((currentBalance * 100) / savingsGoal), 100) : 0;
+            
+            if (record.walletBalance !== currentBalance) {
+                record.walletBalance = currentBalance;
+                record.savingsGoal = savingsGoal;
+                record.goalPercentage = goalPercentage;
+                await record.save();
+            }
+        }
 
         const formattedRecords = rows.map(record => ({
             verificationNumber: generateVerificationNumber(),
@@ -133,6 +153,25 @@ exports.getVerificationHistories = async (req, res) => {
             limit: Number(limit),
             offset: Number(offset)
         });
+
+        for (const record of rows) {
+            const walletRecord = await wallet.findOne({ where: { motherId: record.maternalId } });
+            const motherUpdate = await MotherUpdate.findOne({
+                where: { motherId: record.maternalId },
+                order: [['createdAt', 'DESC']]
+            });
+            
+            const currentBalance = walletRecord ? (walletRecord.currentBalance || 0) : 0;
+            const savingsGoal = motherUpdate ? (parseInt(motherUpdate.savingsGoalAmount) || 100000) : 100000;
+            const goalPercentage = savingsGoal > 0 ? Math.min(Math.round((currentBalance * 100) / savingsGoal), 100) : 0;
+            
+            if (record.walletBalance !== currentBalance || record.savingsGoal !== savingsGoal || record.goalPercentage !== goalPercentage) {
+                record.walletBalance = currentBalance;
+                record.savingsGoal = savingsGoal;
+                record.goalPercentage = goalPercentage;
+                await record.save();
+            }
+        }
 
         const formattedRecords = rows.map(record => ({
             id: record.id,
