@@ -51,12 +51,34 @@ exports.getPatientDetails = async (req, res, next) => {
 
 exports.getPatientDashboard = async (req, res, next) => {
     try {
-        const motherId = req.user?.id;
+        const id = req.user?.id;
 
+        if (!id) {
+            return next({
+                message: 'Hospital not found'
+            })
+        }
+        const { motherId } = req.params;
+        
         if (!motherId) {
-            return res.status(401).json({
+            return res.status(400).json({
                 message: "Invalid or missing user ID",
             });
+        }
+
+        const mother = await Mother.findOne({
+            where: {id: motherId}
+        })
+        if (id !== mother.hospitalId) {
+            return next({
+                message: 'Unauthorised',
+                statusCode: 402
+            })
+        }
+        if (!mother) {
+            return next({
+                message: 'Mother not found'
+            })
         }
 
         // 1. Fixed: Use motherId, not patientId. Use consistent variable name
@@ -65,6 +87,7 @@ exports.getPatientDashboard = async (req, res, next) => {
             order: [['createdAt', 'DESC']]
         });
 
+        console.log("motherUpdate: ", motherUpdate);
         if (!motherUpdate) {
             return res.status(404).json({
                 message: "Patient record not found"
@@ -77,7 +100,7 @@ exports.getPatientDashboard = async (req, res, next) => {
         });
 
         // 3. Wallet calculations
-        const savingsGoal = Number(motherUpdate.savingsGoalAmount) || 0;
+        const savingsGoal = Number(motherUpdate?.savingsGoalAmount) || 0;
         const currentSavings = Number(walletRecord?.currentBalance) || 0;
         const remainingAmount = savingsGoal - currentSavings;
         const savingsProgress = savingsGoal > 0 
@@ -86,7 +109,7 @@ exports.getPatientDashboard = async (req, res, next) => {
 
         // 4. Get last verification record
         const lastVerification = await verifyPatientFund.findOne({
-            where: { maternalId: motherId },
+            where: { maternalId: mother.maternalId },
             attributes: ['status', 'verifiedAt', 'notes', 'readiness'],
             order: [['createdAt', 'DESC']]
         });
@@ -113,6 +136,7 @@ exports.getPatientDashboard = async (req, res, next) => {
             remainingAmount: remainingAmount > 0 ? remainingAmount : 0,
             savingsProgress: savingsProgress + '%'
         };
+        console.log("walletSummary:", walletSummary)
 
         const pregnancySummary = {
             currentWeek: motherUpdate.currentPregnancyWeek, // fixed

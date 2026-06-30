@@ -275,7 +275,7 @@ exports.loginHospital = async (req, res) => {
                 hospital.lockUntil = new Date(Date.now() + 30 * 60 * 1000);
                 hospital.loginAttempts = 0;
             }
-            await user.save();
+            await hospital.save();
             return res.status(400).json({
                 message: 'Invalid password'
             });
