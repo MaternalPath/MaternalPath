@@ -501,6 +501,7 @@ exports.updateMother = async (req, res, next) => {
     }
 
     const mother = await Mother.findOne({ where: { id } });
+    const motherUpdate = await MotherUpdate.findOne({ where: { motherId: id }});
 
     if (!mother) {
       return next({
@@ -520,15 +521,16 @@ exports.updateMother = async (req, res, next) => {
         status: "successful"
       }
     });
-    const walletRecord = await wallet.findOne({
+    let walletRecord = await wallet.findOne({
             where: { motherId: id }
         });
 
         if (!walletRecord) {
-            return next({
-                statusCode: 404,
-                message: "Wallet record not found"
-            });
+          walletRecord = await wallet.create({
+            motherId: id,
+            amount: 0,
+            currentBalance: 0
+          });
         }
 
     const {
@@ -593,32 +595,30 @@ exports.updateMother = async (req, res, next) => {
     
     if (save < delivery) {
       price = delivery
-    }else if (save > delivery) {
-      price = save
     }else{
-      price = delivery
+      price = save
     }
 
     const data = {
       motherId: mother.id,
       ...(result ? { image: result.secure_url, imagePublicId: result.public_id } : {}),
 
-      estimatedDueDate: estimatedDueDate ?? MotherUpdate.estimatedDueDate,
-      trimester: trimester ?? MotherUpdate.trimester,
-      bloodType: bloodType ?? MotherUpdate.bloodType,
-      dateOfBirth: dateOfBirth ?? MotherUpdate.dateOfBirth,
-      address: address ?? MotherUpdate.address,
+      estimatedDueDate: estimatedDueDate ?? motherUpdate?.estimatedDueDate,
+      trimester: trimester ?? motherUpdate?.trimester,
+      bloodType: bloodType ?? motherUpdate?.bloodType,
+      dateOfBirth: dateOfBirth ?? motherUpdate?.dateOfBirth,
+      address: address ?? motherUpdate?.address,
       existingHealthConditions:
-        existingHealthConditions ?? MotherUpdate.existingHealthConditions,
+        existingHealthConditions ?? motherUpdate?.existingHealthConditions,
       currentPregnancyWeek:
-        currentPregnancyWeek ?? MotherUpdate.currentPregnancyWeek,
-      emergencyContactName: emergencyContactName ?? MotherUpdate.emergencyContactName,
-      emergencyContactNumber: emergencyContactNumber ?? MotherUpdate.emergencyContactNumber,
-      allergies: allergies ?? MotherUpdate.allergies,
-      savingsGoalAmount: price ?? MotherUpdate.savingsGoalAmount,
-      weeklyContribution: weeklyContribution ?? MotherUpdate.weeklyContribution,
+        currentPregnancyWeek ?? motherUpdate?.currentPregnancyWeek,
+      emergencyContactName: emergencyContactName ?? motherUpdate?.emergencyContactName,
+      emergencyContactNumber: emergencyContactNumber ?? motherUpdate?.emergencyContactNumber,
+      allergies: allergies ?? motherUpdate?.allergies,
+      savingsGoalAmount: price ?? motherUpdate?.savingsGoalAmount,
+      weeklyContribution: weeklyContribution ?? motherUpdate?.weeklyContribution,
       linkedPaymentMethod:
-        linkedPaymentMethod ?? MotherUpdate.linkedPaymentMethod,
+        linkedPaymentMethod ?? motherUpdate?.linkedPaymentMethod,
       hospitalId: selectedHospitalId,
 
       selectedHospital: hospital.hospitalName,
@@ -631,14 +631,17 @@ exports.updateMother = async (req, res, next) => {
 
     if (mother.isUpdated === false) {
       await MotherUpdate.create(data);
-      await mother.update(details);
+      await Mother.update(details, {
+        where: {
+          id: mother.id,
+        }})
     } else {
       await MotherUpdate.update(data, {
         where: {
           motherId: mother.id,
         },
       });
-      await mother.update(details, {
+      await Mother.update(details, {
         where: {
           id: mother.id,
         },
