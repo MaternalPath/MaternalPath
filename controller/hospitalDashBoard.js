@@ -1,4 +1,4 @@
-const { verifyPatientFund, Mother, Hospital, payment, MotherUpdate, sequelize } = require('../models');
+const { verifyPatientFund, Mother, Hospital, payment, MotherUpdate, sequelize, wallet } = require('../models');
 const { Op } = require('sequelize');
 
 
@@ -302,6 +302,17 @@ exports.searchMothers = async (req, res) => {
       }
     });
 
+    const walletRecord = await wallet.findOne({
+      where: { motherId: mother.id },
+      order: [['createdAt', 'DESC']]
+    });
+
+    if(!walletRecord) {
+      return res.status(404).json({
+        message: 'wallet not found'
+      })
+    }
+
     if (!mother) {
       return res.status(404).json({
         message: 'Mother not found'
@@ -329,9 +340,9 @@ exports.searchMothers = async (req, res) => {
         hospitalName: hospital ? hospital.hospitalName : '',
         pregnancyWeek: motherUpdate.currentPregnancyWeek || 0,
         dueDate: motherUpdate.estimatedDueDate ? new Date(motherUpdate.estimatedDueDate) : new Date(),
-        walletBalance: 0,
+        walletBalance: walletRecord.currentBalance || 0,
         savingsGoal: parseInt(motherUpdate.savingsGoalAmount) || 100000,
-        goalPercentage: 0,
+        goalPercentage: motherUpdate.goalPercentage || 100,
         status: 'Pending',
         readiness: 'Just Started'
       });

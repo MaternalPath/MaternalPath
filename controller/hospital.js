@@ -148,10 +148,9 @@ exports.createHospital = async (req, res) => {
         const data = {
             hospitalName: hospital.hospitalName,
             email: hospital.email,
-            phoneNumber: hospital.phoneNumber,
-            // otp: hospital.OTP
+            phoneNumber: hospital.phoneNumber
         }
-        // console.log(OTP)
+      
         res.status(201).json({
             message: 'Hospital created successfully. Please check your email for OTP',
             data
